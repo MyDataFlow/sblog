@@ -1,5 +1,5 @@
 module Models.DB (
-
+    createPool
 )where
 
 import Control.Applicative
@@ -18,7 +18,7 @@ import System.Random(randomRIO)
 
 type PoolT = Pool Connection
 
-createPool :: DBConf -> IO PoolT
+createPool :: APPConf -> IO PoolT
 createPool cfg = do
         db <- createPool (connect connInfo) close 1 30 10
         return db
