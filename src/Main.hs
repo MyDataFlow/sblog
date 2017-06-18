@@ -9,5 +9,6 @@ main = do
     hSetBuffering stdout LineBuffering
     hSetBuffering stdin  LineBuffering
     hSetBuffering stderr NoBuffering
-    readOptions
+    conf <- readOptions
+    putStrLn $ show conf
     return ()
