@@ -9,16 +9,22 @@ where
 import Control.Monad
 import System.IO (BufferMode (..),hSetBuffering,stderr,stdout,stdin)
 
-import Config (readOptions)
+
+import Web.Scotty as S
+
+import Config 
 import qualified Models.DB as DB
+import qualified Views.TagsView as TagsView
 
 main :: IO ()
 main = do
-    --hSetBuffering stdout LineBuffering
-    --hSetBuffering stdin  LineBuffering
-    --hSetBuffering stderr NoBuffering
+    hSetBuffering stdout LineBuffering
+    hSetBuffering stdin  LineBuffering
+    hSetBuffering stderr NoBuffering
     conf <- readOptions
     db <- DB.createConnections conf
     tags <- DB.fetchTags db
-    forM_ tags $ putStrLn  
+    S.scotty (port conf) $ do
+        get "/" $ do
+            S.html (TagsView.render tags)
     return ()
