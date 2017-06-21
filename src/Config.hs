@@ -35,25 +35,25 @@ pathParser =
 
 readOptions :: IO AppConf
 readOptions = do
-        cfgPath <- execParser opts
-        putStrLn $  show cfgPath
-        conf <- catch
-            (C.readConfig =<< C.load [C.Required cfgPath])
-            configNotfoundHint
-        let (mAppConf, errs) = flip C.runParserA conf $ 
-                AppConf <$> C.key "port" 
-                <*> C.key "dbHost"
-                <*> C.key "dbPort"
-                <*> C.key "dbUser"
-                <*> C.key "dbPassword"
-                <*> C.key "dbDatabase"
+    cfgPath <- execParser opts
+    putStrLn $  show cfgPath
+    conf <- catch
+        (C.readConfig =<< C.load [C.Required cfgPath])
+        configNotfoundHint
+    let (mAppConf, errs) = flip C.runParserA conf $ 
+            AppConf <$> C.key "port" 
+            <*> C.key "dbHost"
+            <*> C.key "dbPort"
+            <*> C.key "dbUser"
+            <*> C.key "dbPassword"
+            <*> C.key "dbDatabase"
                 
-        case mAppConf of
-            Nothing -> do
-                forM_ errs $ hPrint stderr
-                exitFailure
-            Just appConf ->
-                return appConf
+    case mAppConf of
+        Nothing -> do
+            forM_ errs $ hPrint stderr
+            exitFailure
+        Just appConf ->
+            return appConf
     where
         opts = info (helper <*> pathParser)
             ( fullDesc

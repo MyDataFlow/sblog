@@ -18,7 +18,8 @@ cabal-version:       >=1.10
 executable sblog
   main-is:             Main.hs
   ghc-options:         -O3 -threaded -rtsopts "-with-rtsopts=-N8 -A32m"
-  -- other-modules:       
+  other-modules:       Models.DB
+                      ,Config
   other-extensions:    OverloadedStrings, DeriveGeneric
   build-depends:       base >=4.8 && <4.9
                       ,bytestring >=0.10 && <0.11
@@ -30,7 +31,7 @@ executable sblog
                       ,wai-middleware-static >=0.8 && <0.9
                       ,wai-extra >=3.0 && <3.1
                       ,resource-pool >=0.2.3.2 && <0.3
-                      ,postgresql-simple >=0.5 && <0.6 
+                      ,postgresql-simple >= 0.5 && <0.6 
                       ,blaze-html >=0.8.0.2 && <0.9
                       ,optparse-applicative <= 0.14.0.0
                       ,configurator-ng == 0.0.0.1

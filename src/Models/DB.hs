@@ -1,9 +1,15 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Models.DB (
-    createPool
+    createConnections,
+    fetchTags
 )where
 
 import Control.Applicative
-import Control.Monad(when)
+import Control.Monad
+
 import Data.Char(isNumber)
 import Data.List(sortBy)
 import Data.Maybe
@@ -14,12 +20,17 @@ import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromField
 import Database.PostgreSQL.Simple.ToField
 import GHC.Int
-import System.Random(randomRIO)
+import Config
 
 type PoolT = Pool Connection
 
-createPool :: APPConf -> IO PoolT
-createPool cfg = do
+newtype Tag = Tag String deriving (Show)
+
+deriving instance FromField Tag
+deriving instance ToField Tag
+
+createConnections :: AppConf -> IO PoolT
+createConnections cfg = do
         db <- createPool (connect connInfo) close 1 30 10
         return db
     where
@@ -30,3 +41,10 @@ createPool cfg = do
             ,connectPassword = dbPassword cfg
             ,connectDatabase = dbDatabase cfg
         }
+
+fetchTags :: PoolT -> IO [String]
+fetchTags p = withResource p $ \c -> do
+        let q = "SELECT name FROM tags" :: Query
+        rs  <- query_ c q
+        let tags = map fromOnly rs
+        return tags
