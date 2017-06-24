@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Views.TagsView
+module Views.Layout
 (
   render
 )
@@ -16,9 +16,14 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Text
 
-render :: [String] -> Html
-render tags = do
-  H.ul $ do
-    mapM_ tag tags
+renderInner :: [Html] -> Html
+renderInner inner = do
+  H.html $ do
+    H.body $ do
+      mapM_ mapInner inner
   where
-    tag t = H.li $ H.toHtml t
+    mapInner i = i
+
+render :: [Html] -> Text
+render inner = do
+  (renderHtml . renderInner) inner

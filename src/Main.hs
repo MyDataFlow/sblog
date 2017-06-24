@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main 
+module Main
 (
     main
 )
@@ -12,9 +12,10 @@ import System.IO (BufferMode (..),hSetBuffering,stderr,stdout,stdin)
 
 import Web.Scotty as S
 
-import Config 
+import Config
 import qualified Models.DB as DB
 import qualified Views.TagsView as TagsView
+import qualified Views.Layout as Layout
 
 main :: IO ()
 main = do
@@ -26,5 +27,6 @@ main = do
     tags <- DB.fetchTags db
     S.scotty (port conf) $ do
         get "/" $ do
-            S.html (TagsView.render tags)
+            let tagsView = TagsView.render tags
+            S.html (Layout.render [tagsView])
     return ()
