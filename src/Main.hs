@@ -31,5 +31,5 @@ main = do
         get "/" $ do
             let tagsView = TagsView.render tags
             let articlesView = ArticlesView.render articles
-            S.html (Layout.render [articlesView,tagsView])
+            S.html (Layout.render tagsView articlesView)
     return ()

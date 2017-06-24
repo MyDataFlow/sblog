@@ -3,7 +3,6 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Models.DB(
-  Article(..),
   createConnections,
   fetchTags,
   fetchArticles
@@ -24,14 +23,9 @@ import Database.PostgreSQL.Simple.ToField
 import GHC.Int
 import Config
 
-type PoolT = Pool Connection
+import Models.Tables
 
-data Article = Article {
-  aid :: Int
-  ,title :: String
-  ,summary :: String
-  ,tags :: [String]
-} deriving (Show,Eq)
+type PoolT = Pool Connection
 
 createConnections :: AppConf -> IO PoolT
 createConnections cfg = do
@@ -46,12 +40,16 @@ createConnections cfg = do
             ,connectDatabase = dbDatabase cfg
         }
 
-fetchTags :: PoolT -> IO [String]
+fetchTags :: PoolT -> IO [Tag]
 fetchTags p = withResource p $ \c -> do
-  let q = "SELECT name FROM tags" :: Query
+  let digest (tid,name,count) = do
+        return $ Tag tid name count
+  let q = "SELECT t.id,t.name,count(tg.tag_id) c \
+  \ FROM tags as t, taggings as tg \
+  \ WHERE tg.tag_id = t.id group by t.id \
+  \ ORDER BY c DESC" :: Query
   rs  <- query_ c q
-  let tags = map fromOnly rs
-  return tags
+  mapM digest rs
 
 fetchArticleTags :: Connection -> Int -> IO [String]
 fetchArticleTags c aid = do

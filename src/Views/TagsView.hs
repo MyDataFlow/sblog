@@ -17,15 +17,19 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Text
 
-render :: [String] -> Html
+import qualified Models.Tables as M
+
+render :: [M.Tag] -> Html
 render tags =
   H.div ! A.class_ "four wide column" $ do
-    H.div ! A.class_ "ui list" $ do
+    H.div ! A.class_ "ui piled segments" $ do
       mapM_ tag tags
   where
     tag t =
       let
-        url = "/tags/" ++ t :: String
+        url = "/tags/" ++ (show $ M.tid t)
         l =  A.href $ fromString url
       in
-        H.a ! A.class_ "item" ! l $ H.toHtml t
+        H.div ! A.class_ "ui segment" $ do
+          H.a ! l $ H.toHtml $ M.name t
+          H.div ! A.class_ "ui right floated red circular label" $ H.toHtml $ show $ M.count t

@@ -3,13 +3,13 @@
 
 name:                sblog
 version:             0.1.0.0
--- synopsis:            
--- description:         
+-- synopsis:
+-- description:
 license:             BSD3
 license-file:        LICENSE
 author:              David.Gao
 maintainer:          david.alpha.fox@gmail.com
--- copyright:           
+-- copyright:
 category:            Web
 build-type:          Simple
 extra-source-files:  README.md
@@ -31,9 +31,10 @@ executable sblog
                       ,wai-middleware-static >=0.8 && <0.9
                       ,wai-extra >=3.0 && <3.1
                       ,resource-pool >=0.2.3.2 && <0.3
-                      ,postgresql-simple >= 0.5 && <0.6 
+                      ,postgresql-simple >= 0.5 && <0.6
                       ,blaze-html >=0.8.0.2 && <0.9
                       ,optparse-applicative <= 0.14.0.0
                       ,configurator-ng == 0.0.0.1
+                      ,markdown <= 0.1.16
   hs-source-dirs:      src
   default-language:    Haskell2010

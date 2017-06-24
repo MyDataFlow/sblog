@@ -41,17 +41,20 @@ renderMeta =
       ! A.content "width=device-width, initial-scale=1.0, maximum-scale=1.0"
   ]
 
-renderInner :: [Html] -> Html
-renderInner inner =
+renderInner :: Html -> Html -> Html
+renderInner tags articles =
   H.html $ do
     sequence_ renderMeta
     H.head $ do
-      cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css"
+      cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
     H.body $ do
-      H.div ! A.class_ "ui grid container" $ do
-        sequence_ inner
-      jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"
+      H.div ! A.class_ "ui container" $ do
+        H.div ! A.class_ "ui grid" $ do
+          articles
+          tags
+      jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
+      jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
 
-render :: [Html] -> Text
-render inner = 
-  (renderHtml . renderInner) inner
+render :: Html -> Html -> Text
+render tags articles =
+  renderHtml $ renderInner tags articles
