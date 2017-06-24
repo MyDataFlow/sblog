@@ -8,6 +8,7 @@ module Views.TagsView
 where
 
 import Data.Text.Lazy(Text)
+import Data.String (fromString)
 
 import Text.Blaze.Html5
 import Text.Blaze.Html5.Attributes
@@ -17,8 +18,14 @@ import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Text
 
 render :: [String] -> Html
-render tags = do
-  H.ul ! A.class_ "ui list" $ do
-    mapM_ tag tags
+render tags =
+  H.div ! A.class_ "four wide column" $ do
+    H.div ! A.class_ "ui list" $ do
+      mapM_ tag tags
   where
-    tag t = H.li $ H.toHtml t
+    tag t =
+      let
+        url = "/tags/" ++ t :: String
+        l =  A.href $ fromString url
+      in
+        H.a ! A.class_ "item" ! l $ H.toHtml t

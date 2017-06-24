@@ -2,9 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module Models.DB (
-    createConnections,
-    fetchTags
+module Models.DB(
+  Article(..),
+  createConnections,
+  fetchTags,
+  fetchArticles
 )where
 
 import Control.Applicative
@@ -24,10 +26,12 @@ import Config
 
 type PoolT = Pool Connection
 
-newtype Tag = Tag String deriving (Show)
-
-deriving instance FromField Tag
-deriving instance ToField Tag
+data Article = Article {
+  aid :: Int
+  ,title :: String
+  ,summary :: String
+  ,tags :: [String]
+} deriving (Show,Eq)
 
 createConnections :: AppConf -> IO PoolT
 createConnections cfg = do
@@ -44,7 +48,22 @@ createConnections cfg = do
 
 fetchTags :: PoolT -> IO [String]
 fetchTags p = withResource p $ \c -> do
-        let q = "SELECT name FROM tags" :: Query
-        rs  <- query_ c q
-        let tags = map fromOnly rs
-        return tags
+  let q = "SELECT name FROM tags" :: Query
+  rs  <- query_ c q
+  let tags = map fromOnly rs
+  return tags
+
+fetchArticleTags :: Connection -> Int -> IO [String]
+fetchArticleTags c aid = do
+  rs <- query c "SELECT t.name FROM tags as t, taggings as tg \
+  \ WHERE tg.bookmark_id = ? and t.id = tg.tag_id" (Only aid)
+  return $ map fromOnly rs
+
+fetchArticles :: PoolT -> IO [Article]
+fetchArticles p = withResource p $ \c -> do
+  let digest (aid,title,summary) = do
+        tgs <- fetchArticleTags c aid
+        return $ Article aid title summary tgs
+  let q = "SELECT id,title,summary FROM bookmarks where id > 251" :: Query
+  rs <- query_ c q
+  mapM digest rs

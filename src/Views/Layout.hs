@@ -42,16 +42,16 @@ renderMeta =
   ]
 
 renderInner :: [Html] -> Html
-renderInner inner = do
+renderInner inner =
   H.html $ do
     sequence_ renderMeta
     H.head $ do
       cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css"
     H.body $ do
-      H.div ! A.class_ "ui container" $ do
+      H.div ! A.class_ "ui grid container" $ do
         sequence_ inner
       jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"
 
 render :: [Html] -> Text
-render inner = do
+render inner = 
   (renderHtml . renderInner) inner

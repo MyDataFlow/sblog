@@ -15,6 +15,7 @@ import Web.Scotty as S
 import Config
 import qualified Models.DB as DB
 import qualified Views.TagsView as TagsView
+import qualified Views.ArticlesView as ArticlesView
 import qualified Views.Layout as Layout
 
 main :: IO ()
@@ -25,8 +26,10 @@ main = do
     conf <- readOptions
     db <- DB.createConnections conf
     tags <- DB.fetchTags db
+    articles <- DB.fetchArticles db
     S.scotty (port conf) $ do
         get "/" $ do
             let tagsView = TagsView.render tags
-            S.html (Layout.render [tagsView])
+            let articlesView = ArticlesView.render articles
+            S.html (Layout.render [articlesView,tagsView])
     return ()
