@@ -31,16 +31,26 @@ jsLink ref =
   in
     H.script ! A.type_ "text/javascript" ! l $ ""
 
+renderMeta :: [Html]
+renderMeta =
+  [
+    H.meta ! A.charset "utf-8",
+    H.meta ! A.httpEquiv "X-UA-Compatible"
+      ! A.content "IE=edge,chrome=1",
+    H.meta ! A.name "viewport"
+      ! A.content "width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  ]
+
 renderInner :: [Html] -> Html
 renderInner inner = do
   H.html $ do
+    sequence_ renderMeta
     H.head $ do
       cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.css"
     H.body $ do
-      mapM_ mapInner inner
+      H.div ! A.class_ "ui container" $ do
+        sequence_ inner
       jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.4/semantic.min.js"
-  where
-    mapInner i = i
 
 render :: [Html] -> Text
 render inner = do

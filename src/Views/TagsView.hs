@@ -18,7 +18,7 @@ import Text.Blaze.Html.Renderer.Text
 
 render :: [String] -> Html
 render tags = do
-  H.ul $ do
+  H.ul ! A.class_ "ui list" $ do
     mapM_ tag tags
   where
     tag t = H.li $ H.toHtml t
