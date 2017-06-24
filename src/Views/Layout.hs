@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Views.Layout(
-  renderMain
+  render
 )where
 
 import Data.Text.Lazy(Text)
@@ -41,20 +41,22 @@ renderHeader title meta =
     H.title $ H.toHtml title
     cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
 
-renderMainInner :: H.Html -> H.Html -> H.Html
-renderMainInner tags articles =
+renderInner :: String -> [H.Html] -> H.Html -> H.Html -> H.Html
+renderInner title meta sidePart mainPart =
   H.html $ do
-    renderHeader "TTalk即时通信" $ defaultMeta
+    renderHeader title meta
     H.body $ do
       H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
           H.div ! A.class_ "ten wide computer eleven wide tablet sixteen wide mobile column" $ do
-            articles
+            mainPart
           H.div ! A.class_ "four wide computer five wide tablet sixteen wide mobile column" $ do
-            tags
+            sidePart
       jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
 
-renderMain :: H.Html -> H.Html -> Text
-renderMain tags articles =
-  renderHtml $ renderMainInner tags articles
+render :: String -> [H.Html] -> H.Html -> H.Html -> Text
+render title meta sidePart mainPart =
+  renderHtml $ renderInner title combineMeta sidePart mainPart
+  where
+    combineMeta = defaultMeta ++ meta
