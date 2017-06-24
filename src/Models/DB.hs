@@ -51,11 +51,15 @@ fetchTags p = withResource p $ \c -> do
   rs  <- query_ c q
   mapM digest rs
 
-fetchArticleTags :: Connection -> Int -> IO [String]
+fetchArticleTags :: Connection -> Int -> IO [Tag]
 fetchArticleTags c aid = do
-  rs <- query c "SELECT t.name FROM tags as t, taggings as tg \
+  rs <- query c "SELECT t.id,t.name FROM tags as t, taggings as tg \
   \ WHERE tg.bookmark_id = ? and t.id = tg.tag_id" (Only aid)
-  return $ map fromOnly rs
+
+  mapM digest rs
+  where
+    digest (tid,name) = do
+      return $ Tag tid name 1
 
 fetchArticles :: PoolT -> IO [Article]
 fetchArticles p = withResource p $ \c -> do

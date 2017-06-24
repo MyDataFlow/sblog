@@ -5,15 +5,15 @@ module Models.Tables(
   Tag(..)
 )where
 
-data Article = Article {
-  aid :: Int
-  ,title :: String
-  ,summary :: String
-  ,tags :: [String]
-} deriving (Show,Eq)
-
 data Tag = Tag {
   tid :: Int
   ,name :: String
   ,count :: Int
-}
+} deriving (Show,Eq)
+
+data Article = Article {
+  aid :: Int
+  ,title :: String
+  ,summary :: String
+  ,tags :: [Tag]
+} deriving (Show,Eq)

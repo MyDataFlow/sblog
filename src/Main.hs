@@ -29,7 +29,7 @@ main = do
     articles <- DB.fetchArticles db
     S.scotty (port conf) $ do
         get "/" $ do
-            let tagsView = TagsView.render tags
+            let tagsView = TagsView.renderMain tags
             let articlesView = ArticlesView.render articles
-            S.html (Layout.render tagsView articlesView)
+            S.html (Layout.renderMain tagsView articlesView)
     return ()

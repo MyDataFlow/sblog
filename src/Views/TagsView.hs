@@ -1,29 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Views.TagsView
-(
-  render
-)
-where
+module Views.TagsView(
+  renderMain
+)where
 
 import Data.Text.Lazy(Text)
 import Data.String (fromString)
 
-import Text.Blaze.Html5
-import Text.Blaze.Html5.Attributes
-import qualified Web.Scotty as S
+import Text.Blaze.Html5((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Text
 
 import qualified Models.Tables as M
 
-render :: [M.Tag] -> Html
-render tags =
-  H.div ! A.class_ "four wide column" $ do
-    H.div ! A.class_ "ui piled segments" $ do
-      mapM_ tag tags
+renderMain :: [M.Tag] -> H.Html
+renderMain tags =
+  H.div ! A.class_ "ui segments" $ do
+    mapM_ tag tags
   where
     tag t =
       let
