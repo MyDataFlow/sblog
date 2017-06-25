@@ -3,6 +3,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Models.DB(
+  PoolT,
   createConnections,
   fetchTags,
   fetchArticles
@@ -61,11 +62,12 @@ fetchArticleTags c aid = do
     digest (tid,name) = do
       return $ Tag tid name 1
 
-fetchArticles :: PoolT -> IO [Article]
-fetchArticles p = withResource p $ \c -> do
+fetchArticles :: PoolT -> Int -> Int -> IO [Article]
+fetchArticles p page count = withResource p $ \c -> do
+  let offset = (page - 1) * count
   let digest (aid,title,summary) = do
         tgs <- fetchArticleTags c aid
         return $ Article aid title summary tgs
-  let q = "SELECT id,title,summary FROM bookmarks where id > 251" :: Query
-  rs <- query_ c q
+  rs <- query c "SELECT id,title,summary \
+  \ FROM bookmarks OFFSET ? LIMIT ?" (offset,count)
   mapM digest rs

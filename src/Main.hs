@@ -14,9 +14,7 @@ import Web.Scotty as S
 
 import Config
 import qualified Models.DB as DB
-import qualified Views.TagsView as TagsView
-import qualified Views.ArticlesView as ArticlesView
-import qualified Views.Layout as Layout
+import qualified Routing as R
 
 main :: IO ()
 main = do
@@ -25,11 +23,5 @@ main = do
     hSetBuffering stderr NoBuffering
     conf <- readOptions
     db <- DB.createConnections conf
-    tags <- DB.fetchTags db
-    articles <- DB.fetchArticles db
-    S.scotty (port conf) $ do
-        get "/" $ do
-            let tagsView = TagsView.renderMain tags
-            let articlesView = ArticlesView.render articles
-            S.html (Layout.render "TTalk即时通信" [] tagsView articlesView)
+    S.scotty (port conf) $ R.routing db
     return ()

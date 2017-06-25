@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Views.TagsView(
-  renderMain
+module Views.Tags(
+  render
 )where
 
 import Data.Text.Lazy(Text)
@@ -15,8 +15,8 @@ import Text.Blaze.Html.Renderer.Text
 
 import qualified Models.Tables as M
 
-renderMain :: [M.Tag] -> H.Html
-renderMain tags =
+render :: [M.Tag] -> H.Html
+render tags =
   H.div ! A.class_ "ui segments" $ do
     mapM_ tag tags
   where

@@ -2,17 +2,30 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE CPP #-}
 
-module Antiblog.Routing where
+module Routing(
+  routing
+)where
 
-#if __GLASGOW_HASKELL__ < 710
-import Control.Applicative hiding (empty)
-#endif
+import Data.Text.Lazy(Text)
 import Control.Monad.IO.Class(liftIO)
-import Data.Aeson hiding (json,Number)
-import Data.Aeson.Types hiding (Number)
-import qualified Data.ByteString.Lazy.Char8 as C
-import Data.List(isSuffixOf)
-import qualified Data.Text.Lazy as T
-import Data.String(IsString)
-import Network.HTTP.Types.Status(forbidden403, notFound404)
-import Web.Scotty hiding (body)
+
+import Web.Scotty as S
+import Models.DB as DB
+
+import qualified Views.Tags as VT
+import qualified Views.Articles as VA
+import qualified Views.Layout as VL
+
+indexPage :: DB.PoolT -> IO Text
+indexPage db =  do
+  t <- tags
+  a <- articles
+  return $ VL.render "TTalk即时通信" [] t a
+  where
+    tags = DB.fetchTags db >>= return . VT.render
+    articles = DB.fetchArticles db 1 20 >>= return . VA.render
+
+
+routing db = do
+  get "/" $ do
+    liftIO ( indexPage db ) >>= S.html
