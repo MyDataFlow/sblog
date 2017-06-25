@@ -57,9 +57,5 @@ routing db = do
     let page = read refPage
     let tagID = read ref
     liftIO (tagPage db (toUrl $ "/tags/" ++ (show tagID)) tagID page) >>= S.html
-  get "/tags/:id" $ do
-      ref <- param "id"
-      let tagID = read ref
-      liftIO (tagPage db (toUrl $ "/tags/" ++ (show tagID)) tagID 1) >>= S.html
   where
     toUrl u = fromJust $ parseRelativeReference u
