@@ -8,6 +8,9 @@ module Routing(
 
 import Data.Text.Lazy(Text)
 import Control.Monad.IO.Class(liftIO)
+import Control.Monad.Trans.Class(lift)
+import Control.Exception
+
 import Data.String(fromString)
 import Data.Maybe
 
@@ -45,14 +48,12 @@ tagPage db base tagID page = do
       >>= \x -> return $ VA.renderPagination base page 10 $ (head x)
 routing db = do
   get "/" $ do
-    ref <- param "page" `rescue` (const next)
+    ref <- rescue (param "page")  (\e -> return "1")
     let page = read ref
     liftIO ( indexPage db (toUrl "/")  page) >>= S.html
-  get "/" $ do
-    liftIO ( indexPage db  (toUrl "/")  1) >>= S.html
   get "/tags/:id" $ do
     ref <- param "id"
-    refPage <- param "page" `rescue` (const next)
+    refPage <- param "page" `rescue` (\e -> return "1")
     let page = read refPage
     let tagID = read ref
     liftIO (tagPage db (toUrl $ "/tags/" ++ (show tagID)) tagID page) >>= S.html
