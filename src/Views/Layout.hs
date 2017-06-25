@@ -41,7 +41,7 @@ renderHeader title meta =
     H.title $ H.toHtml title
     cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
 
-renderInner :: String -> [H.Html] -> H.Html -> H.Html -> H.Html
+renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html
 renderInner title meta sidePart mainPart =
   H.html $ do
     renderHeader title meta
@@ -49,13 +49,13 @@ renderInner title meta sidePart mainPart =
       H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
           H.div ! A.class_ "ten wide computer eleven wide tablet sixteen wide mobile column" $ do
-            mainPart
+            sequence_ mainPart
           H.div ! A.class_ "four wide computer five wide tablet sixteen wide mobile column" $ do
-            sidePart
+            sequence_ sidePart
       jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
 
-render :: String -> [H.Html] -> H.Html -> H.Html -> Text
+render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> Text
 render title meta sidePart mainPart =
   renderHtml $ renderInner title combineMeta sidePart mainPart
   where

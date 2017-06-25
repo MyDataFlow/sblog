@@ -15,16 +15,17 @@ import Text.Blaze.Html.Renderer.Text
 
 import qualified Models.Tables as M
 
-render :: [M.Tag] -> H.Html
-render tags =
-  H.div ! A.class_ "ui segments" $ do
+render :: [M.Tag] -> Int -> H.Html
+render tags active =
+  H.div ! A.class_ "ui vertical menu" $ do
     mapM_ tag tags
   where
     tag t =
       let
         url = "/tags/" ++ (show $ M.tid t)
         l =  A.href $ fromString url
+        c = if active == M.tid t then "active teal item" else "item"
       in
-        H.div ! A.class_ "ui segment" $ do
-          H.a ! l $ H.toHtml $ M.name t
-          H.div ! A.class_ "ui right floated red circular label" $ H.toHtml $ show $ M.count t
+        H.a ! A.class_ c ! l $ do
+          H.toHtml $ M.name t
+          H.div ! A.class_ "ui label" $ H.toHtml $ show $ M.count t

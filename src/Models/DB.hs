@@ -3,10 +3,13 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Models.DB(
-  PoolT,
-  createConnections,
-  fetchTags,
-  fetchArticles
+  PoolT
+  ,createConnections
+  ,fetchTags
+  ,fetchArticles
+  ,fetchArticlesCount
+  ,fetchTagArticles
+  ,fetchTagArticlesCount
 )where
 
 import Control.Applicative
@@ -55,7 +58,7 @@ fetchTags p = withResource p $ \c -> do
 fetchArticleTags :: Connection -> Int -> IO [Tag]
 fetchArticleTags c aid = do
   rs <- query c "SELECT t.id,t.name FROM tags as t, taggings as tg \
-  \ WHERE tg.bookmark_id = ? and t.id = tg.tag_id" (Only aid)
+  \ WHERE tg.bookmark_id = ? AND t.id = tg.tag_id" (Only aid)
 
   mapM digest rs
   where
@@ -66,8 +69,33 @@ fetchArticles :: PoolT -> Int -> Int -> IO [Article]
 fetchArticles p page count = withResource p $ \c -> do
   let offset = (page - 1) * count
   let digest (aid,title,summary) = do
-        tgs <- fetchArticleTags c aid
-        return $ Article aid title summary tgs
+        tags <- fetchArticleTags c aid
+        return $ Article aid title summary tags
   rs <- query c "SELECT id,title,summary \
   \ FROM bookmarks OFFSET ? LIMIT ?" (offset,count)
   mapM digest rs
+
+fetchArticlesCount :: PoolT -> IO [Int]
+fetchArticlesCount p =
+  withResource p $ \c -> do
+    rs <- query_ c "SELECT count(id) FROM bookmarks"
+    return $ map fromOnly rs
+
+fetchTagArticles :: PoolT -> Int -> Int -> Int -> IO [Article]
+fetchTagArticles p tagID page count =
+  withResource p $ \c -> do
+    let offset = (page - 1) * count
+    let digest (aid,title,summary) = do
+          tags <- fetchArticleTags c aid
+          return $ Article aid title summary tags
+    rs <- query c "SELECT b.id,b.title,b.summary FROM \
+    \ taggings as tg , bookmarks as b where tg.tag_id = ? \
+    \ AND b.id = tg.bookmark_id OFFSET ? LIMIT ?" (tagID,page,count)
+    mapM digest rs
+
+fetchTagArticlesCount :: PoolT -> Int -> IO [Int]
+fetchTagArticlesCount p tagID =
+  withResource p $ \c -> do
+    rs <- query c "SELECT count(bookmark_id) FROM \
+    \ taggings WHERE taggings.tag_id = ? " (Only tagID)
+    return $ map fromOnly  rs

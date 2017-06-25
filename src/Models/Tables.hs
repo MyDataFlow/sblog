@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Models.Tables(
-  Article(..),
-  Tag(..)
+  Article(..)
+  ,Tag(..)
 )where
 
 data Tag = Tag {
