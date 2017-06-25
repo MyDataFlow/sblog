@@ -28,27 +28,37 @@ indexPage db base page =  do
   return $ VL.render "TTalk即时通信" [] [t] [a,p]
   where
     tags = DB.fetchTags db >>= return . (flip VT.render $ 0)
-    articles = DB.fetchArticles db page 20 >>= return . VA.render
+    articles = DB.fetchArticles db page 10 >>= return . VA.render
     pagination = DB.fetchArticlesCount db
-      >>= \x -> return $ VA.renderPagination base page 20 $ (head x)
+      >>= \x -> return $ VA.renderPagination base page 10 $ (head x)
 
-tagPage :: DB.PoolT -> Int -> IO Text
-tagPage db tagID = do
+tagPage :: DB.PoolT -> URI -> Int -> Int -> IO Text
+tagPage db base tagID page = do
   t <- tags
   a <- articles
-  return $ VL.render "TTalk即时通信" [] [t] [a]
+  p <- pagination
+  return $ VL.render "TTalk即时通信" [] [t] [a,p]
   where
     tags = DB.fetchTags db >>= return . (flip VT.render $ tagID)
-    articles = DB.fetchTagArticles db tagID 1 20 >>=  return . VA.render
-
+    articles = DB.fetchTagArticles db tagID 1 10 >>=  return . VA.render
+    pagination = DB.fetchTagArticlesCount db tagID
+      >>= \x -> return $ VA.renderPagination base page 10 $ (head x)
 routing db = do
   get "/" $ do
     ref <- param "page" `rescue` (const next)
     let page = read ref
-    liftIO ( indexPage db  (fromJust (parseRelativeReference "/"))  page) >>= S.html
+    liftIO ( indexPage db (toUrl "/")  page) >>= S.html
   get "/" $ do
-    liftIO ( indexPage db  (fromJust (parseRelativeReference "/")) 1) >>= S.html
+    liftIO ( indexPage db  (toUrl "/")  1) >>= S.html
   get "/tags/:id" $ do
     ref <- param "id"
+    refPage <- param "page" `rescue` (const next)
+    let page = read refPage
     let tagID = read ref
-    liftIO (tagPage db tagID) >>= S.html
+    liftIO (tagPage db (toUrl $ "/tags/" ++ (show tagID)) tagID page) >>= S.html
+  get "/tags/:id" $ do
+      ref <- param "id"
+      let tagID = read ref
+      liftIO (tagPage db (toUrl $ "/tags/" ++ (show tagID)) tagID 1) >>= S.html
+  where
+    toUrl u = fromJust $ parseRelativeReference u
