@@ -13,16 +13,7 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = {
   context: sourcePath,
   entry: {
-    app: './src/index.js',
-    vendor: [
-      'axios',
-      'react',
-      'react-dom',
-      'react-redux',
-      'react-router',
-      'redux',
-      'semantic-ui-css/semantic.min.css'
-    ]
+    app: './index.js'
   },
   output: {
     path: outPath,
@@ -32,11 +23,7 @@ module.exports = {
   devtool: "source-map",
   target: 'web',
   resolve: {
-    extensions: ['','.js', '.jsx'],
-    "alias": {
-      "react": "preact-compat",
-      "react-dom": "preact-compat"
-    }
+    extensions: ['.css','.js', '.jsx']
     // Fix webpack's default behavior to not load packages with jsnext:main module
     // https://github.com/Microsoft/TypeScript/issues/11677
 
@@ -46,7 +33,12 @@ module.exports = {
       // .js, .jsx
       {
         test: /\.jsx?$/,
-        loaders: ['babel'],
+        use: {
+          loader: 'babel-loader',
+          query: {
+            presets: ['react','es2015','stage-1']
+          }
+        },
         exclude: /node_modules/
       },
       // global css from libs in node_modules
@@ -106,11 +98,6 @@ module.exports = {
         ]
       }
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: 'vendor',
-      filename: 'js/vendor.bundle.js',
-      minChunks: Infinity
-    }),
     new webpack.optimize.AggressiveMergingPlugin(),
     new ExtractTextPlugin({
       filename: 'css/styles.css',
@@ -118,7 +105,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       css: [ "css/styles.css" ],
-      chunks: ['vendor','app'],
+      chunks: ['app'],
       template: 'index.html',
       filename: 'index.html'
     })
