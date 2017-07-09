@@ -11,6 +11,7 @@ import Control.Monad.Reader
 
 import qualified Web.Scotty.Trans  as Web
 import Network.Wai (Middleware)
+import Network.Wai.Middleware.Static
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
 import App.Types
@@ -41,6 +42,7 @@ onError err = do
 routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
+  Web.middleware $ staticPolicy (noDots >-> addBase "static")
   Web.get "/" $ void $ articlesIndex
   Web.get "/tags/:id" $ void $ tagsIndex
   Web.get "/admin" $ void $ articleWriter

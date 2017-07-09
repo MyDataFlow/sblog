@@ -40,6 +40,7 @@ renderHeader title meta =
     sequence_ meta
     H.title $ H.toHtml title
     cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
+    cssLink "/bower_components/pen/src/pen.css"
 
 renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html
 renderInner title meta sidePart mainPart =
@@ -58,6 +59,9 @@ renderInner title meta sidePart mainPart =
             sequence_ sidePart
       jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
+      jsLink "/bower_components/pen/src/pen.js"
+      jsLink "/bower_components/pen/src/markdown.js"
+      jsLink "/init.js"
 
 render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> Text
 render title meta sidePart mainPart =

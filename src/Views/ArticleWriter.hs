@@ -22,14 +22,12 @@ import qualified Models.DB.Schema as M
 
 render :: H.Html
 render =
-  H.form ! A.class_ "ui form" ! A.method "POST" ! A.action "/admin/article" $ do
-    H.div ! A.class_ "field" $ do
-      H.label ! A.for "post-title" $ "Title"
-      H.input ! A.type_ "text" ! A.id "post-title" ! A.name "post-title"
-    H.div ! A.class_ "field" $ do
-      H.label ! A.for "post-body" $ "Body"
-      H.textarea ! A.class_ "form-control" ! A.id "post-body" ! A.rows "15" $ ""
-    H.div ! A.class_ "field" $ do
-      H.label ! A.for "post-tags" $ "Tags"
-      H.input ! A.type_ "text" ! A.class_ "form-control" ! A.id "post-tags"
-    H.button ! A.type_ "submit" ! A.class_ "ui button" $ "Save"
+  H.div $ do
+    H.span ! A.id "mode" $
+      H.i !  A.class_ "write icon" $ ""
+    H.span ! A.id "hinted" $
+      H.i ! A.class_ "browser icon" $ ""
+    H.span ! A.id "save" $
+      H.i ! A.class_ "save icon" $ ""
+    H.form ! A.action "/admin/aritcle" ! A.method "POST" $ do
+      H.div ! A.id "editor" $ "#This is a test "
