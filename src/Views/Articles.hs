@@ -30,14 +30,14 @@ tag t =
 
 indexArticle :: M.Article -> H.Html
 indexArticle ar =
-  H.div ! A.class_ "item" $ do
+  H.div ! A.class_ "item" $
     H.div ! A.class_ "content" $ do
       H.div ! A.class_ "header" $ H.toHtml title
       H.div ! A.class_ "description" $ markdown def $ fromString summary
       H.div ! A.class_ "extra" $ do
-        H.div ! A.class_ "ui right floated primary basic button" $ do
+        H.div ! A.class_ "ui right floated primary basic button" $ 
           H.a ! (link aid) $ "阅读全文"
-        H.div ! A.class_ "ui tag labels" $ do
+        H.div ! A.class_ "ui tag labels" $
           mapM_ tag tags
 
   where
@@ -49,8 +49,11 @@ indexArticle ar =
 
 render :: [M.Article] -> H.Html
 render articles =
-  H.div ! A.class_ "ui divided items" $ do
-    mapM_ indexArticle articles
+  if length articles == 0
+    then H.span ""
+    else
+      H.div ! A.class_ "ui divided items" $ do
+        mapM_ indexArticle articles
 
 renderPagination :: URI -> Int -> Int -> Int -> H.Html
 renderPagination uri page count total =
@@ -63,18 +66,21 @@ renderPagination uri page count total =
     end = min pageCount (start + w)
     paramName = "page"
   in
-    H.div ! A.class_ "ui pagination menu" $ do
-      when (page > 1) $
-        H.div ! A.class_ "item" $ do
-          H.a ! EA.hrefSet uri paramName (show (page -1)) $ "前一页"
-      forM_ [start..end] $ \i ->
-        let
-          theclass = if i == page then "active item" else "item"
-        in
-          H.div ! A.class_ theclass $ do
-            H.a ! EA.hrefSet uri paramName (show i) $ H.toHtml (show i)
-      when (end < pageCount) $
-        H.div ! A.class_ "disabled item" $ "..."
-      when (page < pageCount) $
-        H.div ! A.class_ "item" $ do
-          H.a !  EA.hrefSet uri paramName (show (page + 1)) $ "后一页"
+    if total == 1
+      then H.div ""
+      else
+        H.div ! A.class_ "ui pagination menu" $ do
+          when (page > 1) $
+            H.div ! A.class_ "item" $ do
+              H.a ! EA.hrefSet uri paramName (show (page -1)) $ "前一页"
+              forM_ [start..end] $ \i ->
+                let
+                  theclass = if i == page then "active item" else "item"
+                in
+                  H.div ! A.class_ theclass $ do
+                    H.a ! EA.hrefSet uri paramName (show i) $ H.toHtml (show i)
+          when (end < pageCount) $
+            H.div ! A.class_ "disabled item" $ "..."
+          when (page < pageCount) $
+            H.div ! A.class_ "item" $ do
+              H.a !  EA.hrefSet uri paramName (show (page + 1)) $ "后一页"
