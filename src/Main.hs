@@ -4,13 +4,19 @@ module Main(
   main
 )where
 
-import Control.Monad
+import Control.Monad.Trans (lift)
+
 import System.IO (BufferMode (..),hSetBuffering,stderr,stdout,stdin)
 
 
-import Web.Scotty as S
+import qualified Web.Scotty.Trans  as Web
+import Network.Wai (Middleware)
+import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
-import Config
+import App.Types
+import App.Config
+import App.Context
+
 import qualified Models.DB as DB
 import qualified Routing as R
 
@@ -20,6 +26,7 @@ main = do
     hSetBuffering stdin  LineBuffering
     hSetBuffering stderr NoBuffering
     conf <- readOptions
-    db <- DB.createConnections conf
-    S.scotty (port conf) $ R.routing db
+    conns <- DB.createConnections conf
+    let ctx = createContext conns (jwtKey conf)
+    Web.scottyT (port conf) (runApp ctx) R.routing
     return ()

@@ -1,9 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Models.Tables(
-  Article(..)
-  ,Tag(..)
-)where
+module Models.DB.Schema where
 
 data Tag = Tag {
   tid :: Int

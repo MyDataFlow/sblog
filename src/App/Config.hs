@@ -1,7 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Config (
-  AppConf(..)
-  ,readOptions
+module App.Config (
+  readOptions
 ) where
 
 import System.Environment
@@ -17,15 +16,7 @@ import Options.Applicative
 import qualified Data.Configurator as C
 import qualified Data.Configurator.Parser as C
 
-data AppConf = AppConf {
-    port :: Int
-    ,dbHost :: String
-    ,dbPort :: Int
-    ,dbUser :: String
-    ,dbPassword :: String
-    ,dbDatabase :: String
-} deriving (Show,Eq)
-
+import App.Types
 
 pathParser :: Parser FilePath
 pathParser =
@@ -36,12 +27,13 @@ pathParser =
 readOptions :: IO AppConf
 readOptions = do
     cfgPath <- execParser opts
-    putStrLn $  show cfgPath
+
     conf <- catch
         (C.readConfig =<< C.load [C.Required cfgPath])
         configNotfoundHint
     let (mAppConf, errs) = flip C.runParserA conf $
             AppConf <$> C.key "port"
+            <*> C.key "jwtKey"
             <*> C.key "dbHost"
             <*> C.key "dbPort"
             <*> C.key "dbUser"
@@ -57,7 +49,7 @@ readOptions = do
     where
         opts = info (helper <*> pathParser)
             ( fullDesc
-            <> progDesc "Print a greeting for TARGET")
+            <> progDesc "Server of Haskell")
         configNotfoundHint :: IOError -> IO a
         configNotfoundHint e = do
             hPutStrLn stderr $ "Cannot open config file:\n\t" <> show e

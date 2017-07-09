@@ -13,7 +13,7 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import Text.Blaze.Html.Renderer.Text
 
-import qualified Models.Tables as M
+import qualified Models.DB.Schema as M
 
 render :: [M.Tag] -> Int -> H.Html
 render tags active =

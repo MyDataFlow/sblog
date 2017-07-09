@@ -6,56 +6,41 @@ module Routing(
   routing
 )where
 
-import Data.Text.Lazy(Text)
-import Control.Monad.IO.Class(liftIO)
-import Control.Monad.Trans.Class(lift)
-import Control.Exception
+import Control.Monad.Trans
+import Control.Monad.Reader
 
-import Data.String(fromString)
-import Data.Maybe
+import qualified Web.Scotty.Trans  as Web
+import Network.Wai (Middleware)
+import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
-import Network.URI
+import App.Types
+import App.Context
 
-import Web.Scotty as S
-import Models.DB as DB
+import Handlers.Articles
+import Handlers.Tags
 
-import qualified Views.Tags as VT
-import qualified Views.Articles as VA
-import qualified Views.Layout as VL
+{- secure :: ActionM () -> ActionM ()
+secure nex = do
+  auth <- S.header "Authorization"
+  case auth of
+    Nothing -> S.status unauthorized401
+    Just token ->
+      case BS.break isSpace $ C8.pack $ T.unpack token of
+        (strategy,claims)
+          | BS.map toLower strategy == "bearer" ->
+            next
+          | otherwise ->
+            S.status unauthorized401
+-}
+onError :: ServerError -> Response ()
+onError err = do
+    Web.status $ status err
+    Web.text $ message err
+   
+routing = do
+  Web.defaultHandler onError
+  Web.middleware $ logStdoutDev
+  Web.get "/" $ void $ articlesIndex
+  Web.get "/tags/:id" $ void $ tagsIndex
+  Web.notFound $ Web.raise RouteNotFound
 
-indexPage :: DB.PoolT -> URI -> Int -> IO Text
-indexPage db base page =  do
-  t <- tags
-  a <- articles
-  p <- pagination
-  return $ VL.render "TTalk即时通信" [] [t] [a,p]
-  where
-    tags = DB.fetchTags db >>= return . (flip VT.render $ 0)
-    articles = DB.fetchArticles db page 10 >>= return . VA.render
-    pagination = DB.fetchArticlesCount db
-      >>= \x -> return $ VA.renderPagination base page 10 $ (head x)
-
-tagPage :: DB.PoolT -> URI -> Int -> Int -> IO Text
-tagPage db base tagID page = do
-  t <- tags
-  a <- articles
-  p <- pagination
-  return $ VL.render "TTalk即时通信" [] [t] [a,p]
-  where
-    tags = DB.fetchTags db >>= return . (flip VT.render $ tagID)
-    articles = DB.fetchTagArticles db tagID 1 10 >>=  return . VA.render
-    pagination = DB.fetchTagArticlesCount db tagID
-      >>= \x -> return $ VA.renderPagination base page 10 $ (head x)
-routing db = do
-  get "/" $ do
-    ref <- rescue (param "page")  (\e -> return "1")
-    let page = read ref
-    liftIO ( indexPage db (toUrl "/")  page) >>= S.html
-  get "/tags/:id" $ do
-    ref <- param "id"
-    refPage <- param "page" `rescue` (\e -> return "1")
-    let page = read refPage
-    let tagID = read ref
-    liftIO (tagPage db (toUrl $ "/tags/" ++ (show tagID)) tagID page) >>= S.html
-  where
-    toUrl u = fromJust $ parseRelativeReference u

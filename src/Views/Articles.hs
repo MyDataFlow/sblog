@@ -19,7 +19,7 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Text.Blaze.Html.Renderer.Text
 import Text.Markdown
 
-import qualified Models.Tables as M
+import qualified Models.DB.Schema as M
 
 
 tag :: M.Tag -> H.Html
