@@ -22,17 +22,14 @@ import qualified Models.DB.Schema as M
 
 render :: H.Html
 render =
-  H.div ! A.class_ "row" $
-    H.div ! A.class_ "col-md-12" $ do
-      H.h2 "Write a Post"
-      H.form $ do
-        H.div ! A.class_ "form-group" $ do
-          H.label ! A.for "post-title" $ "Title"
-          H.input ! A.type_ "text" ! A.class_ "form-control" ! A.id "post-title"
-        H.div ! A.class_ "form-group" $ do
-          H.label ! A.for "post-body" $ "Body"
-          H.textarea ! A.class_ "form-control" ! A.id "post-body" ! A.rows "15" $ ""
-        H.div ! A.class_ "form-group" $ do
-          H.label ! A.for "post-tags" $ "Tags"
-          H.input ! A.type_ "text" ! A.class_ "form-control" ! A.id "post-tags"
-        H.button ! A.type_ "submit" ! A.class_ "btn btn-primary" $ "Save"
+  H.form ! A.class_ "ui form" ! A.method "POST" ! A.action "/admin/article" $ do
+    H.div ! A.class_ "field" $ do
+      H.label ! A.for "post-title" $ "Title"
+      H.input ! A.type_ "text" ! A.id "post-title" ! A.name "post-title"
+    H.div ! A.class_ "field" $ do
+      H.label ! A.for "post-body" $ "Body"
+      H.textarea ! A.class_ "form-control" ! A.id "post-body" ! A.rows "15" $ ""
+    H.div ! A.class_ "field" $ do
+      H.label ! A.for "post-tags" $ "Tags"
+      H.input ! A.type_ "text" ! A.class_ "form-control" ! A.id "post-tags"
+    H.button ! A.type_ "submit" ! A.class_ "ui button" $ "Save"

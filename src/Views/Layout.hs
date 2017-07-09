@@ -46,6 +46,10 @@ renderInner title meta sidePart mainPart =
   H.html $ do
     renderHeader title meta
     H.body $ do
+      H.div ! A.class_ "ui inverted menu" $ do
+        H.div ! A.class_ "ui container" $ do
+          H.a ! A.class_ "item" $ "Home"
+          H.a ! A.class_ "item" $ "Tags"
       H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
           H.div ! A.class_ "ten wide computer eleven wide tablet sixteen wide mobile column" $ do
