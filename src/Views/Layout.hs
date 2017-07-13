@@ -11,19 +11,9 @@ import Data.String (fromString)
 import Text.Blaze.Html5 ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+import qualified Utils.BlazeExtra.Html as EH
+
 import Text.Blaze.Html.Renderer.Text
-
-cssLink :: String -> H.Html
-cssLink ref =
-  H.link ! A.rel "stylesheet" ! A.type_ "text/css" ! l
-  where
-    l = A.href $ fromString ref
-
-jsLink :: String -> H.Html
-jsLink ref =
-  H.script ! A.type_ "text/javascript" ! l $ ""
-  where
-    l = A.src $ fromString ref
 
 defaultMeta :: [H.Html]
 defaultMeta =
@@ -39,8 +29,8 @@ renderHeader title meta =
   H.head $ do
     sequence_ meta
     H.title $ H.toHtml title
-    cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
-    cssLink "/bower_components/pen/src/pen.css"
+    EH.cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
+    EH.cssLink "/bower_components/pen/src/pen.css"
 
 renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html
 renderInner title meta sidePart mainPart =
@@ -57,11 +47,11 @@ renderInner title meta sidePart mainPart =
             sequence_ mainPart
           H.div ! A.class_ "four wide computer five wide tablet sixteen wide mobile column" $ do
             sequence_ sidePart
-      jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
-      jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
-      jsLink "/bower_components/pen/src/pen.js"
-      jsLink "/bower_components/pen/src/markdown.js"
-      jsLink "/init.js"
+      EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
+      EH.jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
+      EH.jsLink "/bower_components/pen/src/pen.js"
+      EH.jsLink "/bower_components/pen/src/markdown.js"
+      EH.jsLink "/init.js"
 
 render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> Text
 render title meta sidePart mainPart =

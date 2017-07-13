@@ -1,10 +1,9 @@
-
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# OPTIONS -fno-warn-name-shadowing -fno-warn-unused-do-bind #-}
 
 module Utils.BlazeExtra.Attributes(
   hrefSet
+  ,hrefURI
 )where
 
 import Control.Monad
