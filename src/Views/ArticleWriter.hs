@@ -22,12 +22,4 @@ import qualified Models.DB.Schema as M
 
 render :: H.Html
 render =
-  H.div $ do
-    H.span ! A.id "mode" $
-      H.i !  A.class_ "write icon" $ ""
-    H.span ! A.id "hinted" $
-      H.i ! A.class_ "browser icon" $ ""
-    H.span ! A.id "save" $
-      H.i ! A.class_ "save icon" $ ""
-    H.form ! A.action "/admin/aritcle" ! A.method "POST" $ do
-      H.div ! A.id "editor" $ "#This is a test "
+  H.div ! A.id "editor" $ ""

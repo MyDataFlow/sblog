@@ -44,4 +44,5 @@ authUser userID req =
 
 articleWriter :: Response LT.Text
 articleWriter = do
-  view $ withAuthorization authUser ()
+  -- view $ withAuthorization authUser ()
+  view $ indexProcessor
