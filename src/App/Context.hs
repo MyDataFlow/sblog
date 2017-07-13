@@ -18,15 +18,17 @@ import App.Types
 
 instance ScottyError ServerError where
   showError = message
-  stringError = Exception . T.pack
+  stringError = Exception Http.internalServerError500 . T.pack
 
 message :: ServerError -> T.Text
 message RouteNotFound = "route not found"
-message (Exception _) = "internal server error"
+message (Exception s t)
+  | s == Http.status500  = T.append "internal server error " t
+  | otherwise = t
 
 status :: ServerError -> Http.Status
 status RouteNotFound = Http.status404
-status _ = Http.status500
+status (Exception s _) = s
 
 createContext ::DBConnections -> String -> AppContext
 createContext conns key =
