@@ -37,8 +37,11 @@ api with = do
 view :: Response (Status,LT.Text) -> Response LT.Text
 view with = do
   (stat, resp) <- with
-  Web.html resp
-  Web.status stat
+  if stat == status302 || stat == status301
+    then Web.redirect resp
+    else do
+      Web.html resp
+      Web.status stat
   return resp
 
 withParams :: (FromParams request) => (Processor request response) -> (Render response) -> Response  response

@@ -22,7 +22,9 @@ instance ScottyError ServerError where
 
 message :: ServerError -> T.Text
 message RouteNotFound = "route not found"
-message (Exception _ t) = T.append "internal server error " t
+message (Exception s t)
+  | s == Http.status500  = T.append "internal server error " t
+  | otherwise = t
 
 status :: ServerError -> Http.Status
 status RouteNotFound = Http.status404

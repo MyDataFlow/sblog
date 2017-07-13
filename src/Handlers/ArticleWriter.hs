@@ -36,6 +36,12 @@ indexProcessor  =  do
     let writer = VAW.render
     return $ (status200, VL.render "TTalk即时通信" [] [] [writer])
 
+
+authUser userID req =
+  if  userID == "1"
+    then indexProcessor
+    else return $ (status302,"/")
+
 articleWriter :: Response LT.Text
 articleWriter = do
-  view $ indexProcessor
+  view $ withAuthorization authUser ()
