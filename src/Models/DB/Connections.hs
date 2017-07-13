@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Models.DB.Connections(
-  createConnections  
+  createConnections
   ,runDB
 )where
 
@@ -12,7 +12,6 @@ import Data.Pool(Pool, withResource, createPool)
 import Database.PostgreSQL.Simple
 
 import App.Types
-import App.Config
 
 
 createConnections :: AppConf -> IO DBConnections

@@ -6,6 +6,7 @@ import Control.Monad.Reader (ReaderT)
 import Data.Pool(Pool)
 import Database.PostgreSQL.Simple(Connection)
 
+import Network.HTTP.Types.Status (Status)
 import Web.Scotty.Trans (ScottyT, ActionT, ScottyError(..))
 
 data AppConf = AppConf {
@@ -26,7 +27,8 @@ data AppContext = AppContext {
 }
 type App = ReaderT AppContext IO
 
-data ServerError = RouteNotFound | Exception T.Text
+data ServerError = RouteNotFound | Exception Status T.Text
+
 
 type Server = ScottyT ServerError App
 type Response  = ActionT ServerError App
