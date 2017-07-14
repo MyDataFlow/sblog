@@ -35,7 +35,7 @@ indexArticle ar =
       H.div ! A.class_ "header" $ H.toHtml title
       H.div ! A.class_ "description" $ markdown def $ fromString summary
       H.div ! A.class_ "extra" $ do
-        H.div ! A.class_ "ui right floated primary basic button" $ 
+        H.div ! A.class_ "ui right floated primary basic button" $
           H.a ! (link aid) $ "阅读全文"
         H.div ! A.class_ "ui tag labels" $
           mapM_ tag tags
@@ -66,11 +66,11 @@ renderPagination uri page count total =
     end = min pageCount (start + w)
     paramName = "page"
   in
-    if total == 1
+    if total <= count
       then H.div ""
       else
         H.div ! A.class_ "ui pagination menu" $ do
-          when (page > 1) $
+          when (page >= 1) $
             H.div ! A.class_ "item" $ do
               H.a ! EA.hrefSet uri paramName (show (page -1)) $ "前一页"
               forM_ [start..end] $ \i ->
