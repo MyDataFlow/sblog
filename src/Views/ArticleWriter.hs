@@ -25,7 +25,7 @@ render =
   H.div $ do
     H.form ! A.class_ "ui form" ! A.action "/admin/ariticle" ! A.method "GET" $ do
       H.div ! A.class_ "filed" $ do
-        H.div ! A.class_ "ui fuild multiple selection dropdown"  ! A.id "test" $ do
+        H.div ! A.class_ "ui  multiple selection search dropdown"  ! A.id "test" $ do
           H.input ! A.type_ "hidden" ! A.name "test"
           H.i ! A.class_ "dropdown icon" $ ""
           H.div ! A.class_ "default text" $ "select"

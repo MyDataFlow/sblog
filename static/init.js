@@ -21,7 +21,6 @@ $(document).ready(function() {
 
   });*/
   $('#test').dropdown({
-    allowAddtions: true,
-    hideAddtions: false
+    allowAdditions: true
   });
 });
