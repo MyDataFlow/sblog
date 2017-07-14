@@ -22,4 +22,21 @@ import qualified Models.DB.Schema as M
 
 render :: H.Html
 render =
-  H.div ! A.id "editor" $ ""
+  H.div $ do
+    H.form ! A.class_ "ui form" ! A.action "/admin/ariticle" ! A.method "GET" $ do
+      H.div ! A.class_ "filed" $ do
+        H.div ! A.class_ "ui fuild multiple selection dropdown"  ! A.id "test" $ do
+          H.input ! A.type_ "hidden" ! A.name "test"
+          H.i ! A.class_ "dropdown icon" $ ""
+          H.div ! A.class_ "default text" $ "select"
+          H.div ! A.class_ "menu" $ do
+            H.div ! A.class_ "item"  ! H.dataAttribute "value" "A" $ "A"
+            H.div ! A.class_ "item"  ! H.dataAttribute "value" "B" $ "B"
+            H.div ! A.class_ "item"  ! H.dataAttribute "value" "C" $ "C"
+            H.div ! A.class_ "item"  ! H.dataAttribute "value" "D" $ "D"
+            H.div ! A.class_ "item"  ! H.dataAttribute "value" "E" $ "E"
+      H.div ! A.class_ "filed" $ do
+        H.button ! A.type_ "submit" $ "Submit"
+
+
+    H.div ! A.id "editor" $ ""

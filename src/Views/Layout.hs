@@ -29,7 +29,7 @@ renderHeader title meta =
   H.head $ do
     sequence_ meta
     H.title $ H.toHtml title
-    EH.cssLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.css"
+    EH.cssLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.css"
     EH.cssLink "/bower_components/editor.md/css/editormd.min.css"
     EH.cssLink "/bower_components/github-markdown-css/github-markdown.css"
 
@@ -49,7 +49,7 @@ renderInner title meta sidePart mainPart =
           H.div ! A.class_ "four wide computer five wide tablet sixteen wide mobile column" $ do
             sequence_ sidePart
       EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
-      EH.jsLink "https://cdn.jsdelivr.net/semantic-ui/2.2.10/semantic.min.js"
+      EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
       EH.jsLink "/bower_components/editor.md/editormd.min.js"
       EH.jsLink "/init.js"
 

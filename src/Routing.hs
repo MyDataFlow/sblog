@@ -37,4 +37,7 @@ routing = do
   Web.get "/" $ void $ articlesIndex
   Web.get "/tags/:id" $ void $ tagsIndex
   Web.get "/admin" $ void $ articleWriter
+  Web.get "/admin/ariticle" $ do
+    t <- Web.param "test"
+    Web.text t
   Web.notFound $ Web.raise RouteNotFound

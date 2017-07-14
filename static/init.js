@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  var testEditor;
+  /*var testEditor;
 
   $(function() {
     testEditor = editormd("editor", {
@@ -19,5 +19,9 @@ $(document).ready(function() {
         path    : "/bower_components/editor.md/lib/"
     });
 
+  });*/
+  $('#test').dropdown({
+    allowAddtions: true,
+    hideAddtions: false
   });
 });
