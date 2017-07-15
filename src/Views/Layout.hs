@@ -3,6 +3,7 @@
 
 module Views.Layout(
   render
+  ,renderAdmin
 )where
 
 import Data.Text.Lazy(Text)
@@ -30,7 +31,6 @@ renderHeader title meta =
     sequence_ meta
     H.title $ H.toHtml title
     EH.cssLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.css"
-    EH.cssLink "/bower_components/editor.md/css/editormd.min.css"
     EH.cssLink "/bower_components/github-markdown-css/github-markdown.css"
 
 renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html
@@ -50,13 +50,26 @@ renderInner title meta sidePart mainPart =
             sequence_ sidePart
       EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
-      EH.jsLink "/bower_components/editor.md/editormd.min.js"
-      EH.jsLink "/init.js"
 
-
+renderAdminInner css js mainPart =
+  H.html $ do
+    renderHeader "管理后台" defaultMeta
+    mapM_ EH.cssLink css
+    H.body $ do
+      H.div ! A.class_ "ui text container" $ do
+        H.div ! A.class_ "ui grid" $ do
+          H.div ! A.class_ "sixteen wide" $ do
+            sequence_ mainPart
+      EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
+      EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
+      mapM_ EH.jsLink js
 
 render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> Text
 render title meta sidePart mainPart =
   renderHtml $ renderInner title combineMeta sidePart mainPart
   where
     combineMeta = defaultMeta ++ meta
+
+renderAdmin :: [String] -> [String] -> [H.Html] -> Text
+renderAdmin css js mainPart =
+  renderHtml $ renderAdminInner css js mainPart

@@ -16,6 +16,7 @@ import Data.String
 import Network.URI
 import Network.HTTP.Types.Status
 import qualified Text.Blaze.Html5 as H
+import qualified Web.Scotty.Trans  as Web
 
 import App.Types
 import App.Context
@@ -34,7 +35,11 @@ import qualified Views.ArticleWriter as VAW
 indexProcessor :: Response (Status,LT.Text)
 indexProcessor  =  do
     let writer = VAW.render
-    return $ (status200, VL.render "TTalk即时通信" [] [] [writer])
+    return $ (status200, VL.renderAdmin
+      ["/bower_components/editor.md/css/editormd.min.css"]
+      ["/bower_components/editor.md/editormd.min.js"
+      ,"/editor.js"]
+      [writer])
 
 
 authUser userID req =
@@ -45,4 +50,6 @@ authUser userID req =
 articleWriter :: Response LT.Text
 articleWriter = do
   -- view $ withAuthorization authUser ()
-  view $ indexProcessor
+  Web.rescue
+    (view $ withAuthorization authUser ())
+    (\msg -> Web.redirect "/")
