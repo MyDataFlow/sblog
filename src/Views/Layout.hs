@@ -56,6 +56,10 @@ renderAdminInner css js mainPart =
     renderHeader "管理后台" defaultMeta
     mapM_ EH.cssLink css
     H.body $ do
+      H.div ! A.class_ "ui inverted menu" $ do
+        H.div ! A.class_ "ui container" $ do
+          H.a ! A.class_ "item" ! A.href "/admin/bookmarks" $ "Boorkmarks"
+          H.a ! A.class_ "item" ! A.href "/admin/articles" $ "Articles"
       H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
           H.div ! A.class_ "sixteen wide column" $ do
