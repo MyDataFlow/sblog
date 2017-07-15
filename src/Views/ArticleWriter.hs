@@ -24,6 +24,10 @@ render :: H.Html
 render =
   H.div $ do
     H.form ! A.class_ "ui form" ! A.action "/admin/ariticle" ! A.method "POST" $ do
+      H.div ! A.class_ "field" $ do
+        H.div ! A.class_ "ui container" $ do
+          H.div ! A.id "editor" ! A.name "content" $ "This is a test"
+    
       H.div ! A.class_ "filed" $ do
         H.div ! A.class_ "ui  multiple selection search dropdown"  ! A.id "test" $ do
           H.input ! A.type_ "hidden" ! A.name "test"
@@ -35,7 +39,5 @@ render =
             H.div ! A.class_ "item"  ! H.dataAttribute "value" "C" $ "C"
             H.div ! A.class_ "item"  ! H.dataAttribute "value" "D" $ "D"
             H.div ! A.class_ "item"  ! H.dataAttribute "value" "E" $ "E"
-      H.div ! A.class_ "field" $ do
-        H.div ! A.id "editor" ! A.name "content" $ "This is a test"
       H.div ! A.class_ "filed" $ do
         H.button ! A.type_ "submit" $ "Submit"
