@@ -26,7 +26,7 @@ fetchTags c = do
 
 fetchRelatedTags ::  Int -> Int ->  Connection -> IO [Tag]
 fetchRelatedTags pkID t c = do
-      rs <- query c "SELECT t.id,t.name FROM tags as t, taggings as tg \
+      rs <- query c " SELECT t.id FROM tags as t, taggings as tg \
       \ WHERE tg.related_type = ? AND tg.related_id = ? AND t.id = tg.tag_id" (t,pkID)
       mapM digest rs
     where

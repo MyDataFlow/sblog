@@ -2,7 +2,6 @@
 module Models.DB.Connections(
   createConnections
   ,runDB
-  ,runTransactionDB
 )where
 
 import Control.Monad.IO.Class(MonadIO,liftIO)
@@ -33,9 +32,3 @@ runDB :: (MonadTrans m,MonadIO (m App)) => (Connection -> IO b) -> m App b
 runDB q = do
   conns <- lift (asks dbConns)
   liftIO $ withResource conns $ \c -> q c
-
-runTransactionDB :: (MonadTrans m,MonadIO (m App)) =>  IO b -> m App b
-runTransactionDB q = do
-  conns <- lift (asks dbConns)
-  liftIO $ withResource conns $ \c ->
-    withTransaction c q

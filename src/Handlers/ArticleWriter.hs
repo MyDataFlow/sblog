@@ -27,8 +27,6 @@ import Handlers.Common
 
 import qualified Models.DB as DB
 
-import qualified Views.Tags as VT
-import qualified Views.Articles as VA
 import qualified Views.Layout as VL
 import qualified Views.ArticleWriter as VAW
 

@@ -18,10 +18,8 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import App.Types
 import App.Context
 
-
-import Handlers.Articles
-import Handlers.Tags
 import Handlers.ArticleWriter
+import Handlers.Admin.Bookmark
 
 
 
@@ -34,10 +32,8 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
-  Web.get "/" $ void $ articlesIndex
-  Web.get "/tags/:id" $ void $ tagsIndex
   Web.get "/admin" $ void $ articleWriter
-  Web.get "/admin/ariticle" $ do
-    t <- Web.param "test"
-    Web.text t
+  Web.get "/admin/bookmarks" $ void $ bookmarkIndex
+  Web.get "/admin/bookmarks/new" $ void $ bookmarkNew
+  Web.post "/admin/bookmarks/create" $ void $ bookmarkCreate
   Web.notFound $ Web.raise RouteNotFound

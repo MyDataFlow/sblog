@@ -14,7 +14,6 @@ import App.Context
 
 import qualified Models.DB as DB
 
-import qualified Views.Tags as VT
 
 toUrl :: String -> URI
 toUrl u = fromJust $ parseRelativeReference u
@@ -24,11 +23,11 @@ eitherToMaybe (Left _) = Nothing
 eitherToMaybe (Right val) = Just val
 
 textToInt :: Text -> Maybe Integer
-textToInt t = 
+textToInt t =
   let
     eitherPair = decimal t
     maybePair = eitherToMaybe eitherPair
-  in 
+  in
     fst <$> maybePair
 
 lookupInt :: Text -> Integer -> (M.Map Text Text) -> Maybe Integer
@@ -36,8 +35,3 @@ lookupInt k v m =
   case M.lookup k m of
     Nothing -> Just v
     Just text -> textToInt text
-
-renderTags :: Int -> Response H.Html
-renderTags tagID = do
-  tags <- DB.runDB $ DB.fetchTags
-  return $ VT.render tags tagID
