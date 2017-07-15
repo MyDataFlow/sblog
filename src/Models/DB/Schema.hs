@@ -14,3 +14,11 @@ data Article = Article {
   ,summary :: String
   ,tags :: [Tag]
 } deriving (Show,Eq)
+
+data Bookmark = Bookmark {
+  bid :: Int
+  ,btitle :: String
+  ,bsummary :: String
+  ,burl :: String
+  ,btags :: [Tag]
+}
