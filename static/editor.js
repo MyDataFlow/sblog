@@ -1,11 +1,12 @@
 $(document).ready(function() {
-  /*var testEditor;
-
+  var testEditor;
+  var md = $('#editor').text();
   $(function() {
     testEditor = editormd("editor", {
         width   : "100%",
         height  : 640,
         codeFold : true,
+        markdown : md,
         //syncScrolling : false,
         saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
         searchReplace : true,
@@ -19,7 +20,7 @@ $(document).ready(function() {
         path    : "/bower_components/editor.md/lib/"
     });
 
-  });*/
+  });
   $('#test').dropdown({
     allowAdditions: true
   });

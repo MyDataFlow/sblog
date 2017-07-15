@@ -49,7 +49,9 @@ authUser userID req =
 
 articleWriter :: Response LT.Text
 articleWriter = do
-  -- view $ withAuthorization authUser ()
+  view $ indexProcessor
+  {-
   Web.rescue
     (view $ withAuthorization authUser ())
     (\msg -> Web.redirect "/")
+    -}

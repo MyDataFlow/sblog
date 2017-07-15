@@ -56,9 +56,9 @@ renderAdminInner css js mainPart =
     renderHeader "管理后台" defaultMeta
     mapM_ EH.cssLink css
     H.body $ do
-      H.div ! A.class_ "ui text container" $ do
+      H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
-          H.div ! A.class_ "sixteen wide" $ do
+          H.div ! A.class_ "sixteen wide column" $ do
             sequence_ mainPart
       EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
