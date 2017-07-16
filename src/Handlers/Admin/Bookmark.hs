@@ -5,8 +5,11 @@ module Handlers.Admin.Bookmark(
   ,bookmarkIndex
 )where
 
+import Control.Exception
 import Control.Monad.Trans
 import Control.Monad.Except
+import Control.Monad.Trans.Except
+import qualified Control.Monad.Catch as C
 
 import qualified Data.Text as T
 import Data.Text.Read
@@ -19,6 +22,8 @@ import Network.URI
 import Network.HTTP.Types.Status
 import qualified Text.Blaze.Html5 as H
 import qualified Web.Scotty.Trans  as Web
+
+import Database.PostgreSQL.Simple.Errors
 
 import App.Types
 import App.Context
@@ -42,7 +47,6 @@ data BookmarkIndex = BookmarkIndex {
   ,count :: Integer
 }
 
-
 instance FromParams BookmarkForm where
     fromParams m = BookmarkForm <$>
       M.lookup "title"  m <*>
@@ -53,6 +57,9 @@ instance FromParams BookmarkIndex where
   fromParams m = BookmarkIndex <$>
     lookupInt "page" 1 m <*>
     lookupInt "count" 10 m
+
+catcher e (UniqueViolation "bookmarks_unique") = (status500, "bookmarks_unique")
+catcher e _ = (status500, "bookmarks_unique")
 
 newProcessor :: Response (Status,LT.Text)
 newProcessor  =  do
@@ -70,12 +77,25 @@ bookmarkNew = do
 
 createProcessor :: Processor BookmarkForm LT.Text
 createProcessor req =  do
-    c <- DB.runDB (DB.addBookmark t u m)
-    return $ (status302,"/admin/bookmarks")
+  {-
+    (lift $ runExceptT $
+        catchE action
+          (\e -> throwE $ maybe (status500,"unknown") (catcher e) $ constraintViolation e))
+          >>= \x -> return $ either r r x
+    c <- (DB.runCatchDB $ DB.addBookmark t u m) $ catcher
+    if length c == 0
+      then return $ (status500, "bookmarks_unique")
+      else return $ (status302,"/admin/bookmarks")
+      -}
+    c <- DB.runDBTry $ DB.addBookmark t u m
+    case c of
+      (Left e) -> return $ maybe (status500,"unknown") (catcher e) $ constraintViolation e
+      (Right r) -> return $ (status302,"/admin/bookmarks")
   where
     t = T.unpack $ title req
     u = T.unpack $ url req
     m = T.unpack $ markdown req
+
 
 bookmarkCreate :: Response LT.Text
 bookmarkCreate = do
@@ -83,8 +103,10 @@ bookmarkCreate = do
 
 renderBookmarks :: Int -> Int -> Response H.Html
 renderBookmarks page count = do
-  a <- DB.runDB $ DB.fetchBookmarks page count
+  a <- DB.runDB  $ DB.fetchBookmarks page count
   return $ VAB.renderIndex a
+
+
 
 indexProcessor :: Processor BookmarkIndex LT.Text
 indexProcessor req = do
