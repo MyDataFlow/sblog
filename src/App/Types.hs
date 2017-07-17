@@ -32,3 +32,6 @@ data ServerError = RouteNotFound | Exception Status T.Text
 
 type Server = ScottyT ServerError App
 type Response  = ActionT ServerError App
+-- newtype ActionT e m a = ActionT { runAM :: ExceptT (ActionError e)
+-- (ReaderT ActionEnv (StateT ScottyResponse m)) a }
+--    deriving ( Functor, Applicative, MonadIO )

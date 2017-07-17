@@ -8,8 +8,6 @@ module Handlers.Admin.Bookmark(
 import Control.Exception
 import Control.Monad.Trans
 import Control.Monad.Except
-import Control.Monad.Trans.Except
-import qualified Control.Monad.Catch as C
 
 import qualified Data.Text as T
 import Data.Text.Read
@@ -58,9 +56,6 @@ instance FromParams BookmarkIndex where
     lookupInt "page" 1 m <*>
     lookupInt "count" 10 m
 
-catcher e (UniqueViolation "bookmarks_unique") = (status500, "bookmarks_unique")
-catcher e _ = (status500, "bookmarks_unique")
-
 newProcessor :: Response (Status,LT.Text)
 newProcessor  =  do
     bookmark <- liftIO $ DB.defBookmark
@@ -87,14 +82,22 @@ createProcessor req =  do
       then return $ (status500, "bookmarks_unique")
       else return $ (status302,"/admin/bookmarks")
       -}
+    {-
     c <- DB.runDBTry $ DB.addBookmark t u m
     case c of
       (Left e) -> return $ maybe (status500,"unknown") (catcher e) $ constraintViolation e
       (Right r) -> return $ (status302,"/admin/bookmarks")
+      -}
+    catchError action (\e -> return (status400,"unknown"))
   where
     t = T.unpack $ title req
     u = T.unpack $ url req
     m = T.unpack $ markdown req
+    catcher e (UniqueViolation "bookmarks_unique") = (status500, "bookmarks_unique")
+    catcher e _ = (status500, "bookmarks_unique")
+    action = do
+      c <- lift $ DB.runDBTry $ DB.addBookmark t u m
+      return $ (status302,"/admin/bookmarks")
 
 
 bookmarkCreate :: Response LT.Text
@@ -103,8 +106,12 @@ bookmarkCreate = do
 
 renderBookmarks :: Int -> Int -> Response H.Html
 renderBookmarks page count = do
-  a <- DB.runDB  $ DB.fetchBookmarks page count
-  return $ VAB.renderIndex a
+    catchError action (\e -> return $ VAB.renderIndex [])
+  where
+    action = do
+      a <- DB.runDB $ DB.fetchBookmarks page count
+      return $ VAB.renderIndex a
+
 
 
 
