@@ -47,6 +47,7 @@ renderIndex bookmarks =
         H.th "url"
         H.th "created_at"
         H.th "updated_at"
+        H.th "action"
     H.tbody $ do
       mapM_ renderBookmark bookmarks
   where
@@ -57,3 +58,6 @@ renderIndex bookmarks =
         H.td $ H.toHtml (M.burl bookmark)
         H.td $ H.toHtml $ show (M.bcreatedAt bookmark)
         H.td $ H.toHtml $ show (M.bupdatedAt bookmark)
+        H.td $ do
+          H.a ! A.class_ "ui  button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "编辑"
+          H.a ! A.class_ "ui  button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "删除"

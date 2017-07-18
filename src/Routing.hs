@@ -35,6 +35,6 @@ routing = do
   Web.get "/admin" $ void $ articleWriter
   Web.get "/admin/bookmarks" $ void $ bookmarkIndex
   Web.get "/admin/bookmarks/new" $ void $ bookmarkNew
-  Web.get "/admin/bookmarks/:id/editor" $ void $ bookmarkEditor
+  Web.get "/admin/bookmarks/:id/edit" $ void $ bookmarkEditor
   Web.post "/admin/bookmarks/create" $ void $ bookmarkCreate
   Web.notFound $ Web.raise RouteNotFound
