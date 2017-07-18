@@ -26,11 +26,12 @@ fetchTags c = do
 
 fetchRelatedTags ::  Int -> Int ->  Connection -> IO [Tag]
 fetchRelatedTags rid t c = do
-    rs <- query c " SELECT t.id,t.name FROM tags as t, taggings as tg \
-    \ WHERE tg.related_type = ? AND tg.related_id = ? AND t.id = tg.tag_id" (t,rid)
+    rs <- query c " SELECT t.id,t.name,count(t.id) FROM tags as t, taggings as tg \
+    \ WHERE t.id = tg.tag_id GROUP BY t.id HAVING \
+    \t.id IN (SELECT tag_id FROM taggings WHERE related_type = ? AND related_id = ? )" (t,rid)
     mapM digest rs
   where
-    digest (tid,name) = return $ Tag tid name 1
+    digest (tid,name,tc) = return $ Tag tid name tc
 
 findOrAddTag :: String -> Connection ->  IO Int
 findOrAddTag name c = do
