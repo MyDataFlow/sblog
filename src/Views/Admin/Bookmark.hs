@@ -30,18 +30,12 @@ renderWriter bookmark url =
         textField "标题" "title" (M.btitle bookmark)
         textField "源连接" "url" (M.burl bookmark)
         contentField (M.bsummary bookmark)
-        tagsField $ tagsVaule
+        tagsField $ ts
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
           H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
   where
-    tagsVaule =
-      let
-        ts = map (\tag -> (M.name tag)) (M.btags bookmark)
-      in
-        if length ts == 0
-          then ""
-          else foldr1 (\w s -> w ++ ',':s) ts
+    ts = map (\tag -> (M.name tag)) (M.btags bookmark)
 
 renderIndex :: [M.Bookmark] ->  H.Html
 renderIndex bookmarks =
