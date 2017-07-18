@@ -41,15 +41,21 @@ createConnections cfg = do
 
 runDBTry:: (Connection -> IO b) -> Response b
 runDBTry q = do
+    -- lift :: App -> ActionT ServerError App
     conns <- lift (asks dbConns)
-    e <- liftIO $ withResource conns $ \c -> catchViolation' catcher . liftIO . liftM Right $  q c
+    -- liftIO :: IO Either ->  ActionT ServerError  Either
+    e <- liftIO $ withResource conns $ \c ->
+      withTransaction c $ do
+        catchViolation' catcher . liftIO . liftM Right $ q c
     either Web.raise return e
 
 
 runDB :: ( MonadTrans m,MonadIO (m App)) => (Connection -> IO b) -> m App b
 runDB q = do
   conns <- lift (asks dbConns)
-  liftIO  $ withResource conns $ \c -> q c
+  liftIO  $ withResource conns $ \c ->
+    withTransaction c $ do
+      q c
 
 --catcher :: MonadTrans IO m => SqlError -> ConstraintViolation -> m (Either ServerError a)
 catcher e = f

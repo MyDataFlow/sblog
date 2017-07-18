@@ -4,7 +4,7 @@ $(document).ready(function() {
   $(function() {
     editor = editormd("editor", {
         width   : "100%",
-        height  : "70%",
+        height  : "80%",
         markdown : md,
         toolbarIcons : function() {
           return [
@@ -31,6 +31,8 @@ $(document).ready(function() {
         imageUpload : false,
         path    : "/bower_components/editor.md/lib/"
     });
-
+  });
+  $('#tags').dropdown({
+    allowAdditions: true
   });
 });

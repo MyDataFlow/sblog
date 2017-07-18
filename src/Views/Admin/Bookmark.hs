@@ -35,6 +35,12 @@ renderNew bookmark =
         H.div ! A.class_ "ui container" $ do
           H.div ! A.id "editor" ! A.name "content" $  H.toHtml (M.bsummary bookmark)
       H.div ! A.class_ "filed" $ do
+        H.div ! A.class_ "ui  multiple selection search dropdown"  ! A.id "tags" $ do
+          H.input ! A.type_ "hidden" ! A.name "tags"
+        --  H.i ! A.class_ "dropdown icon" $ ""
+          H.div ! A.class_ "default text" $ "Tags"
+          H.div ! A.class_ "menu" $ ""
+      H.div ! A.class_ "filed" $ do
         H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
         H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
 

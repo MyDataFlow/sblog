@@ -39,6 +39,7 @@ data BookmarkForm = BookmarkForm {
   title :: T.Text
   ,url :: T.Text
   ,markdown :: T.Text
+  ,tags :: T.Text
 }
 data BookmarkIndex = BookmarkIndex {
   page :: Integer
@@ -49,7 +50,8 @@ instance FromParams BookmarkForm where
     fromParams m = BookmarkForm <$>
       M.lookup "title"  m <*>
       M.lookup "url" m <*>
-      M.lookup "editor-markdown-doc" m
+      M.lookup "editor-markdown-doc" m <*>
+      M.lookup "tags" m
 
 instance FromParams BookmarkIndex where
   fromParams m = BookmarkIndex <$>
@@ -72,14 +74,15 @@ bookmarkNew = do
 
 createProcessor :: Processor BookmarkForm LT.Text
 createProcessor req =  do
-    -- catchError action (\e -> return (status400,"unknown"))
-    action
+    catchError action (\e -> return (status400,"unknown"))
+    -- action
   where
     t = T.unpack $ title req
     u = T.unpack $ url req
     m = T.unpack $ markdown req
+    upackTags = map T.unpack $ T.split (==',') $ tags req
     action = do
-      c <-  DB.runDBTry $ DB.addBookmark t u m
+      c <-  DB.runDBTry $ DB.addBookmark t u m upackTags
       return $ (status302,"/admin/bookmarks")
 
 

@@ -25,10 +25,29 @@ fetchTags c = do
   mapM digest rs
 
 fetchRelatedTags ::  Int -> Int ->  Connection -> IO [Tag]
-fetchRelatedTags pkID t c = do
-      rs <- query c " SELECT t.id FROM tags as t, taggings as tg \
-      \ WHERE tg.related_type = ? AND tg.related_id = ? AND t.id = tg.tag_id" (t,pkID)
-      mapM digest rs
-    where
-      digest (tid,name) = do
-        return $ Tag tid name 1
+fetchRelatedTags rid t c = do
+    rs <- query c " SELECT t.id,t.name FROM tags as t, taggings as tg \
+    \ WHERE tg.related_type = ? AND tg.related_id = ? AND t.id = tg.tag_id" (t,rid)
+    mapM digest rs
+  where
+    digest (tid,name) = return $ Tag tid name 1
+
+findOrAddTag :: String -> Connection ->  IO Int
+findOrAddTag name c = do
+    rs <- query c "SELECT t.id FROM tags as t WHERE t.name = ? " (Only name)
+    if length rs  == 1
+      then return $ fromOnly $ head rs
+      else addTag
+  where
+    addTag = do
+      rs <- query c "INSERT INTO tags ( name ) VALUES ( ? ) RETURNING id " (Only name)
+      return $ fromOnly $ head rs
+
+linkTags :: Int -> Int -> [Int] -> Connection -> IO [Int]
+linkTags rid rt tags c = do
+  mapM tagging tags
+  where
+    tagging tid = do
+      rs <- query c "INSERT INTO taggings (tag_id,related_type,related_id) \
+      \ VALUES (?,?,?) RETURNING id" (tid,rt,rid)
+      return $ fromOnly $  head rs
