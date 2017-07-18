@@ -23,6 +23,7 @@ import Network.HTTP.Types.Status
 import qualified Web.Scotty.Trans  as Web
 
 import App.Types
+import App.Context
 
 
 createConnections :: AppConf -> IO DBConnections
@@ -40,14 +41,12 @@ createConnections cfg = do
 
 -- MonadIO (m ReaderT AppContext IO) -> m ReaderT AppContext IO
 
-runDBTry :: (MonadTrans m,MonadIO (m App),MonadError ServerError (m App)) =>
-  (Connection -> IO b) ->  m App b
+runDBTry :: (Connection -> IO b) -> Response b
 runDBTry q = do
     conns <- lift (asks dbConns)
-    result <- liftIO $ tryIOError $ withResource conns $ \c -> q c
-    case result of
-      Left  e -> throwError $ Exception unauthorized401 "Authorization required"
-      Right r -> return r
+    e <- liftIO $ withResource conns $ \c -> catchViolation' catcher . liftIO . liftM Right $  q c
+    either Web.raise return e
+
 
 runDB :: ( MonadTrans m,MonadIO (m App)) => (Connection -> IO b) -> m App b
 runDB q = do
@@ -57,4 +56,7 @@ runDB q = do
 --catcher :: MonadTrans IO m => SqlError -> ConstraintViolation -> m (Either ServerError a)
 catcher e = f
   where
-    f c = return . Left $ RouteNotFound
+    f c = return . Left $ DBError c
+
+--catchViolation' :: (MonadCatchIO m) => (SqlError -> ConstraintViolation -> m a) -> m a -> m a
+catchViolation' f m = catch m (\e -> maybe (throw e) (f e) $ constraintViolation e)

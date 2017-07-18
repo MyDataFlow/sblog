@@ -8,6 +8,7 @@ import Database.PostgreSQL.Simple(Connection)
 
 import Network.HTTP.Types.Status (Status)
 import Web.Scotty.Trans (ScottyT, ActionT, ScottyError(..))
+import Database.PostgreSQL.Simple.Errors
 
 data AppConf = AppConf {
     port :: Int
@@ -27,7 +28,9 @@ data AppContext = AppContext {
 }
 type App = ReaderT AppContext IO
 
-data ServerError = RouteNotFound | Exception Status T.Text
+data ServerError = RouteNotFound
+  | Exception Status T.Text
+  | DBError ConstraintViolation
 
 
 type Server = ScottyT ServerError App

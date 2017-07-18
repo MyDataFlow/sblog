@@ -96,7 +96,7 @@ createProcessor req =  do
     catcher e (UniqueViolation "bookmarks_unique") = (status500, "bookmarks_unique")
     catcher e _ = (status500, "bookmarks_unique")
     action = do
-      c <- lift $ DB.runDBTry $ DB.addBookmark t u m
+      c <-  DB.runDBTry $ DB.addBookmark t u m
       return $ (status302,"/admin/bookmarks")
 
 
