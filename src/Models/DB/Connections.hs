@@ -23,8 +23,6 @@ import Network.HTTP.Types.Status
 import qualified Web.Scotty.Trans  as Web
 
 import App.Types
-import App.Context
-
 
 createConnections :: AppConf -> IO DBConnections
 createConnections cfg = do
@@ -41,7 +39,7 @@ createConnections cfg = do
 
 -- MonadIO (m ReaderT AppContext IO) -> m ReaderT AppContext IO
 
-runDBTry :: (Connection -> IO b) -> Response b
+runDBTry:: (Connection -> IO b) -> Response b
 runDBTry q = do
     conns <- lift (asks dbConns)
     e <- liftIO $ withResource conns $ \c -> catchViolation' catcher . liftIO . liftM Right $  q c

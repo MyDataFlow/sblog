@@ -72,29 +72,12 @@ bookmarkNew = do
 
 createProcessor :: Processor BookmarkForm LT.Text
 createProcessor req =  do
-  {-
-    (lift $ runExceptT $
-        catchE action
-          (\e -> throwE $ maybe (status500,"unknown") (catcher e) $ constraintViolation e))
-          >>= \x -> return $ either r r x
-    c <- (DB.runCatchDB $ DB.addBookmark t u m) $ catcher
-    if length c == 0
-      then return $ (status500, "bookmarks_unique")
-      else return $ (status302,"/admin/bookmarks")
-      -}
-    {-
-    c <- DB.runDBTry $ DB.addBookmark t u m
-    case c of
-      (Left e) -> return $ maybe (status500,"unknown") (catcher e) $ constraintViolation e
-      (Right r) -> return $ (status302,"/admin/bookmarks")
-      -}
-    catchError action (\e -> return (status400,"unknown"))
+    -- catchError action (\e -> return (status400,"unknown"))
+    action
   where
     t = T.unpack $ title req
     u = T.unpack $ url req
     m = T.unpack $ markdown req
-    catcher e (UniqueViolation "bookmarks_unique") = (status500, "bookmarks_unique")
-    catcher e _ = (status500, "bookmarks_unique")
     action = do
       c <-  DB.runDBTry $ DB.addBookmark t u m
       return $ (status302,"/admin/bookmarks")
@@ -106,11 +89,9 @@ bookmarkCreate = do
 
 renderBookmarks :: Int -> Int -> Response H.Html
 renderBookmarks page count = do
-    catchError action (\e -> return $ VAB.renderIndex [])
-  where
-    action = do
-      a <- DB.runDB $ DB.fetchBookmarks page count
-      return $ VAB.renderIndex a
+  a <- DB.runDBTry $ DB.fetchBookmarks page count
+  return $ VAB.renderIndex a
+
 
 
 

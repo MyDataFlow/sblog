@@ -11,24 +11,9 @@ module  App.Context(
 import Control.Monad.Reader (runReaderT)
 import qualified Data.Text.Lazy as T
 
-import qualified Network.HTTP.Types as Http
 import Web.Scotty.Trans (ScottyT, ActionT, ScottyError(..))
 
 import App.Types
-
-instance ScottyError ServerError where
-  showError = message
-  stringError = Exception Http.internalServerError500 . T.pack
-
-message :: ServerError -> T.Text
-message RouteNotFound = "route not found"
-message (Exception s t)
-  | s == Http.status500  = T.append "internal server error " t
-  | otherwise = t
-
-status :: ServerError -> Http.Status
-status RouteNotFound = Http.status404
-status (Exception s _) = s
 
 createContext ::DBConnections -> String -> AppContext
 createContext conns key =

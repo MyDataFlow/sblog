@@ -6,7 +6,7 @@ import Control.Monad.Reader (ReaderT)
 import Data.Pool(Pool)
 import Database.PostgreSQL.Simple(Connection)
 
-import Network.HTTP.Types.Status (Status)
+import Network.HTTP.Types.Status
 import Web.Scotty.Trans (ScottyT, ActionT, ScottyError(..))
 import Database.PostgreSQL.Simple.Errors
 
@@ -32,6 +32,21 @@ data ServerError = RouteNotFound
   | Exception Status T.Text
   | DBError ConstraintViolation
 
+instance ScottyError ServerError where
+  showError = message
+  stringError = Exception internalServerError500 . T.pack
+
+message :: ServerError -> T.Text
+message RouteNotFound = "route not found"
+message (Exception s t)
+  | s == status500  = T.append "internal server error " t
+  | otherwise = t
+message (DBError e) = T.pack $ show e
+
+status :: ServerError -> Status
+status RouteNotFound = status404
+status (Exception s _) = s
+status (DBError _) = status500
 
 type Server = ScottyT ServerError App
 type Response  = ActionT ServerError App
