@@ -9,7 +9,7 @@ import Network.HTTP.Types.Status
 import App.Types
 import App.Context
 
-class FromParams a where
+class FormParams a where
   fromParams :: M.Map Text Text -> Maybe a
 
 type Processor request response = request -> Response (Status, response)

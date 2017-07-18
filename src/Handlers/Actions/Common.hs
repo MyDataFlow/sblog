@@ -44,7 +44,7 @@ view with = do
       Web.status stat
   return resp
 
-withParams :: (FromParams request) => (Processor request response) -> (Render response) -> Response  response
+withParams :: (FormParams request) => (Processor request response) -> (Render response) -> Response  response
 withParams with render = do
   paramAssoc <- M.fromList <$> params
   let ps = M.mapKeys LT.toStrict $ LT.toStrict <$> paramAssoc

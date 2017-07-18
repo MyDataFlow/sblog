@@ -2,13 +2,13 @@
 {-# LANGUAGE DeriveGeneric #-}
 
 module Views.Admin.Bookmark(
-  renderNew
+  renderWriter
   ,renderIndex
 )where
 
 import Control.Monad
 import Data.Text.Lazy(Text)
-import Data.String (fromString)
+import Data.String
 
 import Network.URI
 
@@ -19,30 +19,29 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Text.Blaze.Html.Renderer.Text
 import Text.Markdown
 
+import Views.Admin.FormCommon
+
 import qualified Models.DB.Schema as M
 
-renderNew :: M.Bookmark -> H.Html
-renderNew bookmark =
-  H.div $ do
-    H.form ! A.class_ "ui form" ! A.action "/admin/bookmarks/create" ! A.method "POST" $ do
-      H.div ! A.class_ "field" $ do
-        H.label "标题"
-        H.input ! A.type_ "text" ! A.name "title" ! A.value (H.toValue $ M.btitle bookmark)
-      H.div ! A.class_ "field" $ do
-        H.label "源连接"
-        H.input ! A.type_ "text" ! A.name "url" ! A.value (H.toValue $ M.burl bookmark)
-      H.div ! A.class_ "field" $ do
-        H.div ! A.class_ "ui container" $ do
-          H.div ! A.id "editor" ! A.name "content" $  H.toHtml (M.bsummary bookmark)
-      H.div ! A.class_ "filed" $ do
-        H.div ! A.class_ "ui  multiple selection search dropdown"  ! A.id "tags" $ do
-          H.input ! A.type_ "hidden" ! A.name "tags"
-        --  H.i ! A.class_ "dropdown icon" $ ""
-          H.div ! A.class_ "default text" $ "Tags"
-          H.div ! A.class_ "menu" $ ""
-      H.div ! A.class_ "filed" $ do
-        H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
-        H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
+renderWriter :: M.Bookmark -> String -> H.Html
+renderWriter bookmark url =
+    H.div $ do
+      H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
+        textField "标题" "title" (M.btitle bookmark)
+        textField "源连接" "url" (M.burl bookmark)
+        contentField (M.bsummary bookmark)
+        tagsField $ tagsVaule
+        H.div ! A.class_ "filed" $ do
+          H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
+          H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
+  where
+    tagsVaule =
+      let
+        ts = map (\tag -> (M.name tag)) (M.btags bookmark)
+      in
+        if length ts == 0
+          then ""
+          else foldr1 (\w s -> w ++ ',':s) ts
 
 renderIndex :: [M.Bookmark] ->  H.Html
 renderIndex bookmarks =

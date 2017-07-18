@@ -3,6 +3,7 @@ module Handlers.Admin.Bookmark(
   bookmarkNew
   ,bookmarkCreate
   ,bookmarkIndex
+  ,bookmarkEditor
 )where
 
 import Control.Exception
@@ -45,23 +46,29 @@ data BookmarkIndex = BookmarkIndex {
   page :: Integer
   ,count :: Integer
 }
+data BookmarkEditor  = BookmarkEditor {
+  bid :: Integer
+}
 
-instance FromParams BookmarkForm where
+instance FormParams BookmarkForm where
     fromParams m = BookmarkForm <$>
       M.lookup "title"  m <*>
       M.lookup "url" m <*>
       M.lookup "editor-markdown-doc" m <*>
       M.lookup "tags" m
 
-instance FromParams BookmarkIndex where
+instance FormParams BookmarkIndex where
   fromParams m = BookmarkIndex <$>
     lookupInt "page" 1 m <*>
     lookupInt "count" 10 m
+instance FormParams BookmarkEditor where
+  fromParams m = BookmarkEditor <$>
+    lookupInt "id" 0 m
 
 newProcessor :: Response (Status,LT.Text)
 newProcessor  =  do
     bookmark <- liftIO $ DB.defBookmark
-    let writer = VAB.renderNew $ bookmark
+    let writer = VAB.renderWriter bookmark "/admin/bookmarks/create"
     return $ (status200, VL.renderAdmin
       ["/bower_components/editor.md/css/editormd.min.css"]
       ["/bower_components/editor.md/editormd.min.js"
@@ -95,10 +102,6 @@ renderBookmarks page count = do
   a <- DB.runDBTry $ DB.fetchBookmarks page count
   return $ VAB.renderIndex a
 
-
-
-
-
 indexProcessor :: Processor BookmarkIndex LT.Text
 indexProcessor req = do
     bv <-  renderBookmarks p c
@@ -115,3 +118,17 @@ indexProcessor req = do
 bookmarkIndex :: Response LT.Text
 bookmarkIndex = do
   withParams indexProcessor view
+
+editorProcessor :: Processor BookmarkEditor LT.Text
+editorProcessor req =  do
+  bs <- DB.runDBTry $ DB.fetchBookmark $ fromInteger (bid req)
+  let writer = VAB.renderWriter (head bs) "/admin/bookmarks/create"
+  return $ (status200, VL.renderAdmin
+    ["/bower_components/editor.md/css/editormd.min.css"]
+    ["/bower_components/editor.md/editormd.min.js"
+    ,"/bookmark/editor.js"]
+    [writer])
+
+bookmarkEditor :: Response LT.Text
+bookmarkEditor = do
+  withParams editorProcessor view
