@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Views.Admin.FormCommon where
+module Views.Common.Form where
 
 import Control.Monad
 import Data.Text.Lazy(Text)

@@ -19,7 +19,7 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Text.Blaze.Html.Renderer.Text
 import Text.Markdown
 
-import Views.Admin.FormCommon
+import Views.Common.Form
 
 import qualified Models.DB.Schema as M
 
