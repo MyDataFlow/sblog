@@ -10,6 +10,7 @@ import Control.Monad.Trans
 import Control.Monad.Reader
 
 import qualified Web.Scotty.Trans  as Web
+import Network.HTTP.Types.Status
 
 import Network.Wai (Middleware)
 import Network.Wai.Middleware.Static
@@ -25,8 +26,11 @@ import Handlers.Admin.Bookmark as HAB
 
 onError :: ServerError -> Response ()
 onError err = do
-    Web.status $ status err
-    Web.text $ message err
+  if (status err) == unauthorized401
+    then Web.redirect "/admin/login"
+    else do
+      Web.status $ status err
+      Web.text $ message err
 
 routing = do
   Web.defaultHandler onError

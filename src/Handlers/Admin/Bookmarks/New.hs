@@ -41,6 +41,4 @@ authUser user req =
 
 newR :: Response LT.Text
 newR = do
-  catchError
-    (view $ withAuthorization authUser ())
-    (\e -> view $ return (status302,"/admin/login"))
+  view $ withAuthorization authUser ()
