@@ -17,7 +17,8 @@ import qualified Data.Map as M
 import Data.Aeson ((.=), object, FromJSON, ToJSON)
 
 
-import Web.Scotty.Trans as Web
+import qualified Web.Scotty.Trans as Web
+import qualified Web.Scotty.Cookie as Cookie
 import Network.HTTP.Types.Status
 
 import App.Types
@@ -46,17 +47,28 @@ view with = do
 
 withParams :: (FormParams request) => (Processor request response) -> (Render response) -> Response  response
 withParams with render = do
-  paramAssoc <- M.fromList <$> params
+  paramAssoc <- M.fromList <$> Web.params
   let ps = M.mapKeys LT.toStrict $ LT.toStrict <$> paramAssoc
   case fromParams ps of
-    Nothing -> raise $ Exception badRequest400 "Expected request in params"
+    Nothing -> Web.raise $ Exception badRequest400 "Expected request in params"
     Just req -> render $ with req
 
 withAuthorization :: Authorized T.Text request response -> Processor request response
 withAuthorization with req = do
-  auth <- Web.header "Authorization"
-  secret <- lift (asks secret)
-  info <-  liftIO $ Auth.secure secret auth
-  case info of
-    Nothing -> raise $ Exception unauthorized401 "Authorization required"
-    Just userID -> with userID req
+    auth <- Web.header "Authorization"
+    cookie <- Cookie.getCookie "Authorization"
+    secret <- lift (asks secret)
+    case auth of
+      Nothing -> cookieAuth secret cookie
+      _ -> headerAuth secret auth
+  where
+    authAction info = do
+      case info of
+        Nothing -> Web.raise $ Exception unauthorized401 "Authorization required"
+        Just userID -> with userID req
+    cookieAuth secret cookie = do
+      info <- liftIO $ Auth.cookieSecure secret cookie
+      authAction info
+    headerAuth secret auth = do
+      info <-  liftIO $ Auth.headerSecure secret auth
+      authAction info

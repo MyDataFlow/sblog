@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
-module Views.Common.Pagination(
+module Utils.BlazeExtra.Pagination(
   Pagination(..)
   ,render
 ) where

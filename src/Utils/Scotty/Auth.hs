@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Utils.Scotty.Auth(
-  secure
+  headerSecure
+  ,cookieSecure
 ) where
 
 import qualified Data.ByteString as BS
@@ -12,8 +13,14 @@ import Data.Char
 
 import qualified Utils.Auth.JWT as JWT
 
-secure :: String -> Maybe LT.Text -> IO (Maybe T.Text)
-secure secret auth = do
+cookieSecure :: String -> Maybe T.Text -> IO (Maybe T.Text)
+cookieSecure secret auth = do
+  case auth of
+    Nothing -> return $ Nothing
+    Just claims -> verify secret $  T.unpack claims
+
+headerSecure :: String -> Maybe LT.Text -> IO (Maybe T.Text)
+headerSecure secret auth = do
   case auth of
     Nothing -> return $ Nothing
     Just token ->
