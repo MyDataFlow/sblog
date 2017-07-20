@@ -37,7 +37,8 @@ import qualified Views.Layout as VL
 import qualified Views.Admin.Bookmark as VAB
 
 data BookmarkForm = BookmarkForm {
-  title :: T.Text
+  fbid :: T.Text
+  ,title :: T.Text
   ,url :: T.Text
   ,markdown :: T.Text
   ,tags :: T.Text
@@ -52,6 +53,7 @@ data BookmarkEditor  = BookmarkEditor {
 
 instance FormParams BookmarkForm where
     fromParams m = BookmarkForm <$>
+      M.lookup "id" m <*>
       M.lookup "title"  m <*>
       M.lookup "url" m <*>
       M.lookup "editor-markdown-doc" m <*>
@@ -59,8 +61,8 @@ instance FormParams BookmarkForm where
 
 instance FormParams BookmarkIndex where
   fromParams m = BookmarkIndex <$>
-    lookupInt "page" 1 m <*>
-    lookupInt "count" 10 m
+    lookupInt "_page" 1 m <*>
+    lookupInt "_count" 10 m
 instance FormParams BookmarkEditor where
   fromParams m = BookmarkEditor <$>
     lookupInt "id" 0 m
@@ -121,13 +123,17 @@ bookmarkIndex = do
 
 editorProcessor :: Processor BookmarkEditor LT.Text
 editorProcessor req =  do
-  bs <- DB.runDBTry $ DB.fetchBookmark $ fromInteger (bid req)
-  let writer = VAB.renderWriter (head bs) "/admin/bookmarks/create"
-  return $ (status200, VL.renderAdmin
-    ["/bower_components/editor.md/css/editormd.min.css"]
-    ["/bower_components/editor.md/editormd.min.js"
-    ,"/bookmark/editor.js"]
-    [writer])
+  let intBid = fromInteger (bid req)
+  if intBid == 0
+    then return  (status302,"/admin/bookmarks/new")
+    else do
+      bs <- DB.runDBTry $ DB.fetchBookmark $ intBid
+      let writer = VAB.renderWriter bs "/admin/bookmarks/create"
+      return $ (status200, VL.renderAdmin
+        ["/bower_components/editor.md/css/editormd.min.css"]
+        ["/bower_components/editor.md/editormd.min.js"
+        ,"/bookmark/editor.js"]
+        [writer])
 
 bookmarkEditor :: Response LT.Text
 bookmarkEditor = do

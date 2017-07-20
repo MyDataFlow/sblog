@@ -27,6 +27,7 @@ renderWriter :: M.Bookmark -> String -> H.Html
 renderWriter bookmark url =
     H.div $ do
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
+        idField $ show (M.bid bookmark)
         textField "标题" "title" (M.btitle bookmark)
         textField "源连接" "url" (M.burl bookmark)
         contentField (M.bsummary bookmark)
@@ -45,7 +46,6 @@ renderIndex bookmarks =
         H.th "id"
         H.th "title"
         H.th "url"
-        H.th "created_at"
         H.th "updated_at"
         H.th "action"
     H.tbody $ do
@@ -56,7 +56,6 @@ renderIndex bookmarks =
         H.td $ H.toHtml (M.bid bookmark)
         H.td $ H.toHtml (M.btitle bookmark)
         H.td $ H.toHtml (M.burl bookmark)
-        H.td $ H.toHtml $ show (M.bcreatedAt bookmark)
         H.td $ H.toHtml $ show (M.bupdatedAt bookmark)
         H.td $ do
           H.a ! A.class_ "ui  button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "编辑"

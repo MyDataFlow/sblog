@@ -11,6 +11,10 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import qualified Utils.BlazeExtra.Attributes as EA
 
+idField :: String -> H.Html
+idField value =
+  H.div ! A.class_ "field" $ do
+    H.input ! A.class_ "hidden" ! A.type_ "hidden" ! A.name "id" ! A.value (H.toValue value) 
 textField :: String -> String -> String -> H.Html
 textField title name value  =
   H.div ! A.class_ "field" $ do

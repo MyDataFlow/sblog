@@ -6,6 +6,7 @@ import Control.Applicative
 import Control.Monad
 
 import Data.Maybe
+import Data.Int
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromField
@@ -24,7 +25,7 @@ fetchTags c = do
   rs  <- query_ c q
   mapM digest rs
 
-fetchRelatedTags ::  Int -> Int ->  Connection -> IO [Tag]
+fetchRelatedTags ::  Int64 -> Int ->  Connection -> IO [Tag]
 fetchRelatedTags rid t c = do
     rs <- query c " SELECT t.id,t.name,count(t.id) FROM tags as t, taggings as tg \
     \ WHERE t.id = tg.tag_id GROUP BY t.id HAVING \
@@ -33,7 +34,7 @@ fetchRelatedTags rid t c = do
   where
     digest (tid,name,tc) = return $ Tag tid name tc
 
-findOrAddTag :: String -> Connection ->  IO Int
+findOrAddTag :: String -> Connection ->  IO Int64
 findOrAddTag name c = do
     rs <- query c "SELECT t.id FROM tags as t WHERE t.name = ? " (Only name)
     if length rs  == 1
@@ -44,11 +45,16 @@ findOrAddTag name c = do
       rs <- query c "INSERT INTO tags ( name ) VALUES ( ? ) RETURNING id " (Only name)
       return $ fromOnly $ head rs
 
-linkTags :: Int -> Int -> [Int] -> Connection -> IO [Int]
-linkTags rid rt tags c = do
+addTaggings :: Int64 -> Int -> [Int64] -> Connection -> IO [Int64]
+addTaggings rid rt tags c = do
   mapM tagging tags
   where
     tagging tid = do
       rs <- query c "INSERT INTO taggings (tag_id,related_type,related_id) \
       \ VALUES (?,?,?) RETURNING id" (tid,rt,rid)
       return $ fromOnly $  head rs
+
+removeTaggings :: Int64 -> Int -> Connection -> IO Int64
+removeTaggings rid rt c = do
+  execute c "DELETE FROM taggings WHERE \
+    \related_type = ? AND related_id = ?"  (rt,rid)

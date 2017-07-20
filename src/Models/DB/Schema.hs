@@ -2,16 +2,17 @@
 
 module Models.DB.Schema where
 
+import Data.Int
 import qualified Data.Time as DT
 
 data Tag = Tag {
-  tid :: Int
+  tid :: Int64
   ,name :: String
   ,count :: Int
 } deriving (Show)
 
 data Article = Article {
-  aid :: Int
+  aid :: Int64
   ,atitle :: String
   ,asummary :: String
   ,apublished :: Bool
@@ -21,7 +22,7 @@ data Article = Article {
 } deriving (Show)
 
 data Bookmark = Bookmark {
-  bid :: Int
+  bid :: Int64
   ,btitle :: String
   ,bsummary :: String
   ,burl :: String
