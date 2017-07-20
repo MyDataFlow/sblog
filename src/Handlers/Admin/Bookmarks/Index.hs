@@ -41,7 +41,7 @@ indexProcessor req = do
     return $ (status200, VL.renderAdmin
           ["/bower_components/editor.md/css/editormd.min.css"]
           ["/bower_components/editor.md/editormd.min.js"
-          ,"/bookmark/editor.js"]
+          ,"/bookmark/index.js"]
           [bv])
   where
     p = fromInteger $ page req

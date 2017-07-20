@@ -41,20 +41,22 @@ renderWriter bookmark url =
 
 renderIndex :: [M.Bookmark] -> URI -> Pagination ->  H.Html
 renderIndex bookmarks base pn =
-  H.table ! A.class_ "ui celled table" $ do
-    H.thead $ do
-      H.tr $ do
-        H.th "id"
-        H.th "title"
-        H.th "url"
-        H.th "updated_at"
-        H.th "action"
-    H.tbody $
-      mapM_ renderBookmark bookmarks
-    H.tfoot ! A.class_ "full-width" $ H.tr $
-      H.th ! A.colspan "5" $ do
-        H.div $ H.a ! A.class_ "ui small button" ! A.href "/admin/bookmarks/new" $ "新建"
-        Pagination.render base pn
+  H.div $ do
+    H.table ! A.class_ "ui celled table" $ do
+      H.thead $ do
+        H.tr $ do
+          H.th "id"
+          H.th "title"
+          H.th "url"
+          H.th "updated_at"
+          H.th "action"
+      H.tbody $
+        mapM_ renderBookmark bookmarks
+      H.tfoot ! A.class_ "full-width" $ H.tr $
+        H.th ! A.colspan "5" $ do
+          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/bookmarks/new" $ "新建"
+          Pagination.render base pn
+    rednerDeleteModal
   where
     renderBookmark bookmark =
       H.tr $ do
@@ -63,5 +65,19 @@ renderIndex bookmarks base pn =
         H.td $ H.toHtml (M.burl bookmark)
         H.td $ H.toHtml $ show (M.bupdatedAt bookmark)
         H.td $ do
-          H.a ! A.class_ "ui  button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "编辑"
-          H.a ! A.class_ "ui  button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "删除"
+          H.a ! A.class_ "ui primary basic button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "编辑"
+          H.button ! A.id (H.toValue (M.bid bookmark)) ! A.class_ "ui negative basic button"  $ "删除"
+    rednerDeleteModal  =
+      H.div ! A.class_ "ui basic modal" $ do
+        H.div ! A.class_ "ui icon header" $ do
+          H.i ! A.class_ "archive icon" $ ""
+          "删除连接"
+        H.div ! A.class_ "content" $
+          H.p $ "确定要删除该连接吗？"
+        H.div ! A.class_ "actions" $ do
+          H.div ! A.id "cancel" ! A.class_ "ui red basic cancel inverted button" $ do
+            H.i ! A.class_ "remove icon" $ ""
+            "否"
+          H.div ! A.id "ok" ! A.class_ "ui green ok inverted button" $ do
+            H.i ! A.class_ "checkmark icon" $ ""
+            "是"
