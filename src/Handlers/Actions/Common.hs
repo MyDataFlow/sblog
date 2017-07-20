@@ -45,13 +45,13 @@ view with = do
       Web.status stat
   return resp
 
-withParams :: (FormParams request) => (Processor request response) -> (Render response) -> Response  response
-withParams with render = do
+withParams :: (FormParams request) => (Processor request response) -> Response (Status,response)
+withParams with = do
   paramAssoc <- M.fromList <$> Web.params
   let ps = M.mapKeys LT.toStrict $ LT.toStrict <$> paramAssoc
   case fromParams ps of
     Nothing -> Web.raise $ Exception badRequest400 "Expected request in params"
-    Just req -> render $ with req
+    Just req -> with req
 
 withAuthorization :: Authorized T.Text request response -> Processor request response
 withAuthorization with req = do

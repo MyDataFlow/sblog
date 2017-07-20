@@ -8,6 +8,7 @@ module Utils.BlazeExtra.Pagination(
 import Control.Monad
 import Data.Text.Lazy(Text)
 import Data.String (fromString)
+import Data.Default
 import Network.URI
 import Network.URI.Params
 

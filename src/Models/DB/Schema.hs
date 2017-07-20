@@ -31,6 +31,7 @@ data Bookmark = Bookmark {
   ,btags :: [Tag]
 } deriving (Show)
 
+
 defBookmark :: IO Bookmark
 defBookmark = do
   utc <- DT.getCurrentTime

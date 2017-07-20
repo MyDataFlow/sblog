@@ -19,7 +19,7 @@ import App.Types
 import App.Context
 
 import Handlers.ArticleWriter
-import Handlers.Admin.Bookmark
+import Handlers.Admin.Bookmark as HAB
 
 
 
@@ -33,8 +33,8 @@ routing = do
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
   Web.get "/admin" $ void $ articleWriter
-  Web.get "/admin/bookmarks" $ void $ bookmarkIndex
-  Web.get "/admin/bookmarks/new" $ void $ bookmarkNew
-  Web.get "/admin/bookmarks/:id/edit" $ void $ bookmarkEditor
-  Web.post "/admin/bookmarks/create" $ void $ bookmarkCreate
+  Web.get "/admin/bookmarks" $ void $ HAB.indexR
+  Web.get "/admin/bookmarks/new" $ void $ HAB.newR
+  Web.get "/admin/bookmarks/:id/edit" $ void $ HAB.editR
+  Web.post "/admin/bookmarks/create" $ void $ HAB.createR
   Web.notFound $ Web.raise RouteNotFound
