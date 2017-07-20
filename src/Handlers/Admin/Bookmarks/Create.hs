@@ -25,7 +25,7 @@ import qualified Views.Layout as VL
 import qualified Views.Admin.Bookmark as VAB
 
 data BookmarkForm = BookmarkForm {
-  bid :: T.Text
+  bid :: Integer
   ,title :: T.Text
   ,url :: T.Text
   ,markdown :: T.Text
@@ -33,7 +33,7 @@ data BookmarkForm = BookmarkForm {
 }
 instance FormParams BookmarkForm where
     fromParams m = BookmarkForm <$>
-      M.lookup "id" m <*>
+      lookupInt "id" 0 m <*>
       M.lookup "title"  m <*>
       M.lookup "url" m <*>
       M.lookup "editor-markdown-doc" m <*>

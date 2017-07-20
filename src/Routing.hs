@@ -41,4 +41,5 @@ routing = do
   Web.get "/admin/bookmarks/new" $ void $ HAB.newR
   Web.get "/admin/bookmarks/:id/edit" $ void $ HAB.editR
   Web.post "/admin/bookmarks/create" $ void $ HAB.createR
+  Web.post "/admin/bookmarks/remove" $ void $ HAB.removeR
   Web.notFound $ Web.raise RouteNotFound
