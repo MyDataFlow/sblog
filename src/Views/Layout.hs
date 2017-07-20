@@ -5,7 +5,7 @@ module Views.Layout(
   render
   ,renderAdmin
 )where
-
+import Control.Monad
 import Data.Text.Lazy(Text)
 import Data.String (fromString)
 
@@ -20,11 +20,30 @@ defaultMeta :: [H.Html]
 defaultMeta =
   [
     H.meta ! A.charset "utf-8",
-    H.meta ! A.httpEquiv "X-UA-Compatible"
-      ! A.content "IE=edge,chrome=1",
+    H.meta ! A.httpEquiv "X-UA-Compatible" ! A.content "IE=edge,chrome=1",
     H.meta ! A.name "viewport"
-      ! A.content "width=device-width, initial-scale=1.0, maximum-scale=1.0"
+     ! A.content "width=device-width, initial-scale=1.0, maximum-scale=1.0"
   ]
+
+renderMenu :: [(Int,String,String)] -> Int -> H.Html
+renderMenu menus active =
+  H.div ! A.class_ "ui menu" $
+    H.div ! A.class_ "ui container" $
+      toItems
+  where
+    toItems =
+      forM_ menus $ \(ord,menu,url) ->
+        let
+          theclass = if ord == active then "active blue item" else "item"
+        in
+          H.a ! A.class_  theclass ! A.href (H.toValue url) $ H.toHtml menu
+
+renderAdminMenu :: Int -> H.Html
+renderAdminMenu active =
+    renderMenu menus active
+  where
+    menus = [(1,"书签","/admin/bookmarks")
+            ,(2,"文章","/admin/articles")]
 renderHeader :: String -> [H.Html] -> H.Html
 renderHeader title meta =
   H.head $ do
@@ -33,15 +52,12 @@ renderHeader title meta =
     EH.cssLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.css"
     EH.cssLink "/bower_components/github-markdown-css/github-markdown.css"
 
-renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html
-renderInner title meta sidePart mainPart =
+renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html -> H.Html
+renderInner title meta sidePart mainPart menu =
   H.html $ do
     renderHeader title meta
     H.body $ do
-      H.div ! A.class_ "ui inverted menu" $ do
-        H.div ! A.class_ "ui container" $ do
-          H.a ! A.class_ "item" $ "Home"
-          H.a ! A.class_ "item" $ "Tags"
+      menu
       H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
           H.div ! A.class_ "ten wide computer eleven wide tablet sixteen wide mobile column" $ do
@@ -51,15 +67,12 @@ renderInner title meta sidePart mainPart =
       EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
 
-renderAdminInner css js mainPart =
+renderAdminInner css js mainPart menu =
   H.html $ do
     renderHeader "管理后台" defaultMeta
     mapM_ EH.cssLink css
     H.body $ do
-      H.div ! A.class_ "ui inverted menu" $ do
-        H.div ! A.class_ "ui container" $ do
-          H.a ! A.class_ "item" ! A.href "/admin/bookmarks" $ "Boorkmarks"
-          H.a ! A.class_ "item" ! A.href "/admin/articles" $ "Articles"
+      menu
       H.div ! A.class_ "ui container" $ do
         H.div ! A.class_ "ui grid" $ do
           H.div ! A.class_ "sixteen wide column" $ do
@@ -68,12 +81,12 @@ renderAdminInner css js mainPart =
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
       mapM_ EH.jsLink js
 
-render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> Text
-render title meta sidePart mainPart =
-  renderHtml $ renderInner title combineMeta sidePart mainPart
+render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html -> Text
+render title meta sidePart mainPart menu =
+  renderHtml $ renderInner title combineMeta sidePart mainPart menu
   where
     combineMeta = defaultMeta ++ meta
 
-renderAdmin :: [String] -> [String] -> [H.Html] -> Text
-renderAdmin css js mainPart =
-  renderHtml $ renderAdminInner css js mainPart
+renderAdmin :: Int -> [String] -> [String] -> [H.Html]  -> Text
+renderAdmin active css js mainPart  =
+  renderHtml $ renderAdminInner css js mainPart $ renderAdminMenu active

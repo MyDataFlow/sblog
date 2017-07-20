@@ -33,7 +33,7 @@ import qualified Views.ArticleWriter as VAW
 indexProcessor :: Response (Status,LT.Text)
 indexProcessor  =  do
     let writer = VAW.render
-    return $ (status200, VL.renderAdmin
+    return $ (status200, VL.renderAdmin 2
       ["/bower_components/editor.md/css/editormd.min.css"]
       ["/bower_components/editor.md/editormd.min.js"
       ,"/editor.js"]

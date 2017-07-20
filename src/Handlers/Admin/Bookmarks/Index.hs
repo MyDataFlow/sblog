@@ -38,11 +38,12 @@ instance FormParams BookmarkIndex where
 indexProcessor :: Processor BookmarkIndex LT.Text
 indexProcessor req = do
     bv <-  renderBookmarks
-    return $ (status200, VL.renderAdmin
-          ["/bower_components/editor.md/css/editormd.min.css"]
-          ["/bower_components/editor.md/editormd.min.js"
-          ,"/bookmark/index.js"]
-          [bv])
+    return $ (status200,
+              VL.renderAdmin 1
+                ["/bower_components/editor.md/css/editormd.min.css"]
+                ["/bower_components/editor.md/editormd.min.js"
+                ,"/bookmark/index.js"]
+                [bv] )
   where
     p = fromInteger $ page req
     c = fromInteger $ count req

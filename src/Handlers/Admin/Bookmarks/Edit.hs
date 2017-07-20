@@ -39,11 +39,12 @@ editProcessor req =  do
     else do
       bs <- DB.runDBTry $ DB.fetchBookmark $ intBid
       let writer = VAB.renderWriter bs "/admin/bookmarks/create"
-      return $ (status200, VL.renderAdmin
-            ["/bower_components/editor.md/css/editormd.min.css"]
-            ["/bower_components/editor.md/editormd.min.js"
-            ,"/bookmark/editor.js"]
-            [writer])
+      return $ (status200,
+                VL.renderAdmin 1
+                  ["/bower_components/editor.md/css/editormd.min.css"]
+                  ["/bower_components/editor.md/editormd.min.js"
+                  ,"/bookmark/editor.js"]
+                  [writer])
 
 authUser user req =
   if  user == "admin"
