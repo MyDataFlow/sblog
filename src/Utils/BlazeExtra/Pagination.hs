@@ -10,7 +10,6 @@ import Data.Text.Lazy(Text)
 import Data.String (fromString)
 import Data.Default
 import Network.URI
-import Network.URI.Params
 
 import Text.Blaze.Html5((!))
 import qualified Text.Blaze.Html5 as H
@@ -27,6 +26,7 @@ data Pagination = Pagination
   , pnWidth       :: Integer
   , pnPrev        :: String
   , pnNext        :: String
+  , pnMenuClass   :: String
   } deriving (Show)
 
 instance Default Pagination where
@@ -38,6 +38,7 @@ instance Default Pagination where
         , pnWidth       = 4
         , pnPrev        = "前一页"
         , pnNext        = "后一页"
+        , pnMenuClass   = "ui pagination menu"
         }
 
 -- | Get the page count of the pagination results.
@@ -54,20 +55,20 @@ render uri pn@Pagination{..}  =
     if pnTotal <= pnPerPage
       then H.div ""
       else
-          H.div ! A.class_ "ui pagination menu" $ do
+          H.div ! A.class_ (H.toValue pnMenuClass) $ do
             when (pnCurrentPage > 1) $ prevPart
             when (end < pageCount) $ middlePart
             when (pnCurrentPage < pageCount) $ nextPart
   where
-    w = pnWidth pn
-    start = max 1 (page - 2)
+    w = pnWidth
+    start = max 1 (pnCurrentPage - 2)
     end = min pageCount (start + w)
     pageCount = pnPageCount pn
-    paramName = pnName pn ++ "_page"
+    paramName = pnName ++ "_page"
     items =
       forM_ [start..end] $ \i ->
         let
-          theclass = if i == page then "active item" else "item"
+          theclass = if i == pnCurrentPage then "active item" else "item"
         in
           H.div ! A.class_ theclass $
             H.a ! EA.hrefSet uri paramName (show i) $ H.toHtml (show i)

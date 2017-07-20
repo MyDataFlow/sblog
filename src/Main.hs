@@ -27,6 +27,6 @@ main = do
     hSetBuffering stderr NoBuffering
     conf <- readOptions
     conns <- DB.createConnections conf
-    let ctx = createContext conns (jwtKey conf)
+    let ctx = createContext conns (jwtKey conf) (adminPassword conf)
     Web.scottyT (port conf) (runApp ctx) R.routing
     return ()

@@ -13,6 +13,7 @@ import Database.PostgreSQL.Simple.Errors
 data AppConf = AppConf {
     port :: Int
     ,jwtKey :: String
+    ,adminPassword :: String
     ,dbHost :: String
     ,dbPort :: Int
     ,dbUser :: String
@@ -25,6 +26,7 @@ type DBConnections = Pool Connection
 data AppContext = AppContext {
   dbConns :: DBConnections
   ,secret :: String
+  ,admin :: String
 }
 type App = ReaderT AppContext IO
 

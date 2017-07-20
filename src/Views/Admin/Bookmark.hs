@@ -20,6 +20,7 @@ import Text.Blaze.Html.Renderer.Text
 import Text.Markdown
 
 import Views.Common.Form
+import Utils.BlazeExtra.Pagination as Pagination
 
 import qualified Models.DB.Schema as M
 
@@ -38,8 +39,8 @@ renderWriter bookmark url =
   where
     ts = map (\tag -> (M.name tag)) (M.btags bookmark)
 
-renderIndex :: [M.Bookmark] ->  H.Html
-renderIndex bookmarks =
+renderIndex :: [M.Bookmark] -> URI -> Pagination ->  H.Html
+renderIndex bookmarks base pn =
   H.table ! A.class_ "ui celled table" $ do
     H.thead $ do
       H.tr $ do
@@ -48,8 +49,12 @@ renderIndex bookmarks =
         H.th "url"
         H.th "updated_at"
         H.th "action"
-    H.tbody $ do
+    H.tbody $
       mapM_ renderBookmark bookmarks
+    H.tfoot ! A.class_ "full-width" $ H.tr $
+      H.th ! A.colspan "5" $ do
+        H.div $ H.a ! A.class_ "ui small button" ! A.href "/admin/bookmarks/new" $ "新建"
+        Pagination.render base pn
   where
     renderBookmark bookmark =
       H.tr $ do

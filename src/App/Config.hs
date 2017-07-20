@@ -34,6 +34,7 @@ readOptions = do
     let (mAppConf, errs) = flip C.runParserA conf $
             AppConf <$> C.key "port"
             <*> C.key "jwtKey"
+            <*> C.key "adminPassword"
             <*> C.key "dbHost"
             <*> C.key "dbPort"
             <*> C.key "dbUser"

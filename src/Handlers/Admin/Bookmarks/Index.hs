@@ -3,7 +3,8 @@ module Handlers.Admin.Bookmarks.Index(
   indexR
 )where
 
-
+import Data.Default
+import Data.Int
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
@@ -18,6 +19,7 @@ import Handlers.Actions.Common
 import Handlers.Common
 
 import qualified Models.DB as DB
+import Utils.BlazeExtra.Pagination as Pagination
 
 import qualified Views.Layout as VL
 import qualified Views.Admin.Bookmark as VAB
@@ -47,7 +49,13 @@ indexProcessor req = do
     base = (toUrl "/admin/bookmarks")
     renderBookmarks = do
       a <- DB.runDBTry $ DB.fetchBookmarks p c
-      return $ VAB.renderIndex a
+      total <- DB.runDBTry $ DB.fetchBookmarksCount
+      let pn = def {
+        pnTotal = (toInteger total)
+        ,pnPerPage = (count req)
+        ,pnMenuClass = "ui right floated pagination menu"
+      }
+      return $ VAB.renderIndex a base pn
 
 authUser user req =
   if  user == "admin"
@@ -56,4 +64,5 @@ authUser user req =
 
 indexR :: Response LT.Text
 indexR = do
-    view $ withParams $ withAuthorization authUser
+  -- view $ withParams $ withAuthorization authUser
+  view $ withParams $ indexProcessor

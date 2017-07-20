@@ -15,11 +15,12 @@ import Web.Scotty.Trans (ScottyT, ActionT, ScottyError(..))
 
 import App.Types
 
-createContext ::DBConnections -> String -> AppContext
-createContext conns key =
+createContext ::DBConnections -> String -> String -> AppContext
+createContext conns key adminPassword =
   AppContext {
     dbConns = conns
     ,secret = key
+    ,admin = adminPassword
 }
 
 runApp :: AppContext ->App a -> IO a
