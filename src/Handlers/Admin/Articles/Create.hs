@@ -38,7 +38,7 @@ instance FormParams ArticleForm where
       lookupInt "id" 0 m <*>
       M.lookup "title"  m <*>
       M.lookup "summary" m <*>
-      M.lookup "editor-markdown-doc" m <*>
+      M.lookup "editor-html-code" m <*>
       lookupInt "published" 0 m <*>
       M.lookup "tags" m
 

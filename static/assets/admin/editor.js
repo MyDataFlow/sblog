@@ -16,7 +16,7 @@ $(document).ready(function() {
           ];
         },
         codeFold : true,
-        saveHTMLToTextarea : false,    // 保存 HTML 到 Textarea
+        saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
         searchReplace : true,
         watch : true,                // 关闭实时预览
         htmlDecode : false,            // 开启 HTML 标签解析，为了安全性，默认不开启

@@ -13,6 +13,7 @@ import Network.HTTP.Types.Status
 
 import App.Types
 import App.Context
+import Utils.URI.String
 
 import Handlers.Actions.Types
 import Handlers.Actions.Common
@@ -47,7 +48,7 @@ indexProcessor req = do
   where
     p = fromInteger $ page req
     c = fromInteger $ count req
-    base = (toUrl "/admin/bookmarks")
+    base = (toURI "/admin/bookmarks")
     renderBookmarks = do
       a <- DB.runDBTry $ DB.fetchBookmarks p c
       total <- DB.runDBTry $ DB.fetchBookmarksCount

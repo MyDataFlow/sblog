@@ -15,9 +15,6 @@ import App.Context
 import qualified Models.DB as DB
 
 
-toUrl :: String -> URI
-toUrl u = fromJust $ parseRelativeReference u
-
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe (Left _) = Nothing
 eitherToMaybe (Right val) = Just val

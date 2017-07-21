@@ -9,11 +9,14 @@ import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
 
 import Control.Monad.Except (catchError)
-
+import Control.Monad.IO.Class(liftIO)
+import Network.URI
 import Network.HTTP.Types.Status
 
 import App.Types
 import App.Context
+import Utils.URI.Params
+import Utils.URI.String
 
 import Handlers.Actions.Types
 import Handlers.Actions.Common
@@ -36,7 +39,7 @@ instance FormParams BookmarkForm where
       lookupInt "id" 0 m <*>
       M.lookup "title"  m <*>
       M.lookup "url" m <*>
-      M.lookup "editor-markdown-doc" m <*>
+      M.lookup "editor-html-code" m <*>
       M.lookup "tags" m
 
 
@@ -44,11 +47,15 @@ createProcessor :: Processor BookmarkForm LT.Text
 createProcessor req =  do
     catchError action (\e -> return (status400,"unknown"))
   where
+    params = [("utm_source","ttalk.im")
+             ,("utm_campaign","TTalkIM")
+             ,("utm_medium","website")]
     t = T.unpack $ title req
-    u = T.unpack $ url req
+    u = show $ updateUrlParams params $ toURI (T.unpack $ url req)
     m = T.unpack $ markdown req
     upackTags = map T.unpack $ T.split (==',') $ tags req
     action = do
+      liftIO $ putStrLn u
       c <-  DB.runDBTry $ DB.addBookmark t u m upackTags
       return $ (status302,"/admin/bookmarks")
 
