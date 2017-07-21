@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Views.Admin.Bookmark(
+module Views.Admin.Article(
   renderWriter
   ,renderIndex
 )where
@@ -24,57 +24,69 @@ import Utils.BlazeExtra.Pagination as Pagination
 
 import qualified Models.DB.Schema as M
 
-renderWriter :: M.Bookmark -> String -> H.Html
-renderWriter bookmark url =
+renderWriter :: M.Article -> String -> H.Html
+renderWriter article url =
     H.div $ do
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
-        idField $ show (M.bid bookmark)
-        textField "标题" "title" (M.btitle bookmark)
-        textField "源连接" "url" (M.burl bookmark)
-        contentField (M.bsummary bookmark)
+        idField $ show (M.aid article)
+        textField "标题" "title" (M.atitle article)
+        textField "摘要" "summary" (M.asummary article)
+        contentField (M.abody article)
+        H.div ! A.class_ "field" $
+          H.div ! A.class_ "ui checkbox" $ do
+            H.input  ! A.type_ "checkbox" ! A.name "published" ! A.tabindex "0"
+              ! A.value checked
+            H.label "发布"
+
         tagsField $ ts
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
-          H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
+          H.a ! A.class_ "ui  button" ! A.href "/admin/articles" $ "取消"
   where
-    ts = map (\tag -> (M.name tag)) (M.btags bookmark)
+    ts = map (\tag -> (M.name tag)) (M.atags article)
+    checked =
+      if M.apublished article
+        then "on"
+        else "off"
 
-renderIndex :: [M.Bookmark] -> URI -> Pagination ->  H.Html
-renderIndex bookmarks base pn =
+
+renderIndex :: [M.Article] -> URI -> Pagination ->  H.Html
+renderIndex ariticles base pn =
   H.div $ do
     H.table ! A.class_ "ui celled table" $ do
       H.thead $ do
         H.tr $ do
           H.th "id"
           H.th "title"
-          H.th "url"
+          H.th "summary"
           H.th "updated_at"
           H.th "action"
       H.tbody $
-        mapM_ renderBookmark bookmarks
+        mapM_ renderArticle ariticles
       H.tfoot ! A.class_ "full-width" $ H.tr $
         H.th ! A.colspan "5" $ do
-          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/bookmarks/new" $ "新建"
+          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/articles/new" $ "新建"
           Pagination.render base pn
     rednerDeleteModal
   where
-    renderBookmark bookmark =
+    renderArticle article =
       H.tr $ do
-        H.td $ H.toHtml (M.bid bookmark)
-        H.td $ H.toHtml (M.btitle bookmark)
-        H.td $ H.toHtml (M.burl bookmark)
-        H.td $ H.toHtml $ show (M.bupdatedAt bookmark)
+        H.td $ H.toHtml (M.aid article)
+        H.td $ H.toHtml (M.atitle article)
+        H.td $ H.toHtml (M.asummary article)
+        H.td $ H.toHtml $ show (M.aupdatedAt article)
         H.td $ do
-          H.a ! A.class_ "ui primary basic button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "编辑"
-          H.button ! A.id (H.toValue (M.bid bookmark)) ! A.href "/admin/bookmarks/remove/"
+          H.a ! A.class_ "ui primary basic button"
+            ! A.href (H.toValue  ("/admin/articles/" ++ (show $ M.aid article) ++ "/edit") ) $ "编辑"
+          H.button ! A.id (H.toValue (M.aid article)) ! A.href "/admin/articles/remove/"
             ! A.class_ "ui negative basic button"  $ "删除"
     rednerDeleteModal  =
       H.div ! A.class_ "ui basic modal" $ do
         H.div ! A.class_ "ui icon header" $ do
           H.i ! A.class_ "archive icon" $ ""
-          "删除连接"
+          "删除文章"
         H.div ! A.class_ "content" $
-          H.p $ "确定要删除该连接吗？"
+          H.p $ "确定要删除该文章吗？"
         H.div ! A.class_ "actions" $ do
           H.div ! A.id "cancel" ! A.class_ "ui red basic cancel inverted button" $ do
             H.i ! A.class_ "remove icon" $ ""

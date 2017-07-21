@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Admin.Bookmarks.New(
+module Handlers.Admin.Articles.New(
   newR
 )where
 
@@ -22,14 +22,14 @@ import Handlers.Common
 import qualified Models.DB as DB
 
 import qualified Views.Layout as VL
-import qualified Views.Admin.Bookmark as VAB
+import qualified Views.Admin.Article as VAA
 
 newProcessor :: Response (Status,LT.Text)
 newProcessor  =  do
-    bookmark <- liftIO $ DB.defBookmark
-    let writer = VAB.renderWriter bookmark "/admin/bookmarks/create"
+    ar <- liftIO $ DB.defArticle
+    let writer = VAA.renderWriter ar "/admin/articles/create"
     return $ (status200,
-              VL.renderAdmin 1
+              VL.renderAdmin 2
                 ["/bower_components/editor.md/css/editormd.min.css"]
                 ["/bower_components/editor.md/editormd.min.js"
                 ,"/assets/admin/editor.js"]
@@ -42,5 +42,5 @@ authUser user req =
 
 newR :: Response LT.Text
 newR = do
-  --view $ withAuthorization authUser ()
-  view $ newProcessor
+ --view $ withAuthorization authUser ()
+ view $ newProcessor

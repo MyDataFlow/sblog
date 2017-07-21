@@ -29,7 +29,7 @@ fetchBookmarks page count c = do
     \ ORDER BY id DESC OFFSET ? LIMIT ?" (offset,count)
   mapM (digest c) rs
 
-fetchBookmark :: Int -> Connection -> IO Bookmark
+fetchBookmark :: Int64 -> Connection -> IO Bookmark
 fetchBookmark bid c = do
   rs <- query c "SELECT id,title,summary,url,created_at,updated_at FROM bookmarks \
   \ WHERE id = ?" (Only bid)

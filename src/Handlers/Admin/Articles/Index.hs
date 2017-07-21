@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Admin.Bookmarks.Index(
+module Handlers.Admin.Articles.Index(
   indexR
 )where
 
@@ -22,24 +22,24 @@ import qualified Models.DB as DB
 import Utils.BlazeExtra.Pagination as Pagination
 
 import qualified Views.Layout as VL
-import qualified Views.Admin.Bookmark as VAB
+import qualified Views.Admin.Article as VAA
 
-data BookmarkIndex = BookmarkIndex {
+data ArticleIndex = ArticleIndex {
   page :: Integer
   ,count :: Integer
 }
 
 
-instance FormParams BookmarkIndex where
-  fromParams m = BookmarkIndex <$>
+instance FormParams ArticleIndex where
+  fromParams m = ArticleIndex <$>
     lookupInt "_page" 1 m <*>
     lookupInt "_count" 10 m
 
-indexProcessor :: Processor BookmarkIndex LT.Text
+indexProcessor :: Processor ArticleIndex LT.Text
 indexProcessor req = do
-    bv <-  renderBookmarks
+    bv <-  renderArticles
     return $ (status200,
-              VL.renderAdmin 1
+              VL.renderAdmin 2
                 ["/bower_components/editor.md/css/editormd.min.css"]
                 ["/bower_components/editor.md/editormd.min.js"
                 ,"/assets/admin/index.js"]
@@ -47,16 +47,16 @@ indexProcessor req = do
   where
     p = fromInteger $ page req
     c = fromInteger $ count req
-    base = (toUrl "/admin/bookmarks")
-    renderBookmarks = do
-      a <- DB.runDBTry $ DB.fetchBookmarks p c
-      total <- DB.runDBTry $ DB.fetchBookmarksCount
+    base = (toUrl "/admin/articles")
+    renderArticles = do
+      a <- DB.runDBTry $ DB.fetchAllArticles p c
+      total <- DB.runDBTry $ DB.fetchAllArticlesCount
       let pn = def {
         pnTotal = (toInteger total)
         ,pnPerPage = (count req)
         ,pnMenuClass = "ui right floated pagination menu"
       }
-      return $ VAB.renderIndex a base pn
+      return $ VAA.renderIndex a base pn
 
 authUser user req =
   if  user == "admin"

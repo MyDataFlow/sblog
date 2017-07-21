@@ -1,8 +1,9 @@
 $(document).ready(function() {
   $(".ui.negative.basic.button").click(function(){
     var id = $(this).attr('id');
+    var url = $(this).attr('href')
     var approved = function(){
-      $.post("/admin/bookmarks/remove/",{'id' : id})
+      $.post(url,{'id' : id})
         .done(function(data) { window.location.reload();})
         .fail(function(data) {
             if(data.status == '401'){

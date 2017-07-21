@@ -76,16 +76,16 @@ renderMain bookmarks articles =
         then H.span ""
         else
           H.div ! A.class_ "ui segments" $ do
-            H.div ! A.class_ "ui teal segment" $ do
-              H.p $ "文章"
-            H.div ! A.class_ "ui divided items" $ do
-              mapM_ indexArticle articles
+            H.div ! A.class_ "ui segment" $ H.p $ "文章"
+            H.div ! A.class_ "ui teal secondary segment" $
+              H.div ! A.class_ "ui divided items" $ do
+                mapM_ indexArticle articles
     renderBookmarks =
       if length bookmarks == 0
         then H.span ""
         else
           H.div ! A.class_ "ui segments" $ do
-            H.div ! A.class_ "ui olive segment" $ do
-              H.p $ "书签"
-            H.div ! A.class_ "ui divided items" $ do
-              mapM_ indexBookmark bookmarks
+            H.div ! A.class_ "ui segment" $ H.p $ "书签"
+            H.div ! A.class_ "ui olive secondary segment" $
+              H.div ! A.class_ "ui divided items" $ do
+                mapM_ indexBookmark bookmarks

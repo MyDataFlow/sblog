@@ -22,6 +22,18 @@ digest c (aid,title,summary,body,published,createdAt,updatedAt) = do
         tags <- Tags.fetchRelatedTags aid 2 c
         return $ Article aid title summary body published createdAt updatedAt tags
 
+fetchAllArticles ::   Int -> Int -> Connection -> IO [Article]
+fetchAllArticles page count  c = do
+  let offset = (page - 1) * count
+  rs <- query c "SELECT id,title,summary,body,published,created_at,updated_at \
+    \ FROM articles  ORDER BY id DESC OFFSET ? LIMIT ?" (offset,count)
+  mapM (digest c) rs
+
+fetchAllArticlesCount :: Connection -> IO Int64
+fetchAllArticlesCount  c = do
+  rs <- query_ c "SELECT count(id) FROM articles "
+  return $ fromOnly $ head rs
+
 fetchArticles ::  Bool -> Int -> Int -> Connection -> IO [Article]
 fetchArticles published page count  c = do
   let offset = (page - 1) * count
@@ -42,3 +54,18 @@ fetchTagArticles published tagID page count c = do
     \ WHERE tg.tag_id = ? AND a.id = tg.realted_id AND a.published = ?\
     \ OFFSET ? LIMIT ?" (tagID,published,page,count)
   mapM (digest c) rs
+
+addArticle :: String -> String -> String -> Bool-> [String] -> Connection-> IO Int64
+addArticle title summary body published tags c = do
+    tagsID <- mapM (flip Tags.findOrAddTag c) tags
+    rs <- query c "INSERT INTO articles (title,summary,body,published) \
+      \ VALUES (?,?,?,?) RETURNING id" (title,summary,body,published)
+    let tid =  fromOnly $ head  rs
+    Tags.addTaggings tid 2 tagsID c
+    return $ fromOnly $ head rs
+
+fetchArticle :: Int64 -> Connection -> IO Article
+fetchArticle aid c = do
+  rs <- query c "SELECT id,title,summary,body,published,created_at,updated_at FROM articles \
+    \ WHERE id = ?" (Only aid)
+  head $ map (digest c) rs

@@ -38,3 +38,9 @@ defBookmark = do
   utc <- DT.getCurrentTime
   let now = DT.utcToLocalTime DT.utc utc
   return $ Bookmark 0 "" "" "" now now []
+
+defArticle :: IO Article
+defArticle = do
+  utc <- DT.getCurrentTime
+  let now = DT.utcToLocalTime DT.utc utc
+  return $ Article 0 "" "" "" False now now []

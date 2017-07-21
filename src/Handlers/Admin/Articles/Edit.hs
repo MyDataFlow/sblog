@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Admin.Bookmarks.Edit(
+module Handlers.Admin.Articles.Edit(
   editR
 )where
 
@@ -20,27 +20,27 @@ import Handlers.Common
 import qualified Models.DB as DB
 
 import qualified Views.Layout as VL
-import qualified Views.Admin.Bookmark as VAB
+import qualified Views.Admin.Article as VAA
 
-data BookmarkEdit  = BookmarkEdit {
-  bid :: Integer
+data ArticleEdit  = ArticleEdit {
+  aid :: Integer
 }
 
-instance FormParams BookmarkEdit where
-  fromParams m = BookmarkEdit <$>
+instance FormParams ArticleEdit where
+  fromParams m = ArticleEdit <$>
     lookupInt "id" 0 m
 
 
-editProcessor :: Processor BookmarkEdit LT.Text
+editProcessor :: Processor ArticleEdit LT.Text
 editProcessor req =  do
-  let intBid = fromInteger (bid req)
+  let intBid = fromInteger (aid req)
   if intBid == 0
-    then return  (status302,"/admin/bookmarks/new")
+    then return  (status302,"/admin/articles/new")
     else do
-      bs <- DB.runDBTry $ DB.fetchBookmark $ intBid
-      let writer = VAB.renderWriter bs "/admin/bookmarks/create"
+      ar <- DB.runDBTry $ DB.fetchArticle $ intBid
+      let writer = VAA.renderWriter ar "/admin/articles/create"
       return $ (status200,
-                VL.renderAdmin 1
+                VL.renderAdmin 2
                   ["/bower_components/editor.md/css/editormd.min.css"]
                   ["/bower_components/editor.md/editormd.min.js"
                   ,"/assets/admin/editor.js"]

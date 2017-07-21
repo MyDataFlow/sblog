@@ -28,7 +28,7 @@ indexProcessor  =  do
   bookmarks <- DB.runDBTry $ DB.fetchBookmarks 1 5
   articles <- DB.runDBTry $ DB.fetchArticles True 1 5
   let index = VI.renderMain bookmarks articles
-  return $ (status200,VL.render 1 "首页-TTalkIM" [] [index] [])
+  return $ (status200,VL.render 1 "首页-TTalkIM" [] [] [index])
 
 indexR :: Response LT.Text
 indexR = do

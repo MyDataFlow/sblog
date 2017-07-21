@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Admin.Bookmarks.Create(
+module Handlers.Admin.Articles.Create(
   createR
 )where
 
@@ -22,35 +22,38 @@ import Handlers.Common
 import qualified Models.DB as DB
 
 import qualified Views.Layout as VL
-import qualified Views.Admin.Bookmark as VAB
+import qualified Views.Admin.Article as VAA
 
-data BookmarkForm = BookmarkForm {
-  bid :: Integer
+data ArticleForm = ArticleForm {
+  aid :: Integer
   ,title :: T.Text
-  ,url :: T.Text
+  ,summary :: T.Text
   ,markdown :: T.Text
+  ,published :: T.Text
   ,tags :: T.Text
 }
-instance FormParams BookmarkForm where
-    fromParams m = BookmarkForm <$>
+instance FormParams ArticleForm where
+    fromParams m = ArticleForm <$>
       lookupInt "id" 0 m <*>
       M.lookup "title"  m <*>
-      M.lookup "url" m <*>
+      M.lookup "summary" m <*>
       M.lookup "editor-markdown-doc" m <*>
+      M.lookup "published" m <*>
       M.lookup "tags" m
 
 
-createProcessor :: Processor BookmarkForm LT.Text
+createProcessor :: Processor ArticleForm LT.Text
 createProcessor req =  do
     catchError action (\e -> return (status400,"unknown"))
   where
     t = T.unpack $ title req
-    u = T.unpack $ url req
+    s = T.unpack $ summary req
     m = T.unpack $ markdown req
+    p = published req == "on"
     upackTags = map T.unpack $ T.split (==',') $ tags req
     action = do
-      c <-  DB.runDBTry $ DB.addBookmark t u m upackTags
-      return $ (status302,"/admin/bookmarks")
+      c <-  DB.runDBTry $ DB.addArticle t s m p upackTags
+      return $ (status302,"/admin/articles")
 
 authUser user req =
   if  user == "admin"
@@ -59,5 +62,5 @@ authUser user req =
 
 createR :: Response LT.Text
 createR = do
-  -- view $ withParams $ withAuthorization authUser
+  --  view $ withParams $ withAuthorization authUser
   view $ withParams createProcessor

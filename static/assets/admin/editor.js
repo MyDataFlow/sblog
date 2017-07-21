@@ -1,10 +1,10 @@
 $(document).ready(function() {
-  var testEditor;
+  var editor;
   var md = $('#editor').text();
   $(function() {
-    testEditor = editormd("editor", {
+    editor = editormd("editor", {
         width   : "100%",
-        height  : "70%",
+        height  : "100%",
         markdown : md,
         toolbarIcons : function() {
           return [
@@ -31,9 +31,8 @@ $(document).ready(function() {
         imageUpload : false,
         path    : "/bower_components/editor.md/lib/"
     });
-
   });
-  $('#test').dropdown({
+  $('#tags').dropdown({
     allowAdditions: true
   });
 });
