@@ -38,6 +38,7 @@ CREATE TABLE  IF NOT EXISTS  articles (
     title character varying NOT NULL,
     summary character varying NOT NULL,
     body text NOT NULL,
+    markdown text NOT NULL,
     published boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL DEFAULT now(),
     updated_at timestamp without time zone NOT NULL DEFAULT now()
@@ -45,8 +46,9 @@ CREATE TABLE  IF NOT EXISTS  articles (
 CREATE TABLE bookmarks (
     id bigserial PRIMARY KEY NOT NULL,
     title character varying NOT NULL,
-    summary character varying NOT NULL,
-    url character varying NOT NULL,
+    summary text NOT NULL,
+    markdown text NOT NULL,
+    url text NOT NULL,
     created_at timestamp without time zone NOT NULL DEFAULT now(),
     updated_at timestamp without time zone NOT NULL DEFAULT now()
 );

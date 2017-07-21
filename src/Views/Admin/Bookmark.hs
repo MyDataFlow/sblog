@@ -31,7 +31,7 @@ renderWriter bookmark url =
         idField $ show (M.bid bookmark)
         textField "标题" "title" (M.btitle bookmark)
         textField "源连接" "url" (M.burl bookmark)
-        contentField (M.bsummary bookmark)
+        contentField (M.bmarkdown bookmark)
         tagsField $ ts
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"

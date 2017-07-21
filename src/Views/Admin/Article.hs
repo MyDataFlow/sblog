@@ -31,7 +31,7 @@ renderWriter article url =
         idField $ show (M.aid article)
         textField "标题" "title" (M.atitle article)
         textField "摘要" "summary" (M.asummary article)
-        contentField (M.abody article)
+        contentField (M.amarkdown article)
         H.div ! A.class_ "field" $
           H.div ! A.class_ checked $ do
             H.input  ! A.type_ "checkbox" ! A.name "published" ! A.value "1"

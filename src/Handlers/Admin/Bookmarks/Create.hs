@@ -32,6 +32,7 @@ data BookmarkForm = BookmarkForm {
   ,title :: T.Text
   ,url :: T.Text
   ,markdown :: T.Text
+  ,summary :: T.Text
   ,tags :: T.Text
 }
 instance FormParams BookmarkForm where
@@ -39,6 +40,7 @@ instance FormParams BookmarkForm where
       lookupInt "id" 0 m <*>
       M.lookup "title"  m <*>
       M.lookup "url" m <*>
+      M.lookup "editor-markdown-doc" m <*>
       M.lookup "editor-html-code" m <*>
       M.lookup "tags" m
 
@@ -52,11 +54,12 @@ createProcessor req =  do
              ,("utm_medium","website")]
     t = T.unpack $ title req
     u = show $ updateUrlParams params $ toURI (T.unpack $ url req)
+    s = T.unpack $ summary req
     m = T.unpack $ markdown req
     upackTags = map T.unpack $ T.split (==',') $ tags req
     action = do
       liftIO $ putStrLn u
-      c <-  DB.runDBTry $ DB.addBookmark t u m upackTags
+      c <-  DB.runDBTry $ DB.addBookmark t u s m upackTags
       return $ (status302,"/admin/bookmarks")
 
 authUser user req =

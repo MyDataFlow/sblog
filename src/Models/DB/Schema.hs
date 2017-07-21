@@ -16,6 +16,7 @@ data Article = Article {
   ,atitle :: String
   ,asummary :: String
   ,abody :: String
+  ,amarkdown :: String
   ,apublished :: Bool
   ,acreatedAt ::  DT.LocalTime
   ,aupdatedAt :: DT.LocalTime
@@ -26,6 +27,7 @@ data Bookmark = Bookmark {
   bid :: Int64
   ,btitle :: String
   ,bsummary :: String
+  ,bmarkdown :: String
   ,burl :: String
   ,bcreatedAt ::  DT.LocalTime
   ,bupdatedAt :: DT.LocalTime
@@ -37,10 +39,10 @@ defBookmark :: IO Bookmark
 defBookmark = do
   utc <- DT.getCurrentTime
   let now = DT.utcToLocalTime DT.utc utc
-  return $ Bookmark 0 "" "" "" now now []
+  return $ Bookmark 0 "" "" "" "" now now []
 
 defArticle :: IO Article
 defArticle = do
   utc <- DT.getCurrentTime
   let now = DT.utcToLocalTime DT.utc utc
-  return $ Article 0 "" "" "" False now now []
+  return $ Article 0 "" "" "" "" False now now []
