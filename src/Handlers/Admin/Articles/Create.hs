@@ -8,6 +8,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
 
+import Control.Monad.IO.Class(liftIO)
 import Control.Monad.Except (catchError)
 
 import Network.HTTP.Types.Status
@@ -29,7 +30,7 @@ data ArticleForm = ArticleForm {
   ,title :: T.Text
   ,summary :: T.Text
   ,markdown :: T.Text
-  ,published :: T.Text
+  ,published :: Integer
   ,tags :: T.Text
 }
 instance FormParams ArticleForm where
@@ -38,7 +39,7 @@ instance FormParams ArticleForm where
       M.lookup "title"  m <*>
       M.lookup "summary" m <*>
       M.lookup "editor-markdown-doc" m <*>
-      M.lookup "published" m <*>
+      lookupInt "published" 0 m <*>
       M.lookup "tags" m
 
 
@@ -49,9 +50,10 @@ createProcessor req =  do
     t = T.unpack $ title req
     s = T.unpack $ summary req
     m = T.unpack $ markdown req
-    p = published req == "on"
+    p = published req == 1
     upackTags = map T.unpack $ T.split (==',') $ tags req
     action = do
+      liftIO $ putStrLn $ show $ published req
       c <-  DB.runDBTry $ DB.addArticle t s m p upackTags
       return $ (status302,"/admin/articles")
 

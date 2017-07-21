@@ -25,7 +25,7 @@ tag :: M.Tag -> H.Html
 tag t =
   H.a ! url ! A.class_ "ui tag label" $ do
     H.toHtml $ M.name t
-    H.div ! A.class_ "detail" $ H.toHtml $ (M.tid t)
+    H.div ! A.class_ "detail" $ H.toHtml $ (M.count t)
   where
     url = A.href $ fromString $ "/tags/" ++ (show $ M.tid t)
 

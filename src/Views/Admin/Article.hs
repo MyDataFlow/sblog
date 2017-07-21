@@ -33,9 +33,8 @@ renderWriter article url =
         textField "摘要" "summary" (M.asummary article)
         contentField (M.abody article)
         H.div ! A.class_ "field" $
-          H.div ! A.class_ "ui checkbox" $ do
-            H.input  ! A.type_ "checkbox" ! A.name "published" ! A.tabindex "0"
-              ! A.value checked
+          H.div ! A.class_ checked $ do
+            H.input  ! A.type_ "checkbox" ! A.name "published" ! A.value "1"
             H.label "发布"
 
         tagsField $ ts
@@ -46,8 +45,8 @@ renderWriter article url =
     ts = map (\tag -> (M.name tag)) (M.atags article)
     checked =
       if M.apublished article
-        then "on"
-        else "off"
+        then "ui checked checkbox"
+        else "ui checkbox"
 
 
 renderIndex :: [M.Article] -> URI -> Pagination ->  H.Html
