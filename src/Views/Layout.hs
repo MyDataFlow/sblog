@@ -44,6 +44,14 @@ renderAdminMenu active =
   where
     menus = [(1,"书签","/admin/bookmarks")
             ,(2,"文章","/admin/articles")]
+renderNormalMenu :: Int -> H.Html
+renderNormalMenu active =
+    renderMenu menus active
+  where
+    menus = [(1,"首页","/")
+            ,(2,"书签","/bookmarks")
+            ,(3,"文章","/articles")]
+
 renderHeader :: String -> [H.Html] -> H.Html
 renderHeader title meta =
   H.head $ do
@@ -81,9 +89,11 @@ renderAdminInner css js mainPart menu =
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
       mapM_ EH.jsLink js
 
-render :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html -> Text
-render title meta sidePart mainPart menu =
-  renderHtml $ renderInner title combineMeta sidePart mainPart menu
+render :: Int -> String -> [H.Html] -> [H.Html] -> [H.Html]  -> Text
+render active title meta sidePart mainPart =
+  renderHtml $
+    renderInner title combineMeta sidePart mainPart $
+      renderNormalMenu active
   where
     combineMeta = defaultMeta ++ meta
 

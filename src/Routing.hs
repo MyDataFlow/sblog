@@ -20,7 +20,8 @@ import App.Types
 import App.Context
 
 import Handlers.ArticleWriter
-import Handlers.Admin.Bookmark as HAB
+import qualified Handlers.Admin.Bookmark as HAB
+import qualified Handlers.Index as HI
 
 
 
@@ -36,6 +37,7 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
+  Web.get "/" $ void $ HI.indexR
   Web.get "/admin" $ void $ articleWriter
   Web.get "/admin/bookmarks" $ void $ HAB.indexR
   Web.get "/admin/bookmarks/new" $ void $ HAB.newR

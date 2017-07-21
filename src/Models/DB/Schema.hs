@@ -15,6 +15,7 @@ data Article = Article {
   aid :: Int64
   ,atitle :: String
   ,asummary :: String
+  ,abody :: String
   ,apublished :: Bool
   ,acreatedAt ::  DT.LocalTime
   ,aupdatedAt :: DT.LocalTime

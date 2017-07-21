@@ -36,7 +36,7 @@ SET default_with_oids = false;
 CREATE TABLE  IF NOT EXISTS  articles (
     id bigserial PRIMARY KEY NOT NULL,
     title character varying NOT NULL,
-    summery character varying NOT NULL,
+    summary character varying NOT NULL,
     body text NOT NULL,
     published boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL DEFAULT now(),
