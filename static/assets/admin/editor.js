@@ -15,6 +15,7 @@ $(document).ready(function() {
             "watch", "fullscreen"
           ];
         },
+        atLink: false,
         codeFold : true,
         saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
         searchReplace : true,
