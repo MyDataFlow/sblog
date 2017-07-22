@@ -20,6 +20,7 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Text.Blaze.Html.Renderer.Text
 
 import Views.Common.Widgets
+import Views.Common.SEO
 import qualified Views.Layout as VL
 
 import Utils.BlazeExtra.Pagination as Pagination
@@ -27,11 +28,16 @@ import Utils.URI.String
 
 import qualified Models.DB.Schema as M
 
-renderArticle :: [(String,String)] -> M.Article  -> LT.Text
-renderArticle prevs ar =
-    VL.renderMain title [] [render]
+renderArticle :: String -> String  -> [(String,String)] -> M.Article  -> LT.Text
+renderArticle host name prevs ar =
+    VL.renderMain title [seo] [render]
   where
-    title = (M.articleTitle ar) ++ "-TTalkIM"
+    seo = do
+      openGraph title (show fullURL) (M.articleSummary ar)
+      keywordsAndDescription (showTags $ M.articleTags ar) (M.articleSummary ar)
+    title = (M.articleTitle ar) ++ "-" ++ name
+    fullURL =
+      relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
     render =
       H.div $ do
         H.div ! A.class_ "ui main text container" $ do

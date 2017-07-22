@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Views.Index(
-  renderMain
+  renderIndex
 )where
 
 import Control.Monad
-import Data.Text.Lazy(Text)
+import qualified Data.Text.Lazy as LT
 import Data.String
 
 import Text.Blaze.Html5((!))
@@ -17,9 +17,15 @@ import Text.Blaze.Html.Renderer.Text
 import Views.Common.Widgets
 import Utils.BlazeExtra.Pagination as Pagination
 
+import qualified Views.Layout as VL
 
 import qualified Models.DB.Schema as M
 
+renderIndex :: String -> [M.Bookmark] -> [M.Article] -> LT.Text
+renderIndex name bookmarks articles =
+    VL.render 1 title [] [] [(renderMain bookmarks articles)]
+  where
+    title = "首页-" ++ name
 renderMain :: [M.Bookmark] -> [M.Article] -> H.Html
 renderMain bookmarks articles =
     H.div $ do

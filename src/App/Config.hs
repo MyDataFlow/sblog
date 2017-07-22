@@ -35,6 +35,8 @@ readOptions = do
             AppConf <$> C.key "port"
             <*> C.key "jwtKey"
             <*> C.key "adminPassword"
+            <*> C.key "blogHost"
+            <*> C.key "blogName"
             <*> C.key "dbHost"
             <*> C.key "dbPort"
             <*> C.key "dbUser"

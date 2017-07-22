@@ -8,7 +8,10 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
 
+import Control.Monad.Trans.Class (MonadTrans, lift)
+import Control.Monad.Reader (MonadReader(..),asks)
 import Control.Monad.Except (catchError)
+
 import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
 
@@ -37,7 +40,9 @@ showProcessor :: Processor ArticleShow LT.Text
 showProcessor req =  do
   ar <- DB.runDBTry $ DB.fetchArticle intBid
   bs <- breadcrumbs
-  let r = VA.renderArticle bs ar
+  host <- lift (asks siteHost)
+  name <- lift (asks siteName)
+  let r = VA.renderArticle host name bs ar
   return $ (status200,r)
   where
     intBid = fromInteger (aid req)

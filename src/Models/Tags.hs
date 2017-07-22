@@ -21,13 +21,13 @@ fetchTagID name c = do
   rs <- query c q (Only name)
   return $ fromOnly $ head rs
 
-fetchTags :: Connection -> IO [Tag]
-fetchTags c = do
+fetchTags :: Int -> Connection -> IO [Tag]
+fetchTags rt c = do
   let q = "SELECT t.id,t.name,count(tg.tag_id) c \
   \ FROM tags as t, taggings as tg \
-  \ WHERE tg.tag_id = t.id group by t.id \
-  \ ORDER BY c DESC" :: Query
-  query_ c q
+  \ WHERE tg.relate_type =? AND tg.tag_id = t.id group by t.id \
+  \ ORDER BY c DESC"
+  query c q (Only rt)
 
 
 fetchRelatedTags ::  Int64 -> Int ->  Connection -> IO [Tag]

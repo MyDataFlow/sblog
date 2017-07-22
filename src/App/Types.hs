@@ -14,6 +14,8 @@ data AppConf = AppConf {
     port :: Int
     ,jwtKey :: String
     ,adminPassword :: String
+    ,blogHost :: String
+    ,blogName :: String
     ,dbHost :: String
     ,dbPort :: Int
     ,dbUser :: String
@@ -27,6 +29,8 @@ data AppContext = AppContext {
   dbConns :: DBConnections
   ,secret :: String
   ,admin :: String
+  ,siteHost :: String
+  ,siteName :: String
 }
 type App = ReaderT AppContext IO
 
