@@ -15,6 +15,12 @@ import Database.PostgreSQL.Simple.ToField
 import App.Types
 import Models.DB.Schema
 
+fetchTagID :: String-> Connection -> IO Int64
+fetchTagID name c = do
+  let q = "SELECT id FROM tags WHERE name = ?"
+  rs <- query c q (Only name)
+  return $ fromOnly $ head rs
+
 fetchTags :: Connection -> IO [Tag]
 fetchTags c = do
   let q = "SELECT t.id,t.name,count(tg.tag_id) c \

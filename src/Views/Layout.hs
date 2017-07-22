@@ -4,6 +4,7 @@
 module Views.Layout(
   render
   ,renderAdmin
+  ,renderMain
 )where
 import Control.Monad
 import Data.Text.Lazy(Text)
@@ -49,8 +50,8 @@ renderNormalMenu active =
     renderMenu menus active
   where
     menus = [(1,"首页","/")
-            ,(2,"书签","/bookmarks")
-            ,(3,"文章","/articles")]
+            ,(2,"文章","/articles")
+            ,(3,"书签","/bookmarks")]
 
 renderHeader :: String -> [H.Html] -> H.Html
 renderHeader title meta =
@@ -100,3 +101,19 @@ render active title meta sidePart mainPart =
 renderAdmin :: Int -> [String] -> [String] -> [H.Html]  -> Text
 renderAdmin active css js mainPart  =
   renderHtml $ renderAdminInner css js mainPart $ renderAdminMenu active
+
+renderMainInner :: String -> [H.Html] -> [H.Html]  -> H.Html
+renderMainInner title meta mainPart  =
+    H.html $ do
+      renderHeader title meta
+      EH.cssLink "/assets/main.css"
+      H.body $ do
+        sequence_ mainPart
+        EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
+        EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
+
+renderMain :: String -> [H.Html] -> [H.Html]  -> Text
+renderMain title meta mainPart =
+    renderHtml $ renderMainInner title combineMeta  mainPart
+  where
+    combineMeta = defaultMeta ++ meta

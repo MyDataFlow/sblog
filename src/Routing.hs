@@ -19,10 +19,10 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import App.Types
 import App.Context
 
-import Handlers.ArticleWriter
 import qualified Handlers.Admin.Bookmark as HAB
 import qualified Handlers.Admin.Article as HAA
 import qualified Handlers.Index as HI
+import qualified Handlers.Article as HA
 
 
 
@@ -39,6 +39,8 @@ routing = do
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
   Web.get "/" $ void $ HI.indexR
+  Web.get "/articles" $ void $ HA.indexR
+  Web.get "/articles/:id" $ void $ HA.showR
   Web.get "/admin" $ void $ HAB.indexR
   Web.get "/admin/bookmarks" $ void $ HAB.indexR
   Web.get "/admin/bookmarks/new" $ void $ HAB.newR

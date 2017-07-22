@@ -51,9 +51,15 @@ fetchTagArticles published tagID page count c = do
   let offset = (page - 1) * count
   rs <- query c "SELECT a.id,a.title,a.summary,a.body,a.markdown,a.published,\
     \a.created_at,a.updated_at FROM  taggings AS tg , articles AS a \
-    \ WHERE tg.tag_id = ? AND a.id = tg.realted_id AND a.published = ?\
-    \ OFFSET ? LIMIT ?" (tagID,published,page,count)
+    \ WHERE tg.tag_id = ? AND a.id = tg.related_id AND a.published = ?\
+    \ AND tg.related_type = 2 OFFSET ? LIMIT ?" (tagID,published,offset,count)
   mapM (digest c) rs
+fetchTagArticlesCount :: Bool -> Int64 -> Connection -> IO Int64
+fetchTagArticlesCount published tagID c = do
+  rs <- query c "SELECT count(a.id) FROM taggings AS tg, articles AS a WHERE \
+    \tg.tag_id = ? AND tg.related_type = 2 \
+    \AND a.id = tg.related_id AND a.published = ?" (tagID,published)
+  return $ fromOnly $ head rs
 
 addArticle ::String -> String -> String -> String -> Bool-> [String] -> Connection-> IO Int64
 addArticle title summary markdown body published tags c = do
