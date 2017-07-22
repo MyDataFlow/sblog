@@ -8,6 +8,8 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
 
+import Control.Monad.Trans.Class (MonadTrans, lift)
+import Control.Monad.Reader (MonadReader(..),asks)
 import Control.Monad.Except (catchError)
 import Control.Monad.IO.Class(liftIO)
 import Network.URI
@@ -49,16 +51,12 @@ createProcessor :: Processor BookmarkForm LT.Text
 createProcessor req =  do
     catchError action (\e -> return (status400,"unknown"))
   where
-    params = [("utm_source","ttalk.im")
-             ,("utm_campaign","TTalkIM")
-             ,("utm_medium","website")]
     t = T.unpack $ title req
-    u = show $ updateUrlParams params $ toURI (T.unpack $ url req)
+    u = T.unpack $ url req
     s = T.unpack $ summary req
     m = T.unpack $ markdown req
     upackTags = map T.unpack $ T.split (==',') $ tags req
     action = do
-      liftIO $ putStrLn u
       c <-  DB.runDBTry $ DB.addBookmark t u s m upackTags
       return $ (status302,"/admin/bookmarks")
 

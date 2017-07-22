@@ -21,17 +21,11 @@ import qualified Views.Layout as VL
 
 import qualified Models.DB.Schema as M
 
-renderIndex :: String -> [M.Bookmark] -> [M.Article] -> LT.Text
-renderIndex name bookmarks articles =
-    VL.render 1 title [] [] [(renderMain bookmarks articles)]
+renderIndex :: String ->  String -> [M.Bookmark] -> [M.Article] -> LT.Text
+renderIndex  host name bookmarks articles =
+    VL.render 1 title [] [] [renderArticles,renderBookmarks]
   where
     title = "首页-" ++ name
-renderMain :: [M.Bookmark] -> [M.Article] -> H.Html
-renderMain bookmarks articles =
-    H.div $ do
-      renderArticles
-      renderBookmarks
-  where
     renderArticles =
       if length articles == 0
         then H.span ""
@@ -39,11 +33,10 @@ renderMain bookmarks articles =
           H.div ! A.class_ "ui segments" $ do
             H.div ! A.class_ "ui segment" $ H.p $ "文章"
             mapM_ (segmentArticle Nothing) articles
-
     renderBookmarks =
       if length bookmarks == 0
         then H.span ""
         else
           H.div ! A.class_ "ui segments" $ do
             H.div ! A.class_ "ui segment" $ H.p $ "书签"
-            mapM_ segmentBookmark bookmarks
+            mapM_ (segmentBookmark host name) bookmarks

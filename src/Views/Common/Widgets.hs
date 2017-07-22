@@ -15,6 +15,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 
 import qualified Utils.BlazeExtra.Attributes as EA
 import Utils.URI.String
+import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
@@ -79,8 +80,14 @@ segmentArticle tag ar =
         Nothing -> EA.hrefURI $ toURI l
         Just t ->  EA.hrefSet (toURI l) "tag" (T.unpack t)
 
-segmentBookmark :: M.Bookmark -> H.Html
-segmentBookmark br =
+utmParams :: String -> String -> [(String,String)]
+utmParams host name =
+  [("utm_source",host)
+  ,("utm_campaign",name)
+  ,("utm_medium","website")]
+  
+segmentBookmark :: String -> String -> M.Bookmark -> H.Html
+segmentBookmark host name br =
     H.div ! A.class_ "ui olive secondary segment" $
       H.div ! A.class_ "item" $
         H.div ! A.class_ "content" $ do
@@ -97,4 +104,4 @@ segmentBookmark br =
     title = M.bookmarkTitle br
     summary = M.bookmarkSummary br
     ts = M.bookmarkTags br
-    link = A.href $ fromString $ (M.bookmarkUrl br)
+    link = EA.hrefURI $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br)

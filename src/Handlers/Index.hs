@@ -30,7 +30,8 @@ indexProcessor  =  do
   bookmarks <- DB.runDBTry $ DB.fetchBookmarks 1 5
   articles <- DB.runDBTry $ DB.fetchArticles True 1 5
   name <- lift (asks siteName)
-  return $ (status200,(VI.renderIndex name bookmarks articles) )
+  host <- lift (asks siteHost)
+  return $ (status200,(VI.renderIndex host name bookmarks articles) )
 
 indexR :: Response LT.Text
 indexR = do
