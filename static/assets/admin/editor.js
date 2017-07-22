@@ -1,6 +1,6 @@
 $(document).ready(function() {
   var editor;
-  var md = $('#editor').text();
+  var md = $('#editorContent').text();
   $(function() {
     editor = editormd("editor", {
         width   : "100%",
@@ -11,7 +11,7 @@ $(document).ready(function() {
             "undo", "redo", "|",
             "bold", "del", "italic", "quote", "|",
             "h1", "h2", "h3", "h4", "h5", "h6", "|",
-            "list-ul", "list-ol", "hr", "|",
+            "list-ul", "list-ol", "hr", "table","|",
             "watch", "fullscreen"
           ];
         },

@@ -56,7 +56,20 @@ addTaggings rid rt tags c = do
       \ VALUES (?,?,?) RETURNING id" (tid,rt,rid)
       return $ fromOnly $  head rs
 
-removeTaggings :: Int64 -> Int -> Connection -> IO Int64
-removeTaggings rid rt c = do
+removeAllTaggings :: Int64 -> Int -> Connection -> IO Int64
+removeAllTaggings rid rt c = do
   execute c "DELETE FROM taggings WHERE \
     \related_type = ? AND related_id = ?"  (rt,rid)
+
+removeTaggings :: Int64 -> Int64 -> Int -> Connection -> IO Int64
+removeTaggings rid tid rt c = do
+  execute c "DELETE FROM taggings WHERE \
+    \related_type = ? AND tag_id = ? AND related_id = ?"  (rt,tid,rid)
+
+removeTaggingsWithName :: Int64 -> Int -> [String] -> Connection -> IO Int64
+removeTaggingsWithName rid rt names c = do
+    execute c "DELETE FROM taggings WHERE \
+      \related_type = ? AND related_id = ? AND \
+      \tag_id IN (SELECT id FROM tags WHERE name IN ?) " (rt,rid,toNames)
+  where
+    toNames = foldr1 (\w s -> w ++ ',':s) names

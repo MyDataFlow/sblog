@@ -24,8 +24,9 @@ textField title name value  =
 contentField :: String -> H.Html
 contentField content =
   H.div ! A.class_ "field" $ do
-    H.div ! A.class_ "ui container" $ do
-      H.div ! A.id "editor" ! A.name "content" $  H.toHtml content
+    H.div ! A.id "editorContent" ! A.hidden "true" $ H.toHtml content
+    H.div ! A.class_ "ui container" $
+      H.div ! A.id "editor" ! A.name "content" $ ""
 
 tagsField :: String -> H.Html
 tagsField ts =

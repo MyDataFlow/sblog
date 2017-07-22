@@ -59,8 +59,9 @@ createProcessor req =  do
         then []
         else map T.unpack $ T.split (==',') $ tags req
     action = do
-      liftIO $ putStrLn $ show $ published req
-      c <-  DB.runDBTry $ DB.addArticle t s m b p upackTags
+      if (aid req) == 0
+        then DB.runDBTry $ DB.addArticle t s m b p upackTags
+        else DB.runDBTry $ DB.updateArticle (fromInteger $ aid req) t s m b p upackTags
       return $ (status302,"/admin/articles")
 
 authUser user req =

@@ -34,13 +34,13 @@ instance FormParams ArticleRemove where
 
 removeProcessor :: Processor ArticleRemove (M.Map T.Text T.Text)
 removeProcessor req =  do
-  DB.runDBTry $ DB.removeBookmark $ fromInteger (aid req)
+  DB.runDBTry $ DB.removeArticle $ fromInteger (aid req)
   return $ (status200,M.empty )
 
 authUser user req =
   if  user == "admin"
     then removeProcessor req
-    else return (status302,"/admin/login")
+    else return (status401,M.empty )
 
 removeR :: Response (M.Map T.Text T.Text)
 removeR = do

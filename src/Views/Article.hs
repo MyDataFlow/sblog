@@ -26,6 +26,7 @@ import qualified Views.Layout as VL
 
 import Utils.BlazeExtra.Pagination as Pagination
 import Utils.URI.String
+import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
@@ -46,8 +47,11 @@ renderArticle host name prevs ar =
           H.h1 ! A.class_ "ui header" $ H.toHtml (M.articleTitle ar)
           H.div ! A.class_ "ui segment" $ H.toHtml (M.articleSummary ar)
         H.div ! A.class_ "ui article text container" $
-          H.div ! A.class_ "ui piled segment" $
+          H.div ! A.class_ "ui piled segment" $ do
             H.preEscapedToHtml (M.articleBody ar)
+            H.div $
+              H.h5 ! A.class_ "ui block header" $
+                H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
 renderIndex :: String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> [M.Article] -> LT.Text
 renderIndex name tag tid pn ts ars =
@@ -57,7 +61,7 @@ renderIndex name tag tid pn ts ars =
     base =
       case tag of
         Nothing -> toURI "/articles"
-        Just t -> toURI $ "/articles?tag=" ++ (T.unpack t)
+        Just t -> updateUrlParam  "tag" (T.unpack t) $ toURI  "/articles"  
     render =
       H.div $ do
         renderArticles

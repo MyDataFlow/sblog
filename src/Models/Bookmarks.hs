@@ -46,7 +46,7 @@ addBookmark title url summary markdown tags c = do
 
 removeBookmark :: Int64 -> Connection -> IO Int64
 removeBookmark bid c = do
-  Tags.removeTaggings bid 1 c
+  Tags.removeAllTaggings bid 1 c
   execute c "DELETE FROM bookmarks WHERE id = ?" (Only bid)
 
 fetchBookmarksCount :: Connection -> IO Int64

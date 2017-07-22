@@ -37,8 +37,8 @@ renderWriter article url =
   where
     checked =
       if M.articlePublished article
-        then "ui checked checkbox"
-        else "ui checkbox"
+        then  A.checked "true"
+        else  A.checked "false"
     renderForm =
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
         idField $ show (M.articleID article)
@@ -46,8 +46,8 @@ renderWriter article url =
         textField "摘要" "summary" (M.articleSummary article)
         contentField (M.articleMarkdown article)
         H.div ! A.class_ "field" $
-          H.div ! A.class_ checked $ do
-            H.input  ! A.type_ "checkbox" ! A.name "published" ! A.value "1"
+          H.div ! A.class_ "ui checkbox" $ do
+            H.input ! checked ! A.type_ "checkbox" ! A.name "published" ! A.value "1"
             H.label "发布"
         tagsField $ showTags (M.articleTags article)
         H.div ! A.class_ "filed" $ do
@@ -67,7 +67,7 @@ renderIndex ariticles base pn =
         H.td $ H.toHtml (M.articleID article)
         H.td $ H.toHtml (M.articleTitle article)
         H.td $ H.toHtml (M.articleSummary article)
-        H.td $ H.toHtml $ show (M.articleUpdatedAt article)
+        H.td $ H.toHtml (M.articlePublished article)
         H.td $ do
           H.a ! A.class_ "ui primary basic button"
             ! A.href (H.toValue  ("/admin/articles/" ++ (show $ M.articleID article) ++ "/edit") ) $ "编辑"
@@ -79,7 +79,7 @@ renderIndex ariticles base pn =
           H.th "id"
           H.th "title"
           H.th "summary"
-          H.th "updated_at"
+          H.th "published"
           H.th "action"
     renderTableFooter =
       H.tfoot ! A.class_ "full-width" $ H.tr $
@@ -88,8 +88,10 @@ renderIndex ariticles base pn =
           Pagination.render base pn
     renderTable =
       H.table ! A.class_ "ui celled table" $ do
+        renderTableHead
         H.tbody $
           mapM_ renderArticle ariticles
+        renderTableFooter
     rednerDeleteModal  =
       H.div ! A.class_ "ui basic modal" $ do
         H.div ! A.class_ "ui icon header" $ do

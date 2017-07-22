@@ -40,7 +40,7 @@ removeProcessor req =  do
 authUser user req =
   if  user == "admin"
     then removeProcessor req
-    else return (status302,"/admin/login")
+    else return (status401,M.empty )
 
 
 removeR :: Response (M.Map T.Text T.Text)

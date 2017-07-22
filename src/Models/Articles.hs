@@ -7,6 +7,8 @@ import Control.Monad
 
 import Data.Maybe
 import Data.Int
+import qualified Data.Set as Set
+import qualified Data.Time as DT
 
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromField
@@ -19,8 +21,8 @@ import Models.DB.Schema
 import qualified Models.Tags as Tags
 
 digest c ar = do
-        tags <- Tags.fetchRelatedTags (articleID ar) 2 c
-        return $ ar {articleTags = tags}
+  tags <- Tags.fetchRelatedTags (articleID ar) 2 c
+  return $ ar {articleTags = tags}
 
 fetchAllArticles ::   Int -> Int -> Connection -> IO [Article]
 fetchAllArticles page count  c = do
@@ -65,15 +67,41 @@ addArticle ::String -> String -> String -> String -> Bool-> [String] -> Connecti
 addArticle title summary markdown body published tags c = do
     rs <- query c "INSERT INTO articles (title,summary,body,markdown,published) \
       \ VALUES (?,?,?,?,?) RETURNING id" (title,summary,body,markdown,published)
-    let tid =  fromOnly $ head  rs
+    let aid =  fromOnly $ head  rs
     tagsID <- mapM (flip Tags.findOrAddTag c) tags
-    Tags.addTaggings tid 2 tagsID c
+    Tags.addTaggings aid 2 tagsID c
     return $ fromOnly $ head rs
 
 removeArticle :: Int64 -> Connection -> IO Int64
 removeArticle aid c = do
-  Tags.removeTaggings aid 2 c
+  Tags.removeAllTaggings aid 2 c
   execute c "DELETE FROM articles WHERE id = ?" (Only aid)
+
+updateArticle :: Int64->String -> String -> String ->
+  String -> Bool-> [String] -> Connection-> IO Int64
+updateArticle aid title summary markdown body published tags c = do
+    storedTags <- Tags.fetchRelatedTags aid 2 c
+    utc <- DT.getCurrentTime
+    let now = DT.utcToLocalTime DT.utc utc
+    let ts = map (\tag -> (tagName tag)) storedTags
+    let storedSet = Set.fromList ts
+    let newSet = Set.fromList tags
+    let is = Set.intersection newSet storedSet
+    let toDelete = Set.difference storedSet is
+    let toInsert = Set.difference newSet is
+    deleteTags (Set.toList toDelete)
+    addTags (Set.toList toInsert)
+    execute c "UPDATE articles SET title = ? , summary = ? , \
+      \body = ? , markdown = ? , published = ? , \
+      \updated_at = ? WHERE id = ? " (title,summary,body,markdown,published,now,aid)
+  where
+    addTags [] = return [0]
+    addTags ts = do
+      tagsID <- mapM (flip Tags.findOrAddTag c) ts
+      Tags.addTaggings aid 2 tagsID c
+    deleteTags [] = return 0
+    deleteTags ts = do
+      Tags.removeTaggingsWithName aid 2 ts c
 
 fetchArticle :: Int64 -> Connection -> IO Article
 fetchArticle aid c = do
