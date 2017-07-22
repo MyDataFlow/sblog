@@ -25,7 +25,8 @@ fetchTags :: Int -> Connection -> IO [Tag]
 fetchTags rt c = do
   let q = "SELECT t.id,t.name,count(tg.tag_id) c \
   \ FROM tags as t, taggings as tg \
-  \ WHERE tg.related_type =? AND tg.tag_id = t.id group by t.id \
+  \ WHERE tg.related_type =? AND tg.tag_id = t.id \
+  \ GROUP BY t.id \
   \ ORDER BY c DESC"
   query c q (Only rt)
 
@@ -70,6 +71,4 @@ removeTaggingsWithName :: Int64 -> Int -> [String] -> Connection -> IO Int64
 removeTaggingsWithName rid rt names c = do
     execute c "DELETE FROM taggings WHERE \
       \related_type = ? AND related_id = ? AND \
-      \tag_id IN (SELECT id FROM tags WHERE name IN ?) " (rt,rid,toNames)
-  where
-    toNames = foldr1 (\w s -> w ++ ',':s) names
+      \tag_id IN (SELECT id FROM tags WHERE name IN ?)" (rt,rid,(In names))

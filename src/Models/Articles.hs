@@ -89,6 +89,7 @@ updateArticle aid title summary markdown body published tags c = do
     let is = Set.intersection newSet storedSet
     let toDelete = Set.difference storedSet is
     let toInsert = Set.difference newSet is
+    putStrLn $ show toDelete
     deleteTags (Set.toList toDelete)
     addTags (Set.toList toInsert)
     execute c "UPDATE articles SET title = ? , summary = ? , \
