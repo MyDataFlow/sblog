@@ -37,8 +37,10 @@ renderWriter article url =
   where
     checked =
       if M.articlePublished article
-        then  A.checked "true"
-        else  A.checked "false"
+        then H.input ! A.checked "true" ! A.type_ "checkbox"
+          ! A.name "published" ! A.value "1"
+        else  H.input ! A.type_ "checkbox"
+          ! A.name "published" ! A.value "1"
     renderForm =
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
         idField $ show (M.articleID article)
@@ -47,7 +49,7 @@ renderWriter article url =
         contentField (M.articleMarkdown article)
         H.div ! A.class_ "field" $
           H.div ! A.class_ "ui checkbox" $ do
-            H.input ! checked ! A.type_ "checkbox" ! A.name "published" ! A.value "1"
+            checked
             H.label "发布"
         tagsField $ showTags (M.articleTags article)
         H.div ! A.class_ "filed" $ do
