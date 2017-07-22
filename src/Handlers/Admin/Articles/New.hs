@@ -35,5 +35,5 @@ authUser user req =
 
 newR :: Response LT.Text
 newR = do
- --view $ withAuthorization authUser ()
- view $ newProcessor
+ view $ withAuthorization authUser ()
+ 

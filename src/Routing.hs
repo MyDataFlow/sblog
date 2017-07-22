@@ -21,6 +21,7 @@ import App.Context
 
 import qualified Handlers.Admin.Bookmark as HAB
 import qualified Handlers.Admin.Article as HAA
+import qualified Handlers.Admin.Login as HAL
 import qualified Handlers.Index as HI
 import qualified Handlers.Article as HA
 
@@ -42,6 +43,8 @@ routing = do
   Web.get "/articles" $ void $ HA.indexR
   Web.get "/articles/:id" $ void $ HA.showR
   Web.get "/admin" $ void $ HAB.indexR
+  Web.get "/admin/login" $ void $ HAL.indexR
+  Web.post "/admin/login" $ void $ HAL.loginR
   Web.get "/admin/bookmarks" $ void $ HAB.indexR
   Web.get "/admin/bookmarks/new" $ void $ HAB.newR
   Web.get "/admin/bookmarks/:id/edit" $ void $ HAB.editR

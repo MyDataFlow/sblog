@@ -70,5 +70,4 @@ authUser user req =
 
 createR :: Response LT.Text
 createR = do
-  --  view $ withParams $ withAuthorization authUser
-  view $ withParams createProcessor
+  view $ withParams $ withAuthorization authUser

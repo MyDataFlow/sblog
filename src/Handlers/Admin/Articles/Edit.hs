@@ -46,5 +46,4 @@ authUser user req =
 
 editR :: Response LT.Text
 editR = do
-  -- view $ withParams $ withAuthorization authUser
-  view $ withParams editProcessor
+  view $ withParams $ withAuthorization authUser

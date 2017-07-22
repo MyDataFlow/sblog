@@ -42,7 +42,6 @@ authUser user req =
 
 removeR :: Response (M.Map T.Text T.Text)
 removeR = do
-  --api $ withParams $ removeProcessor
   Web.rescue
     (api $ withParams $ withAuthorization authUser)
     (\e ->

@@ -3,6 +3,7 @@
 
 module Views.Admin.Layout(
   render
+  ,renderLogin
 )where
 import Control.Monad
 import Data.Text.Lazy(Text)
@@ -58,3 +59,19 @@ renderInner css js mainPart menu =
 render :: Int -> [String] -> [String] -> [H.Html]  -> Text
 render active css js mainPart  =
   renderHtml $ renderInner css js mainPart $ renderAdminMenu active
+
+renderLoginInner :: [H.Html]  -> H.Html
+renderLoginInner mainPart =
+    H.html $ do
+      renderHeader "登录" defaultMeta
+      EH.cssLink "/assets/login.css"
+      H.body $ do
+        H.div ! A.class_ "ui middle aligned center aligned grid" $
+          H.div ! A.class_ "login column" $ do
+            sequence_ mainPart
+        EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
+        EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
+
+renderLogin :: [H.Html] -> Text
+renderLogin inner =
+  renderHtml $ renderLoginInner inner

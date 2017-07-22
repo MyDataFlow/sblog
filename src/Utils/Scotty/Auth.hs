@@ -2,6 +2,7 @@
 module Utils.Scotty.Auth(
   headerSecure
   ,cookieSecure
+  ,generateCookie
 ) where
 
 import qualified Data.ByteString as BS
@@ -12,7 +13,11 @@ import Data.Maybe
 import Data.Char
 
 import qualified Utils.Auth.JWT as JWT
-
+generateCookie :: String -> String -> IO String
+generateCookie secret payload = do
+  token <- JWT.issued secret payload
+  return $ T.unpack token
+  
 cookieSecure :: String -> Maybe T.Text -> IO (Maybe T.Text)
 cookieSecure secret auth = do
   case auth of

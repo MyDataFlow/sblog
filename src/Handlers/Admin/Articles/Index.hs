@@ -57,5 +57,5 @@ authUser user req =
 
 indexR :: Response LT.Text
 indexR = do
-  -- view $ withParams $ withAuthorization authUser
-  view $ withParams $ indexProcessor
+  view $ withParams $ withAuthorization authUser
+  
