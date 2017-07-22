@@ -7,7 +7,7 @@ module Views.Admin.Bookmark(
 )where
 
 import Control.Monad
-import Data.Text.Lazy(Text)
+import qualified Data.Text.Lazy as LT
 import Data.String
 
 import Network.URI
@@ -20,43 +20,39 @@ import Text.Blaze.Html.Renderer.Text
 import Text.Markdown
 
 import Views.Common.Form
+import Views.Common.SEO
 import Utils.BlazeExtra.Pagination as Pagination
+
+import qualified Views.Admin.Layout as VL
 
 import qualified Models.DB.Schema as M
 
-renderWriter :: M.Bookmark -> String -> H.Html
+renderWriter :: M.Bookmark -> String -> LT.Text
 renderWriter bookmark url =
-    H.div $ do
+    VL.render 1
+      ["/bower_components/editor.md/css/editormd.min.css"]
+      ["/bower_components/editor.md/editormd.min.js"
+      ,"/assets/admin/editor.js"]
+      [renderForm]
+  where
+    renderForm =
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
         idField $ show (M.bookmarkID bookmark)
         textField "标题" "title" (M.bookmarkTitle bookmark)
         textField "源连接" "url" (M.bookmarkUrl bookmark)
         contentField (M.bookmarkMarkdown bookmark)
-        tagsField $ ts
+        tagsField $ showTags (M.bookmarkTags bookmark)
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
           H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
-  where
-    ts = map (\tag -> (M.tagName tag)) (M.bookmarkTags bookmark)
 
-renderIndex :: [M.Bookmark] -> URI -> Pagination ->  H.Html
+renderIndex :: [M.Bookmark] -> URI -> Pagination ->  LT.Text
 renderIndex bookmarks base pn =
-  H.div $ do
-    H.table ! A.class_ "ui celled table" $ do
-      H.thead $ do
-        H.tr $ do
-          H.th "id"
-          H.th "title"
-          H.th "url"
-          H.th "updated_at"
-          H.th "action"
-      H.tbody $
-        mapM_ renderBookmark bookmarks
-      H.tfoot ! A.class_ "full-width" $ H.tr $
-        H.th ! A.colspan "5" $ do
-          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/bookmarks/new" $ "新建"
-          Pagination.render base pn
-    rednerDeleteModal
+    VL.render 1
+      ["/bower_components/editor.md/css/editormd.min.css"]
+      ["/bower_components/editor.md/editormd.min.js"
+      ,"/assets/admin/index.js"]
+      [renderTable,rednerDeleteModal]
   where
     renderBookmark bookmark =
       H.tr $ do
@@ -68,6 +64,25 @@ renderIndex bookmarks base pn =
           H.a ! A.class_ "ui primary basic button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bookmarkID bookmark) ++ "/edit") ) $ "编辑"
           H.button ! A.id (H.toValue (M.bookmarkID bookmark)) ! A.href "/admin/bookmarks/remove/"
             ! A.class_ "ui negative basic button"  $ "删除"
+    renderTableHead =
+      H.thead $
+        H.tr $ do
+          H.th "id"
+          H.th "title"
+          H.th "url"
+          H.th "updated_at"
+          H.th "action"
+    renderTableFooter =
+      H.tfoot ! A.class_ "full-width" $ H.tr $
+        H.th ! A.colspan "5" $ do
+          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/bookmarks/new" $ "新建"
+          Pagination.render base pn
+    renderTable =
+      H.table ! A.class_ "ui celled table" $ do
+        renderTableHead
+        H.tbody $
+          mapM_ renderBookmark bookmarks
+        renderTableFooter
     rednerDeleteModal  =
       H.div ! A.class_ "ui basic modal" $ do
         H.div ! A.class_ "ui icon header" $ do

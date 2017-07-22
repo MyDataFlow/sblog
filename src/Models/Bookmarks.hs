@@ -37,10 +37,10 @@ fetchBookmark bid c = do
 
 addBookmark :: String -> String -> String -> String ->[String] -> Connection-> IO Int64
 addBookmark title url summary markdown tags c = do
-  tagsID <- mapM (flip Tags.findOrAddTag c) tags
   rs <- query c "INSERT INTO bookmarks (title,summary,markdown,url) \
     \ VALUES (?,?,?,?) RETURNING id" (title,summary,markdown,url)
   let tid =  fromOnly $ head  rs
+  tagsID <- mapM (flip Tags.findOrAddTag c) tags
   Tags.addTaggings tid 1 tagsID c
   return $ fromOnly $ head rs
 

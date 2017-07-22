@@ -19,7 +19,6 @@ import Handlers.Common
 
 import qualified Models.DB as DB
 
-import qualified Views.Layout as VL
 import qualified Views.Admin.Article as VAA
 
 data ArticleEdit  = ArticleEdit {
@@ -38,13 +37,7 @@ editProcessor req =  do
     then return  (status302,"/admin/articles/new")
     else do
       ar <- DB.runDBTry $ DB.fetchArticle $ intBid
-      let writer = VAA.renderWriter ar "/admin/articles/create"
-      return $ (status200,
-                VL.renderAdmin 2
-                  ["/bower_components/editor.md/css/editormd.min.css"]
-                  ["/bower_components/editor.md/editormd.min.js"
-                  ,"/assets/admin/editor.js"]
-                  [writer])
+      return $ (status200,(VAA.renderWriter ar "/admin/articles/create"))
 
 authUser user req =
   if  user == "admin"

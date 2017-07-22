@@ -19,6 +19,19 @@ import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
+renderMenu ::  Int -> [(Int,String,String)] ->H.Html
+renderMenu active menus  =
+  H.div ! A.class_ "ui menu" $
+    H.div ! A.class_ "ui container" $
+      toItems
+  where
+    toItems =
+      forM_ menus $ \(ord,menu,url) ->
+        let
+          theclass = if ord == active then "active blue item" else "item"
+        in
+          H.a ! A.class_  theclass ! A.href (H.toValue url) $ H.toHtml menu
+
 sidebar :: URI -> Int64 -> [M.Tag]  -> H.Html
 sidebar base active ts =
   H.div ! A.class_ "ui vertical menu" $ do
@@ -85,7 +98,7 @@ utmParams host name =
   [("utm_source",host)
   ,("utm_campaign",name)
   ,("utm_medium","website")]
-  
+
 segmentBookmark :: String -> String -> M.Bookmark -> H.Html
 segmentBookmark host name br =
     H.div ! A.class_ "ui olive secondary segment" $

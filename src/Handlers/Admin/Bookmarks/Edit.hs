@@ -19,7 +19,6 @@ import Handlers.Common
 
 import qualified Models.DB as DB
 
-import qualified Views.Layout as VL
 import qualified Views.Admin.Bookmark as VAB
 
 data BookmarkEdit  = BookmarkEdit {
@@ -38,13 +37,7 @@ editProcessor req =  do
     then return  (status302,"/admin/bookmarks/new")
     else do
       bs <- DB.runDBTry $ DB.fetchBookmark $ intBid
-      let writer = VAB.renderWriter bs "/admin/bookmarks/create"
-      return $ (status200,
-                VL.renderAdmin 1
-                  ["/bower_components/editor.md/css/editormd.min.css"]
-                  ["/bower_components/editor.md/editormd.min.js"
-                  ,"/assets/admin/editor.js"]
-                  [writer])
+      return $ (status200,(VAB.renderWriter bs "/admin/bookmarks/create"))
 
 authUser user req =
   if  user == "admin"

@@ -22,7 +22,6 @@ import Handlers.Common
 import qualified Models.DB as DB
 import Utils.BlazeExtra.Pagination as Pagination
 
-import qualified Views.Layout as VL
 import qualified Views.Admin.Article as VAA
 
 data ArticleIndex = ArticleIndex {
@@ -38,26 +37,18 @@ instance FormParams ArticleIndex where
 
 indexProcessor :: Processor ArticleIndex LT.Text
 indexProcessor req = do
-    bv <-  renderArticles
-    return $ (status200,
-              VL.renderAdmin 2
-                ["/bower_components/editor.md/css/editormd.min.css"]
-                ["/bower_components/editor.md/editormd.min.js"
-                ,"/assets/admin/index.js"]
-                [bv] )
+    a <- DB.runDBTry $ DB.fetchAllArticles p c
+    total <- DB.runDBTry $ DB.fetchAllArticlesCount
+    let pn = def {
+      pnTotal = (toInteger total)
+      ,pnPerPage = (count req)
+      ,pnMenuClass = "ui right floated pagination menu"
+    }
+    return $ (status200, ( VAA.renderIndex a base pn))
   where
     p = fromInteger $ page req
     c = fromInteger $ count req
     base = (toURI "/admin/articles")
-    renderArticles = do
-      a <- DB.runDBTry $ DB.fetchAllArticles p c
-      total <- DB.runDBTry $ DB.fetchAllArticlesCount
-      let pn = def {
-        pnTotal = (toInteger total)
-        ,pnPerPage = (count req)
-        ,pnMenuClass = "ui right floated pagination menu"
-      }
-      return $ VAA.renderIndex a base pn
 
 authUser user req =
   if  user == "admin"

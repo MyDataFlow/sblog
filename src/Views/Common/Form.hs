@@ -14,7 +14,7 @@ import qualified Utils.BlazeExtra.Attributes as EA
 idField :: String -> H.Html
 idField value =
   H.div ! A.class_ "field" $ do
-    H.input ! A.class_ "hidden" ! A.type_ "hidden" ! A.name "id" ! A.value (H.toValue value) 
+    H.input ! A.class_ "hidden" ! A.type_ "hidden" ! A.name "id" ! A.value (H.toValue value)
 textField :: String -> String -> String -> H.Html
 textField title name value  =
   H.div ! A.class_ "field" $ do
@@ -27,14 +27,9 @@ contentField content =
     H.div ! A.class_ "ui container" $ do
       H.div ! A.id "editor" ! A.name "content" $  H.toHtml content
 
-tagsField :: [String] -> H.Html
+tagsField :: String -> H.Html
 tagsField ts =
-    H.div ! A.class_ "filed" $ do
-      H.div ! A.class_ "ui  multiple selection search dropdown"  ! A.id "tags" $ do
-        H.input ! A.type_ "hidden" ! A.name "tags" ! A.value (H.toValue tags)
-        H.div ! A.class_ "default text" $ "Tags"
-  where
-    tags =
-      if length ts == 0
-        then ""
-        else foldr1 (\w s -> w ++ ',':s) ts
+  H.div ! A.class_ "filed" $
+    H.div ! A.class_ "ui  multiple selection search dropdown"  ! A.id "tags" $ do
+      H.input ! A.type_ "hidden" ! A.name "tags" ! A.value (H.toValue ts)
+      H.div ! A.class_ "default text" $ "Tags"

@@ -7,7 +7,7 @@ module Views.Admin.Article(
 )where
 
 import Control.Monad
-import Data.Text.Lazy(Text)
+import qualified Data.Text.Lazy as LT
 import Data.String
 
 import Network.URI
@@ -20,13 +20,26 @@ import Text.Blaze.Html.Renderer.Text
 import Text.Markdown
 
 import Views.Common.Form
+import Views.Common.SEO
 import Utils.BlazeExtra.Pagination as Pagination
+
+import qualified Views.Admin.Layout as VL
 
 import qualified Models.DB.Schema as M
 
-renderWriter :: M.Article -> String -> H.Html
+renderWriter :: M.Article -> String -> LT.Text
 renderWriter article url =
-    H.div $ do
+    VL.render 2
+      ["/bower_components/editor.md/css/editormd.min.css"]
+      ["/bower_components/editor.md/editormd.min.js"
+      ,"/assets/admin/editor.js"]
+      [renderForm]
+  where
+    checked =
+      if M.articlePublished article
+        then "ui checked checkbox"
+        else "ui checkbox"
+    renderForm =
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
         idField $ show (M.articleID article)
         textField "标题" "title" (M.articleTitle article)
@@ -36,36 +49,18 @@ renderWriter article url =
           H.div ! A.class_ checked $ do
             H.input  ! A.type_ "checkbox" ! A.name "published" ! A.value "1"
             H.label "发布"
-        tagsField $ ts
+        tagsField $ showTags (M.articleTags article)
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
           H.a ! A.class_ "ui  button" ! A.href "/admin/articles" $ "取消"
-  where
-    ts = map (\tag -> (M.tagName tag)) (M.articleTags article)
-    checked =
-      if M.articlePublished article
-        then "ui checked checkbox"
-        else "ui checkbox"
 
-
-renderIndex :: [M.Article] -> URI -> Pagination ->  H.Html
+renderIndex :: [M.Article] -> URI -> Pagination ->  LT.Text
 renderIndex ariticles base pn =
-  H.div $ do
-    H.table ! A.class_ "ui celled table" $ do
-      H.thead $ do
-        H.tr $ do
-          H.th "id"
-          H.th "title"
-          H.th "summary"
-          H.th "updated_at"
-          H.th "action"
-      H.tbody $
-        mapM_ renderArticle ariticles
-      H.tfoot ! A.class_ "full-width" $ H.tr $
-        H.th ! A.colspan "5" $ do
-          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/articles/new" $ "新建"
-          Pagination.render base pn
-    rednerDeleteModal
+    VL.render 2
+      ["/bower_components/editor.md/css/editormd.min.css"]
+      ["/bower_components/editor.md/editormd.min.js"
+      ,"/assets/admin/index.js"]
+      [renderTable,rednerDeleteModal]
   where
     renderArticle article =
       H.tr $ do
@@ -78,6 +73,23 @@ renderIndex ariticles base pn =
             ! A.href (H.toValue  ("/admin/articles/" ++ (show $ M.articleID article) ++ "/edit") ) $ "编辑"
           H.button ! A.id (H.toValue (M.articleID article)) ! A.href "/admin/articles/remove/"
             ! A.class_ "ui negative basic button"  $ "删除"
+    renderTableHead =
+      H.thead $ do
+        H.tr $ do
+          H.th "id"
+          H.th "title"
+          H.th "summary"
+          H.th "updated_at"
+          H.th "action"
+    renderTableFooter =
+      H.tfoot ! A.class_ "full-width" $ H.tr $
+        H.th ! A.colspan "5" $ do
+          H.div $ H.a ! A.class_ "ui small  positive basic button" ! A.href "/admin/articles/new" $ "新建"
+          Pagination.render base pn
+    renderTable =
+      H.table ! A.class_ "ui celled table" $ do
+        H.tbody $
+          mapM_ renderArticle ariticles
     rednerDeleteModal  =
       H.div ! A.class_ "ui basic modal" $ do
         H.div ! A.class_ "ui icon header" $ do

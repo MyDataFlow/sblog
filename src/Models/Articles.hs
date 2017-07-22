@@ -63,10 +63,10 @@ fetchTagArticlesCount published tagID c = do
 
 addArticle ::String -> String -> String -> String -> Bool-> [String] -> Connection-> IO Int64
 addArticle title summary markdown body published tags c = do
-    tagsID <- mapM (flip Tags.findOrAddTag c) tags
     rs <- query c "INSERT INTO articles (title,summary,body,markdown,published) \
       \ VALUES (?,?,?,?,?) RETURNING id" (title,summary,body,markdown,published)
     let tid =  fromOnly $ head  rs
+    tagsID <- mapM (flip Tags.findOrAddTag c) tags
     Tags.addTaggings tid 2 tagsID c
     return $ fromOnly $ head rs
 

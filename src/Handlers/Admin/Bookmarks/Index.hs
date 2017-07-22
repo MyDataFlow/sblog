@@ -22,7 +22,6 @@ import Handlers.Common
 import qualified Models.DB as DB
 import Utils.BlazeExtra.Pagination as Pagination
 
-import qualified Views.Layout as VL
 import qualified Views.Admin.Bookmark as VAB
 
 data BookmarkIndex = BookmarkIndex {
@@ -38,26 +37,18 @@ instance FormParams BookmarkIndex where
 
 indexProcessor :: Processor BookmarkIndex LT.Text
 indexProcessor req = do
-    bv <-  renderBookmarks
-    return $ (status200,
-              VL.renderAdmin 1
-                ["/bower_components/editor.md/css/editormd.min.css"]
-                ["/bower_components/editor.md/editormd.min.js"
-                ,"/assets/admin/index.js"]
-                [bv] )
+    a <- DB.runDBTry $ DB.fetchBookmarks p c
+    total <- DB.runDBTry $ DB.fetchBookmarksCount
+    let pn = def {
+      pnTotal = (toInteger total)
+      ,pnPerPage = (count req)
+      ,pnMenuClass = "ui right floated pagination menu"
+    }
+    return $ (status200,(VAB.renderIndex a base pn))
   where
     p = fromInteger $ page req
     c = fromInteger $ count req
     base = (toURI "/admin/bookmarks")
-    renderBookmarks = do
-      a <- DB.runDBTry $ DB.fetchBookmarks p c
-      total <- DB.runDBTry $ DB.fetchBookmarksCount
-      let pn = def {
-        pnTotal = (toInteger total)
-        ,pnPerPage = (count req)
-        ,pnMenuClass = "ui right floated pagination menu"
-      }
-      return $ VAB.renderIndex a base pn
 
 authUser user req =
   if  user == "admin"

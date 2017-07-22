@@ -47,14 +47,17 @@ instance FormParams ArticleForm where
 
 createProcessor :: Processor ArticleForm LT.Text
 createProcessor req =  do
-    catchError action (\e -> return (status400,"unknown"))
+    action
   where
     t = T.unpack $ title req
     s = T.unpack $ summary req
     b = T.unpack $ body req
     m = T.unpack $ markdown req
     p = published req == 1
-    upackTags = map T.unpack $ T.split (==',') $ tags req
+    upackTags =
+      if T.null (tags req)
+        then []
+        else map T.unpack $ T.split (==',') $ tags req
     action = do
       liftIO $ putStrLn $ show $ published req
       c <-  DB.runDBTry $ DB.addArticle t s m b p upackTags

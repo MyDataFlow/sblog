@@ -49,13 +49,16 @@ instance FormParams BookmarkForm where
 
 createProcessor :: Processor BookmarkForm LT.Text
 createProcessor req =  do
-    catchError action (\e -> return (status400,"unknown"))
+    action
   where
     t = T.unpack $ title req
     u = T.unpack $ url req
     s = T.unpack $ summary req
     m = T.unpack $ markdown req
-    upackTags = map T.unpack $ T.split (==',') $ tags req
+    upackTags =
+      if T.null (tags req)
+        then []
+        else map T.unpack $ T.split (==',') $ tags req
     action = do
       c <-  DB.runDBTry $ DB.addBookmark t u s m upackTags
       return $ (status302,"/admin/bookmarks")
