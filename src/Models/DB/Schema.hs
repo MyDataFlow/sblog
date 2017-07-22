@@ -3,37 +3,64 @@
 module Models.DB.Schema where
 
 import Data.Int
+import Database.PostgreSQL.Simple
+import Database.PostgreSQL.Simple.ToRow
+import Database.PostgreSQL.Simple.FromRow
 import qualified Data.Time as DT
 
 data Tag = Tag {
-  tid :: Int64
-  ,name :: String
-  ,count :: Int
-} deriving (Show)
+  tagID :: Int64
+  ,tagName :: String
+  ,tagCount :: Int
+} deriving (Show,Eq)
+
+instance FromRow Tag where
+  fromRow = Tag <$> field <*> field <*> field
+instance ToRow Tag where
+  toRow r = toRow (tagID r,tagName r,tagCount r)
 
 data Article = Article {
-  aid :: Int64
-  ,atitle :: String
-  ,asummary :: String
-  ,abody :: String
-  ,amarkdown :: String
-  ,apublished :: Bool
-  ,acreatedAt ::  DT.LocalTime
-  ,aupdatedAt :: DT.LocalTime
-  ,atags :: [Tag]
-} deriving (Show)
+  articleID :: Int64
+  ,articleTitle :: String
+  ,articleSummary :: String
+  ,articleBody :: String
+  ,articleMarkdown :: String
+  ,articlePublished :: Bool
+  ,articleCreatedAt ::  DT.LocalTime
+  ,articleUpdatedAt :: DT.LocalTime
+  ,articleTags :: [Tag]
+} deriving (Show,Eq)
+
+instance FromRow Article where
+  fromRow = Article <$> field <*> field <*> field
+                    <*> field <*> field <*> field
+                    <*> field <*> field <*> pure []
+instance ToRow Article where
+  toRow r = toRow (articleID r,articleTitle r
+                  ,articleSummary r,articleBody r
+                  ,articleMarkdown r,articlePublished r
+                  ,articleCreatedAt r,articleUpdatedAt r)
 
 data Bookmark = Bookmark {
-  bid :: Int64
-  ,btitle :: String
-  ,bsummary :: String
-  ,bmarkdown :: String
-  ,burl :: String
-  ,bcreatedAt ::  DT.LocalTime
-  ,bupdatedAt :: DT.LocalTime
-  ,btags :: [Tag]
-} deriving (Show)
+  bookmarkID :: Int64
+  ,bookmarkTitle :: String
+  ,bookmarkSummary :: String
+  ,bookmarkMarkdown :: String
+  ,bookmarkUrl :: String
+  ,bookmarkCreatedAt ::  DT.LocalTime
+  ,bookmarkUpdatedAt :: DT.LocalTime
+  ,bookmarkTags :: [Tag]
+} deriving (Show,Eq)
 
+instance FromRow Bookmark where
+  fromRow = Bookmark <$> field <*> field <*> field
+                     <*> field <*> field <*> field
+                     <*> field <*> pure []
+instance ToRow Bookmark where
+  toRow r = toRow (bookmarkID r,bookmarkTitle r
+                  ,bookmarkSummary r,bookmarkMarkdown r
+                  ,bookmarkUrl r,bookmarkCreatedAt r
+                  ,bookmarkUpdatedAt r)
 
 defBookmark :: IO Bookmark
 defBookmark = do

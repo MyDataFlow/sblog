@@ -18,9 +18,9 @@ import Models.DB.Schema
 import qualified Models.Tags as Tags
 
 
-digest c (bid,title,summary,markdown,url,createdAt,updatedAt) = do
-  tags <- Tags.fetchRelatedTags bid 1 c
-  return $ Bookmark bid title summary markdown url createdAt updatedAt tags
+digest c br = do
+  tags <- Tags.fetchRelatedTags (bookmarkID br) 1 c
+  return $ br {bookmarkTags =  tags}
 
 fetchBookmarks ::  Int -> Int -> Connection -> IO [Bookmark]
 fetchBookmarks page count c = do

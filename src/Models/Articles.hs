@@ -18,9 +18,9 @@ import Models.DB.Schema
 
 import qualified Models.Tags as Tags
 
-digest c (aid,title,summary,body,markdown,published,createdAt,updatedAt) = do
-        tags <- Tags.fetchRelatedTags aid 2 c
-        return $ Article aid title summary  body markdown published createdAt updatedAt tags
+digest c ar = do
+        tags <- Tags.fetchRelatedTags (articleID ar) 2 c
+        return $ ar {articleTags = tags}
 
 fetchAllArticles ::   Int -> Int -> Connection -> IO [Article]
 fetchAllArticles page count  c = do

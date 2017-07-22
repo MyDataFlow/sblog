@@ -23,10 +23,10 @@ import qualified Models.DB.Schema as M
 tag :: M.Tag -> H.Html
 tag t =
   H.a ! url ! A.class_ "ui tag label" $ do
-    H.toHtml $ M.name t
-    H.div ! A.class_ "detail" $ H.toHtml $ (M.count t)
+    H.toHtml $ M.tagName t
+    H.div ! A.class_ "detail" $ H.toHtml $ (M.tagCount t)
   where
-    url = A.href $ fromString $ "/tags/" ++ (show $ M.tid t)
+    url = A.href $ fromString $ "/tags/" ++ (show $ M.tagID t)
 
 indexArticle :: M.Article -> H.Html
 indexArticle ar =
@@ -46,11 +46,11 @@ indexArticle ar =
                 else mapM_ tag tags
 
   where
-    aid = M.aid ar
-    title = M.atitle ar
-    summary = M.asummary ar
-    tags = M.atags ar
-    link = A.href $ fromString $ "/articles/" ++  (show $ M.aid ar)
+    aid = M.articleID ar
+    title = M.articleTitle ar
+    summary = M.articleSummary ar
+    tags = M.articleTags ar
+    link = A.href $ fromString $ "/articles/" ++  (show $ M.articleID ar)
 
 indexBookmark :: M.Bookmark -> H.Html
 indexBookmark br =
@@ -69,11 +69,11 @@ indexBookmark br =
 
 
   where
-    bid = M.bid br
-    title = M.btitle br
-    summary = M.bsummary br
-    tags = M.btags br
-    link = A.href $ fromString $ (M.burl br)
+    bid = M.bookmarkID br
+    title = M.bookmarkTitle br
+    summary = M.bookmarkSummary br
+    tags = M.bookmarkTags br
+    link = A.href $ fromString $ (M.bookmarkUrl br)
 
 renderMain :: [M.Bookmark] -> [M.Article] -> H.Html
 renderMain bookmarks articles =

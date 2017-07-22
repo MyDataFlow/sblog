@@ -28,16 +28,16 @@ renderWriter :: M.Bookmark -> String -> H.Html
 renderWriter bookmark url =
     H.div $ do
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
-        idField $ show (M.bid bookmark)
-        textField "标题" "title" (M.btitle bookmark)
-        textField "源连接" "url" (M.burl bookmark)
-        contentField (M.bmarkdown bookmark)
+        idField $ show (M.bookmarkID bookmark)
+        textField "标题" "title" (M.bookmarkTitle bookmark)
+        textField "源连接" "url" (M.bookmarkUrl bookmark)
+        contentField (M.bookmarkMarkdown bookmark)
         tagsField $ ts
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
           H.a ! A.class_ "ui  button" ! A.href "/admin/bookmarks" $ "取消"
   where
-    ts = map (\tag -> (M.name tag)) (M.btags bookmark)
+    ts = map (\tag -> (M.tagName tag)) (M.bookmarkTags bookmark)
 
 renderIndex :: [M.Bookmark] -> URI -> Pagination ->  H.Html
 renderIndex bookmarks base pn =
@@ -60,13 +60,13 @@ renderIndex bookmarks base pn =
   where
     renderBookmark bookmark =
       H.tr $ do
-        H.td $ H.toHtml (M.bid bookmark)
-        H.td $ H.toHtml (M.btitle bookmark)
-        H.td $ H.toHtml (M.burl bookmark)
-        H.td $ H.toHtml $ show (M.bupdatedAt bookmark)
+        H.td $ H.toHtml (M.bookmarkID bookmark)
+        H.td $ H.toHtml (M.bookmarkTitle bookmark)
+        H.td $ H.toHtml (M.bookmarkUrl bookmark)
+        H.td $ H.toHtml $ show (M.bookmarkUpdatedAt bookmark)
         H.td $ do
-          H.a ! A.class_ "ui primary basic button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bid bookmark) ++ "/edit") ) $ "编辑"
-          H.button ! A.id (H.toValue (M.bid bookmark)) ! A.href "/admin/bookmarks/remove/"
+          H.a ! A.class_ "ui primary basic button" ! A.href (H.toValue  ("/admin/bookmarks/" ++ (show $ M.bookmarkID bookmark) ++ "/edit") ) $ "编辑"
+          H.button ! A.id (H.toValue (M.bookmarkID bookmark)) ! A.href "/admin/bookmarks/remove/"
             ! A.class_ "ui negative basic button"  $ "删除"
     rednerDeleteModal  =
       H.div ! A.class_ "ui basic modal" $ do

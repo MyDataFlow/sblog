@@ -28,23 +28,22 @@ renderWriter :: M.Article -> String -> H.Html
 renderWriter article url =
     H.div $ do
       H.form ! A.class_ "ui form" ! A.action (H.toValue url) ! A.method "POST" $ do
-        idField $ show (M.aid article)
-        textField "标题" "title" (M.atitle article)
-        textField "摘要" "summary" (M.asummary article)
-        contentField (M.amarkdown article)
+        idField $ show (M.articleID article)
+        textField "标题" "title" (M.articleTitle article)
+        textField "摘要" "summary" (M.articleSummary article)
+        contentField (M.articleMarkdown article)
         H.div ! A.class_ "field" $
           H.div ! A.class_ checked $ do
             H.input  ! A.type_ "checkbox" ! A.name "published" ! A.value "1"
             H.label "发布"
-
         tagsField $ ts
         H.div ! A.class_ "filed" $ do
           H.button ! A.class_ "ui primary button"  ! A.type_ "submit" $ "保存"
           H.a ! A.class_ "ui  button" ! A.href "/admin/articles" $ "取消"
   where
-    ts = map (\tag -> (M.name tag)) (M.atags article)
+    ts = map (\tag -> (M.tagName tag)) (M.articleTags article)
     checked =
-      if M.apublished article
+      if M.articlePublished article
         then "ui checked checkbox"
         else "ui checkbox"
 
@@ -70,14 +69,14 @@ renderIndex ariticles base pn =
   where
     renderArticle article =
       H.tr $ do
-        H.td $ H.toHtml (M.aid article)
-        H.td $ H.toHtml (M.atitle article)
-        H.td $ H.toHtml (M.asummary article)
-        H.td $ H.toHtml $ show (M.aupdatedAt article)
+        H.td $ H.toHtml (M.articleID article)
+        H.td $ H.toHtml (M.articleTitle article)
+        H.td $ H.toHtml (M.articleSummary article)
+        H.td $ H.toHtml $ show (M.articleUpdatedAt article)
         H.td $ do
           H.a ! A.class_ "ui primary basic button"
-            ! A.href (H.toValue  ("/admin/articles/" ++ (show $ M.aid article) ++ "/edit") ) $ "编辑"
-          H.button ! A.id (H.toValue (M.aid article)) ! A.href "/admin/articles/remove/"
+            ! A.href (H.toValue  ("/admin/articles/" ++ (show $ M.articleID article) ++ "/edit") ) $ "编辑"
+          H.button ! A.id (H.toValue (M.articleID article)) ! A.href "/admin/articles/remove/"
             ! A.class_ "ui negative basic button"  $ "删除"
     rednerDeleteModal  =
       H.div ! A.class_ "ui basic modal" $ do

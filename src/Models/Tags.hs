@@ -17,22 +17,18 @@ import Models.DB.Schema
 
 fetchTags :: Connection -> IO [Tag]
 fetchTags c = do
-  let digest (tid,name,count) = return $ Tag tid name count
   let q = "SELECT t.id,t.name,count(tg.tag_id) c \
   \ FROM tags as t, taggings as tg \
   \ WHERE tg.tag_id = t.id group by t.id \
   \ ORDER BY c DESC" :: Query
-  rs  <- query_ c q
-  mapM digest rs
+  query_ c q
+
 
 fetchRelatedTags ::  Int64 -> Int ->  Connection -> IO [Tag]
 fetchRelatedTags rid t c = do
-    rs <- query c " SELECT t.id,t.name,count(t.id) FROM tags as t, taggings as tg \
+    query c " SELECT t.id,t.name,count(t.id) FROM tags as t, taggings as tg \
     \ WHERE t.id = tg.tag_id GROUP BY t.id HAVING \
     \t.id IN (SELECT tag_id FROM taggings WHERE related_type = ? AND related_id = ? )" (t,rid)
-    mapM digest rs
-  where
-    digest (tid,name,tc) = return $ Tag tid name tc
 
 findOrAddTag :: String -> Connection ->  IO Int64
 findOrAddTag name c = do
