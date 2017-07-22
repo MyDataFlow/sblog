@@ -38,7 +38,9 @@ removeProcessor req =  do
   return $ (status200,M.empty )
 
 authUser user req =
-  removeProcessor req
+  if  user == "admin"
+    then removeProcessor req
+    else return (status302,"/admin/login")
 
 removeR :: Response (M.Map T.Text T.Text)
 removeR = do
