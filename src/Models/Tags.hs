@@ -25,7 +25,7 @@ fetchTags :: Int -> Connection -> IO [Tag]
 fetchTags rt c = do
   let q = "SELECT t.id,t.name,count(tg.tag_id) c \
   \ FROM tags as t, taggings as tg \
-  \ WHERE tg.relate_type =? AND tg.tag_id = t.id group by t.id \
+  \ WHERE tg.related_type =? AND tg.tag_id = t.id group by t.id \
   \ ORDER BY c DESC"
   query c q (Only rt)
 

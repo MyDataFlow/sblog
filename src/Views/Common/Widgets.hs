@@ -6,6 +6,7 @@ import Control.Monad
 import qualified Data.Text as T
 import Data.Text.Lazy(Text)
 import Data.String (fromString)
+import Data.Int
 
 import Network.URI
 import Text.Blaze.Html5((!))
@@ -16,6 +17,21 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Utils.URI.String
 
 import qualified Models.DB.Schema as M
+
+sidebar :: URI -> Int64 -> [M.Tag]  -> H.Html
+sidebar base active ts =
+  H.div ! A.class_ "ui vertical menu" $ do
+    mapM_ tag ts
+  where
+    tag t =
+      let
+        l =  EA.hrefSet base "tag" $ M.tagName t
+        c = if active == M.tagID t then "active teal item" else "item"
+        cl = if active == M.tagID t then "ui teal label" else "ui label"
+      in
+        H.a ! A.class_ c ! l $ do
+          H.toHtml $ M.tagName t
+          H.div ! A.class_ cl $ H.toHtml $ show $ M.tagCount t
 
 breadcrumb :: [(String,String)] -> String -> H.Html
 breadcrumb prevs current =

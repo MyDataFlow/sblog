@@ -10,6 +10,7 @@ import Control.Monad
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Data.String (fromString)
+import Data.Int
 
 import Network.URI
 
@@ -47,10 +48,12 @@ renderArticle host name prevs ar =
         H.div ! A.class_ "ui article text container" $
           H.div ! A.class_ "ui piled segment" $
             H.preEscapedToHtml (M.articleBody ar)
-renderIndex :: (Maybe T.Text) -> Pagination -> [M.Article] -> LT.Text
-renderIndex tag pn ars =
-    VL.render 2 "文章-TTalkIM" [] [] [render]
+renderIndex :: String -> (Maybe T.Text) -> Int64 ->
+  Pagination -> [M.Tag] -> [M.Article] -> LT.Text
+renderIndex name tag tid pn ts ars =
+    VL.render 2 title [] [(sidebar base tid ts)] [render]
   where
+    title = "文章-" ++ name
     base =
       case tag of
         Nothing -> toURI "/articles"
