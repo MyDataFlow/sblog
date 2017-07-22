@@ -34,6 +34,7 @@ instance FormParams BookmarkRemove where
 
 removeProcessor :: Processor BookmarkRemove (M.Map T.Text T.Text)
 removeProcessor req =  do
+  DB.runDBTry $ DB.removeBookmark (bid req)
   return $ (status200,M.empty )
 
 authUser user req =

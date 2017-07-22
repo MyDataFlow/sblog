@@ -70,6 +70,11 @@ addArticle title summary markdown body published tags c = do
     Tags.addTaggings tid 2 tagsID c
     return $ fromOnly $ head rs
 
+removeArticle :: Int64 -> Connection -> IO Int64
+removeArticle aid c = do
+  Tags.removeTaggings aid 2 c
+  execute c "DELETE FROM articles WHERE id = ?" (Only aid)
+
 fetchArticle :: Int64 -> Connection -> IO Article
 fetchArticle aid c = do
   rs <- query c "SELECT id,title,summary,body,markdown,published,created_at,updated_at FROM articles \
