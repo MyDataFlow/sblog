@@ -69,6 +69,7 @@ renderMainInner :: String -> [H.Html] -> [H.Html]  -> H.Html
 renderMainInner title meta mainPart  =
     H.html $ do
       renderHeader title meta
+    --  EH.cssLink "/bower_components/editor.md/css/editormd.min.css"
       EH.cssLink "/assets/main.css"
       H.body $ do
         sequence_ mainPart
