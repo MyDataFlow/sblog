@@ -44,16 +44,17 @@ renderHeader title meta =
 
 renderInner :: String -> [H.Html] -> [H.Html] -> [H.Html] -> H.Html -> H.Html
 renderInner title meta sidePart mainPart menu =
-  H.html $ do
-    renderHeader title meta
-    H.body $ do
-      menu
-      H.div ! A.class_ "ui container" $ do
-        H.div ! A.class_ "ui grid" $ do
-          H.div ! A.class_ "ten wide computer eleven wide tablet sixteen wide mobile column" $ do
-            sequence_ mainPart
-          H.div ! A.class_ "four wide computer five wide tablet sixteen wide mobile column" $ do
-            sequence_ sidePart
+  H.docTypeHtml $
+    H.html ! A.lang "zh" $ do
+      renderHeader title meta
+      H.body $ do
+        menu
+        H.div ! A.class_ "ui container" $ do
+          H.div ! A.class_ "ui grid" $ do
+            H.div ! A.class_ "ten wide computer eleven wide tablet sixteen wide mobile column" $ do
+              sequence_ mainPart
+            H.div ! A.class_ "four wide computer five wide tablet sixteen wide mobile column" $ do
+              sequence_ sidePart
       EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
       EH.jsLink "/assets/ga.js"
@@ -68,7 +69,8 @@ render active title meta sidePart mainPart =
 
 renderMainInner :: String -> [H.Html] -> [H.Html]  -> H.Html
 renderMainInner title meta mainPart  =
-    H.html $ do
+  H.docTypeHtml $
+    H.html ! A.lang "zh"  $ do
       renderHeader title meta
     --  EH.cssLink "/bower_components/editor.md/css/editormd.min.css"
       EH.cssLink "/assets/main.css"
