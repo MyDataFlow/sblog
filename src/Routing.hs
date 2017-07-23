@@ -31,9 +31,11 @@ onError :: ServerError -> Response ()
 onError err = do
   if (status err) == unauthorized401
     then Web.redirect "/admin/login"
-    else do
-      Web.status $ status err
-      Web.text $ message err
+    else if (status err) /= status500
+      then Web.redirect "/"
+      else do
+        Web.status $ status err
+        Web.text $ message err
 
 routing = do
   Web.defaultHandler onError
