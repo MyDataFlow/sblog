@@ -47,7 +47,8 @@ indexProcessor req =  do
   tags <- DB.runDBTry $ DB.fetchTags 2
   name <- lift (asks siteName)
   let pn = def {
-    pnTotal = (toInteger total)
+    pnCurrentPage = (page req)
+    ,pnTotal = (toInteger total)
     ,pnPerPage = (count req)
     ,pnMenuClass = "ui right floated pagination menu"
   }

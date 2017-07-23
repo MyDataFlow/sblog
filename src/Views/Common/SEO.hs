@@ -6,6 +6,7 @@ import Control.Monad
 import qualified Data.Text as T
 import Data.Text.Lazy(Text)
 import Data.String (fromString)
+import qualified Text.Printf as PF
 
 import Network.URI
 import Text.Blaze.Html5((!))
@@ -42,3 +43,10 @@ openGraph title url description = do
   metaProperty "og:title" $ H.toValue title
   metaProperty "og:url" $ H.toValue url
   metaProperty "og:description" $ H.toValue description
+
+gaEvent :: String-> String ->H.Attribute
+gaEvent ev ct =
+  let
+    v = (PF.printf "ga('send', 'event', '%s', '%s');" ev ct) :: String
+  in
+    A.onclick $ H.toValue v

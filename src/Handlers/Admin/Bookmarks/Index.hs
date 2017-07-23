@@ -40,7 +40,8 @@ indexProcessor req = do
     a <- DB.runDBTry $ DB.fetchBookmarks p c
     total <- DB.runDBTry $ DB.fetchBookmarksCount
     let pn = def {
-      pnTotal = (toInteger total)
+      pnCurrentPage = (page req)
+      ,pnTotal = (toInteger total)
       ,pnPerPage = (count req)
       ,pnMenuClass = "ui right floated pagination menu"
     }

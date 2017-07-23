@@ -9,6 +9,7 @@ import Data.Maybe
 import Data.Int
 import qualified Data.Set as Set
 import qualified Data.Time as DT
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromField
 import Database.PostgreSQL.Simple.ToField

@@ -56,6 +56,7 @@ renderInner title meta sidePart mainPart menu =
             sequence_ sidePart
       EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
+      EH.jsLink "/assets/ga.js"
 
 render :: Int -> String -> [H.Html] -> [H.Html] -> [H.Html]  -> Text
 render active title meta sidePart mainPart =
@@ -75,6 +76,7 @@ renderMainInner title meta mainPart  =
         sequence_ mainPart
         EH.jsLink "https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"
         EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
+        EH.jsLink "/assets/ga.js"
 
 renderMain :: String -> [H.Html] -> [H.Html]  -> Text
 renderMain title meta mainPart =

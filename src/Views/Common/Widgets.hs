@@ -17,6 +17,8 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Utils.URI.String
 import Utils.URI.Params
 
+import Views.Common.SEO
+
 import qualified Models.DB.Schema as M
 
 renderMenu ::  Int -> [(Int,String,String)] ->H.Html
@@ -30,12 +32,15 @@ renderMenu active menus  =
         let
           theclass = if ord == active then "active blue item" else "item"
         in
-          H.a ! A.class_  theclass ! A.href (H.toValue url) $ H.toHtml menu
+          H.a ! (gaEvent "Read Menu" menu) ! A.class_  theclass ! A.href (H.toValue url) $ H.toHtml menu
 
 sidebar :: URI -> Int64 -> [M.Tag]  -> H.Html
 sidebar base active ts =
-  H.div ! A.class_ "ui vertical menu" $ do
-    mapM_ tag ts
+  if length ts == 0
+    then H.span ""
+    else
+      H.div ! A.class_ "ui vertical menu" $ do
+        mapM_ tag ts
   where
     tag t =
       let
@@ -43,7 +48,7 @@ sidebar base active ts =
         c = if active == M.tagID t then "active teal item" else "item"
         cl = if active == M.tagID t then "ui teal label" else "ui label"
       in
-        H.a ! A.class_ c ! l $ do
+        H.a ! (gaEvent "Read Tag" (M.tagName t)) ! A.class_ c ! l $ do
           H.toHtml $ M.tagName t
           H.div ! A.class_ cl $ H.toHtml $ show $ M.tagCount t
 
@@ -65,7 +70,7 @@ tags base ts =
   where
     url t = EA.hrefSet base "tag" $ M.tagName t
     render t =
-      H.a ! (url t) ! A.class_ "ui tag label" $ do
+      H.a ! (gaEvent "Read Tag" (M.tagName t)) ! (url t) ! A.class_ "ui tag label" $ do
         H.toHtml $ M.tagName t
         H.div ! A.class_ "detail" $ H.toHtml $ (M.tagCount t)
 
@@ -75,7 +80,7 @@ segmentArticle tag ar =
     H.div ! A.class_ "item" $
       H.div ! A.class_ "content" $ do
         H.div ! A.class_ "ui small right floated primary basic button" $
-          H.a !  link $ "阅读原文"
+          H.a ! (gaEvent "Read Article" title) !  link $ "阅读原文"
         H.div ! A.class_ "header" $ H.p $ H.toHtml title
         H.div ! A.class_ "description" $ H.p $ H.toHtml summary
         H.div ! A.class_ "extra" $
@@ -105,7 +110,7 @@ segmentBookmark host name br =
       H.div ! A.class_ "item" $
         H.div ! A.class_ "content" $ do
           H.div ! A.class_ "ui small right floated primary basic button" $
-            H.a ! A.rel "nofollow" ! link $ "原文"
+            H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! link $ "原文"
           H.div ! A.class_ "header" $ H.h1 $ H.toHtml title
           H.div ! A.class_ "description" $
             H.div ! A.class_ "markdown-body" $ H.preEscapedToHtml summary

@@ -40,7 +40,8 @@ indexProcessor req = do
     a <- DB.runDBTry $ DB.fetchAllArticles p c
     total <- DB.runDBTry $ DB.fetchAllArticlesCount
     let pn = def {
-      pnTotal = (toInteger total)
+      pnCurrentPage = (page req)
+      ,pnTotal = (toInteger total)
       ,pnPerPage = (count req)
       ,pnMenuClass = "ui right floated pagination menu"
     }
@@ -58,4 +59,3 @@ authUser user req =
 indexR :: Response LT.Text
 indexR = do
   view $ withParams $ withAuthorization authUser
-  
