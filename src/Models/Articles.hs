@@ -54,7 +54,7 @@ fetchTagArticles published tagID page count c = do
   rs <- query c "SELECT a.id,a.title,a.summary,a.body,a.markdown,a.published,\
     \a.created_at,a.updated_at FROM  taggings AS tg , articles AS a \
     \ WHERE tg.tag_id = ? AND a.id = tg.related_id AND a.published = ?\
-    \ AND tg.related_type = 2 OFFSET ? LIMIT ?" (tagID,published,offset,count)
+    \ AND tg.related_type = 2 ORDER BY id DESC OFFSET ? LIMIT ?" (tagID,published,offset,count)
   mapM (digest c) rs
 fetchTagArticlesCount :: Bool -> Int64 -> Connection -> IO Int64
 fetchTagArticlesCount published tagID c = do
@@ -89,7 +89,6 @@ updateArticle aid title summary markdown body published tags c = do
     let is = Set.intersection newSet storedSet
     let toDelete = Set.difference storedSet is
     let toInsert = Set.difference newSet is
-    putStrLn $ show toDelete
     deleteTags (Set.toList toDelete)
     addTags (Set.toList toInsert)
     execute c "UPDATE articles SET title = ? , summary = ? , \

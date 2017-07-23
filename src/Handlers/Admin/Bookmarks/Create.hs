@@ -60,7 +60,9 @@ createProcessor req =  do
         then []
         else map T.unpack $ T.split (==',') $ tags req
     action = do
-      c <-  DB.runDBTry $ DB.addBookmark t u s m upackTags
+      if (bid req) == 0
+        then DB.runDBTry $ DB.addBookmark t u s m upackTags
+        else DB.runDBTry $ DB.updateBookmark (fromInteger $ bid req) t u s m upackTags
       return $ (status302,"/admin/bookmarks")
 
 authUser user req =
@@ -71,4 +73,3 @@ authUser user req =
 createR :: Response LT.Text
 createR = do
   view $ withParams $ withAuthorization authUser
-  

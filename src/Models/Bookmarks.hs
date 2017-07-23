@@ -7,7 +7,8 @@ import Control.Monad
 
 import Data.Maybe
 import Data.Int
-
+import qualified Data.Set as Set
+import qualified Data.Time as DT
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromField
 import Database.PostgreSQL.Simple.ToField
@@ -29,6 +30,11 @@ fetchBookmarks page count c = do
     \ ORDER BY id DESC OFFSET ? LIMIT ?" (offset,count)
   mapM (digest c) rs
 
+fetchBookmarksCount :: Connection -> IO Int64
+fetchBookmarksCount c = do
+  rs <- query_ c "SELECT count(id) FROM bookmarks"
+  return $ fromOnly $ head rs
+
 fetchBookmark :: Int64 -> Connection -> IO Bookmark
 fetchBookmark bid c = do
   rs <- query c "SELECT id,title,summary,markdown,url,created_at,updated_at FROM bookmarks \
@@ -44,12 +50,50 @@ addBookmark title url summary markdown tags c = do
   Tags.addTaggings tid 1 tagsID c
   return $ fromOnly $ head rs
 
+updateBookmark :: Int64-> String -> String -> String
+  -> String ->[String] -> Connection-> IO Int64
+updateBookmark bid title url summary markdown tags c = do
+      storedTags <- Tags.fetchRelatedTags bid 1 c
+      utc <- DT.getCurrentTime
+      let now = DT.utcToLocalTime DT.utc utc
+      let ts = map (\tag -> (tagName tag)) storedTags
+      let storedSet = Set.fromList ts
+      let newSet = Set.fromList tags
+      let is = Set.intersection newSet storedSet
+      let toDelete = Set.difference storedSet is
+      let toInsert = Set.difference newSet is
+      deleteTags (Set.toList toDelete)
+      addTags (Set.toList toInsert)
+      execute c "UPDATE bookmarks SET title = ? , summary = ? , \
+        \url = ? , markdown = ? , \
+        \updated_at = ? WHERE id = ? " (title,summary,url,markdown,now,bid)
+    where
+      addTags [] = return [0]
+      addTags ts = do
+        tagsID <- mapM (flip Tags.findOrAddTag c) ts
+        Tags.addTaggings bid 1 tagsID c
+      deleteTags [] = return 0
+      deleteTags ts = do
+        Tags.removeTaggingsWithName bid 1 ts c
+
 removeBookmark :: Int64 -> Connection -> IO Int64
 removeBookmark bid c = do
   Tags.removeAllTaggings bid 1 c
   execute c "DELETE FROM bookmarks WHERE id = ?" (Only bid)
 
-fetchBookmarksCount :: Connection -> IO Int64
-fetchBookmarksCount c = do
-  rs <- query_ c "SELECT count(id) FROM bookmarks"
-  return $ fromOnly $ head rs
+
+fetchTagBookmarks :: Int64 -> Int -> Int -> Connection -> IO [Bookmark]
+fetchTagBookmarks tagID page count c = do
+    let offset = (page - 1) * count
+    rs <- query c "SELECT b.id,b.title,b.summary,b.markdown,b.url,\
+      \b.created_at,b.updated_at FROM  taggings AS tg , bookmarks AS b \
+      \ WHERE tg.tag_id = ? AND b.id = tg.related_id \
+      \ AND tg.related_type = 1 OFFSET ? LIMIT ?" (tagID,offset,count)
+    mapM (digest c) rs
+
+fetchTagBookmarksCount :: Int64 -> Connection -> IO Int64
+fetchTagBookmarksCount tagID c = do
+    rs <- query c "SELECT count(b.id) FROM taggings AS tg, bookmarks AS b WHERE \
+      \tg.tag_id = ? AND tg.related_type = 1 \
+      \AND b.id = tg.related_id" (Only tagID)
+    return $ fromOnly $ head rs

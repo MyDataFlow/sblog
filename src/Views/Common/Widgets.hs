@@ -106,8 +106,9 @@ segmentBookmark host name br =
         H.div ! A.class_ "content" $ do
           H.div ! A.class_ "ui small right floated primary basic button" $
             H.a ! A.rel "nofollow" ! link $ "原文"
-          H.div ! A.class_ "header" $ H.p $ H.toHtml title
-          H.div ! A.class_ "description" $ H.preEscapedToHtml summary
+          H.div ! A.class_ "header" $ H.h1 $ H.toHtml title
+          H.div ! A.class_ "description" $
+            H.div ! A.class_ "markdown-body" $ H.preEscapedToHtml summary
           H.div ! A.class_ "extra" $ do
             if length ts == 0
               then H.span ""
