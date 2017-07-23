@@ -16,6 +16,11 @@ showURI uri = show uri
 
 toURI :: String -> URI
 toURI u =
-  case parseURI u of
-    Nothing ->  fromJust $ parseRelativeReference u
-    Just uri -> uri
+    case parseURI u of
+      Nothing -> parseReference
+      Just uri -> uri
+  where
+    parseReference =
+      case parseRelativeReference u of
+        Nothing -> fromJust $ parseURIReference u
+        Just uri -> uri

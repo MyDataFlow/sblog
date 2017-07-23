@@ -23,6 +23,9 @@ import qualified Models.Tags as Tags
 digest c br = do
   tags <- Tags.fetchRelatedTags (bookmarkID br) 1 c
   return $ br {bookmarkTags =  tags}
+fetchBookmarksSitemap :: Connection -> IO [(Int64,DT.LocalTime)]
+fetchBookmarksSitemap c = do
+  query_ c "SELECT id,updated_at FROM bookmarks"
 
 fetchBookmarks ::  Int -> Int -> Connection -> IO [Bookmark]
 fetchBookmarks page count c = do

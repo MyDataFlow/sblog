@@ -24,6 +24,10 @@ digest c ar = do
   tags <- Tags.fetchRelatedTags (articleID ar) 2 c
   return $ ar {articleTags = tags}
 
+fetchArticlesSitemap:: Connection -> IO [(Int64,DT.LocalTime)]
+fetchArticlesSitemap c = do
+  query_ c "SELECT id,updated_at FROM articles WHERE published = true"
+
 fetchAllArticles ::   Int -> Int -> Connection -> IO [Article]
 fetchAllArticles page count  c = do
   let offset = (page - 1) * count
