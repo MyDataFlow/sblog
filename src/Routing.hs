@@ -45,6 +45,7 @@ routing = do
   Web.get "/sitemap.xml" $ void $ HS.sitemapR
   Web.get "/robots.txt" $ void $ HS.robotsR
   Web.get "/bookmarks" $ void $ HB.indexR
+  Web.get "/bookmarks/:id" $ void $ HB.showR
   Web.get "/articles" $ void $ HA.indexR
   Web.get "/articles/:id" $ void $ HA.showR
   Web.get "/admin" $ void $ HAB.indexR

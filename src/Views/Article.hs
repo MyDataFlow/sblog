@@ -49,6 +49,7 @@ renderArticle host name prevs ar =
         H.div ! A.class_ "ui article text container" $
           H.div ! A.class_ "markdown-body" $ do
             H.preEscapedToHtml (M.articleBody ar)
+            H.p $ ""
             H.div $
               H.h5 ! A.class_ "ui block header" $
                 H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"

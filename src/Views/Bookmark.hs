@@ -3,6 +3,7 @@
 
 module Views.Bookmark(
   renderIndex
+  ,renderBookmark
 )where
 
 import Control.Monad
@@ -28,6 +29,30 @@ import Utils.URI.String
 import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
+
+renderBookmark :: String -> String  -> [(String,String)] -> M.Bookmark -> LT.Text
+renderBookmark host name prevs br =
+    VL.renderMain title [seo] [render]
+  where
+    seo = do
+      openGraph title (show fullURL) (M.bookmarkTitle br)
+      keywordsAndDescription (showTags $ M.bookmarkTags br) (M.bookmarkTitle br)
+    title = (M.bookmarkTitle br) ++ "-" ++ name
+    fullURL =
+      relativeTo (toURI $ "/bookmarks/" ++ (show $ M.bookmarkID br)) (toURI host)
+    render =
+      H.div $ do
+        H.div ! A.class_ "ui main text container" $ do
+          breadcrumb prevs (M.bookmarkTitle br)
+          H.h1 ! A.class_ "ui header" $ H.toHtml (M.bookmarkTitle br)
+          H.div ! A.class_ "ui article text container" $ 
+            H.div ! A.class_ "markdown-body" $ do
+              H.preEscapedToHtml  (M.bookmarkSummary br)
+              H.p $ ""
+              H.div $
+                H.h5 ! A.class_ "ui block header" $
+                  H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> [M.Bookmark] -> LT.Text
 renderIndex host name tag tid pn ts brs =
