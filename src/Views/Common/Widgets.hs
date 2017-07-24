@@ -110,7 +110,7 @@ segmentBookmark host name tag  br =
       H.div ! A.class_ "item" $
         H.div ! A.class_ "content" $ do
           H.div ! A.class_ "ui small right floated primary basic button" $
-            H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! link $ "点评"
+            H.a ! (gaEvent "Read Bookmark Comment" title) ! link $ "点评"
           H.div ! A.class_ "ui small right floated primary basic button" $
             H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! olink $ "原文"
           H.div ! A.class_ "header" $ H.p $ H.toHtml title
