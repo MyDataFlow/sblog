@@ -39,4 +39,4 @@ renderIndex  host name bookmarks articles =
         else
           H.div ! A.class_ "ui segments" $ do
             H.div ! A.class_ "ui segment" $ H.p $ "书签"
-            mapM_ (segmentBookmark host name) bookmarks
+            mapM_ (segmentBookmark host name Nothing) bookmarks

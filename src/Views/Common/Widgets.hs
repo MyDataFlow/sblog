@@ -104,16 +104,16 @@ utmParams host name =
   ,("utm_campaign",name)
   ,("utm_medium","website")]
 
-segmentBookmark :: String -> String -> M.Bookmark -> H.Html
-segmentBookmark host name br =
+segmentBookmark :: String -> String -> Maybe T.Text -> M.Bookmark -> H.Html
+segmentBookmark host name tag  br =
     H.div ! A.class_ "ui olive secondary segment" $
       H.div ! A.class_ "item" $
         H.div ! A.class_ "content" $ do
           H.div ! A.class_ "ui small right floated primary basic button" $
-            H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! link $ "原文"
+            H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! link $ "点评"
+          H.div ! A.class_ "ui small right floated primary basic button" $
+            H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! olink $ "原文"
           H.div ! A.class_ "header" $ H.h1 $ H.toHtml title
-          H.div ! A.class_ "description" $
-            H.div ! A.class_ "markdown-body" $ H.preEscapedToHtml summary
           H.div ! A.class_ "extra" $ do
             if length ts == 0
               then H.span ""
@@ -123,5 +123,11 @@ segmentBookmark host name br =
     title = M.bookmarkTitle br
     summary = M.bookmarkSummary br
     ts = M.bookmarkTags br
-    link = A.href (H.toValue $ showURI
+    l = "/bookmarks/" ++  (show $ M.bookmarkID br)
+    link =
+      case tag of
+        Nothing -> EA.hrefURI $ toURI l
+        Just t ->  EA.hrefSet (toURI l) "tag" (T.unpack t)
+
+    olink = A.href (H.toValue $ showURI
       $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))

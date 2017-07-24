@@ -47,4 +47,4 @@ renderIndex host name tag tid pn ts brs =
         then H.span ""
         else
           H.div ! A.class_ "ui segments" $
-            mapM_ (segmentBookmark host name) brs
+            mapM_ (segmentBookmark host name tag) brs
