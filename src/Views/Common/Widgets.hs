@@ -123,4 +123,5 @@ segmentBookmark host name br =
     title = M.bookmarkTitle br
     summary = M.bookmarkSummary br
     ts = M.bookmarkTags br
-    link = EA.hrefURI $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br)
+    link = A.href (toValue $ showURI
+      $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))

@@ -27,4 +27,4 @@ hrefMultiSet uri m = hrefURI updated where
 
 -- | Provide a URI as an attribute for href.
 hrefURI :: URI -> H.Attribute
-hrefURI uri = href (toValue (showRelativeURI uri)) 
+hrefURI uri = href (toValue (showRelativeURI uri))
