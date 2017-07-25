@@ -39,7 +39,7 @@ renderHeader title meta =
     sequence_ meta
     H.title $ H.toHtml title
     EH.cssLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.css"
-    EH.cssLink "/bower_components/github-markdown-css/github-markdown.css"
+    EH.cssLink "https://cdn.bootcss.com/github-markdown-css/2.8.0/github-markdown.min.css"
 
 renderInner :: [String] -> [String] -> [H.Html] -> H.Html -> H.Html
 renderInner css js mainPart menu =
