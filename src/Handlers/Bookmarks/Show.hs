@@ -17,6 +17,8 @@ import Network.HTTP.Types.Status
 
 import App.Types
 import App.Context
+import Utils.URI.Params
+import Utils.URI.String
 
 import Handlers.Actions.Types
 import Handlers.Actions.Common
@@ -53,9 +55,10 @@ showProcessor req =  do
     ref t = do
       r  <- Web.header "Referer"
       case r of
-        Nothing -> return [("书签","/bookmarks")]
+        Nothing -> return [("书签","/bookmarks"),(t,tagURI t)]
         Just u -> return [("书签","/bookmarks") ,(t,LT.unpack u)]
-
+    tagURI t =
+      showURI $ updateUrlParam "tag" t (toURI $ "/bookmarks")
 showR :: Response LT.Text
 showR = do
   view $ withParams $ showProcessor

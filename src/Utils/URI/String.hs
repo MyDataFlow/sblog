@@ -31,7 +31,7 @@ toURI u =
         Just uri -> uri
 
 toPath :: [String] -> String
-toPath =
-    intercalate "/" . map esc
+toPath sl =
+    "/" ++ (intercalate "/" $ map esc sl)
   where
     esc = escapeURIString isAllowedInURI
