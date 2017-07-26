@@ -62,7 +62,9 @@ fromRecord host path rt (rid,t) = do
 
 fromTag :: String -> String  -> DB.Tag -> (String,Maybe UTCTime,SitemapChangeFreq,Double)
 fromTag host path t =
-  (tagURI base (DB.tagName t),Nothing,Daily,0.8)
+    (tagURI base (DB.tagName t),Nothing,Daily,0.8)
+  where
+    base = url host path
 
 sitemapProcessor :: Response (Status,LT.Text)
 sitemapProcessor  =  do
@@ -72,10 +74,10 @@ sitemapProcessor  =  do
     ats <- DB.runDBTry $ DB.fetchTags 2
     bts <- DB.runDBTry $ DB.fetchTags 1
     let baseItems = map generateSitemapUrl (bs host)
-    let atItems = map generateSitemapUrl $ map fromTag ats
-    let btItems = map generateSitemapUrl $ map fromTag bts
+    let atItems = map generateSitemapUrl $ map (fromTag host "/articles") ats
+    let btItems = map generateSitemapUrl $ map (fromTag host "/bookmarks") bts
     arTuples <- mapM (fromRecord host "/articles/"  2) ars
-    brTuple <- mapM (fromRecord host "/bookmarks/" 1) brs
+    brTuples <- mapM (fromRecord host "/bookmarks/" 1) brs
     let arItems = map generateSitemapUrl $ concat arTuples
     let brItems = map generateSitemapUrl $ concat brTuples
     Web.setHeader "Content-Type" "text/xml"
