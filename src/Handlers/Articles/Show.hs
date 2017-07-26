@@ -44,7 +44,7 @@ showProcessor req =  do
   bs <- breadcrumbs
   host <- lift (asks siteHost)
   name <- lift (asks siteName)
-  let r = VA.renderArticle host name bs ar
+  let r = VA.renderArticle host name bs (tag req /= Nothing) ar 
   return $ (status200,r)
   where
     intBid = fromInteger (aid req)

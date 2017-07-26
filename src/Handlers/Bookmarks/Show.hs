@@ -44,7 +44,7 @@ showProcessor req =  do
   bs <- breadcrumbs
   host <- lift (asks siteHost)
   name <- lift (asks siteName)
-  let r = VB.renderBookmark host name bs br
+  let r = VB.renderBookmark host name bs (tag req /= Nothing) br
   return $ (status200,r)
   where
     intBid = fromInteger (bid req)

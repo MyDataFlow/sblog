@@ -30,13 +30,14 @@ import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
-renderArticle :: String -> String  -> [(String,String)] -> M.Article  -> LT.Text
-renderArticle host name prevs ar =
+renderArticle :: String -> String  -> [(String,String)] -> Bool -> M.Article  -> LT.Text
+renderArticle host name prevs canon ar =
     VL.renderMain title [seo] [render]
   where
     seo = do
       openGraph title (show fullURL) (M.articleSummary ar)
       keywordsAndDescription (showTags $ M.articleTags ar) (M.articleSummary ar)
+      when canon $ canonical (show fullURL)
     title = (M.articleTitle ar) ++ "-" ++ name
     fullURL =
       relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)

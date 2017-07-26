@@ -44,6 +44,10 @@ openGraph title url description = do
   metaProperty "og:url" $ H.toValue url
   metaProperty "og:description" $ H.toValue description
 
+canonical :: String -> H.Html
+canonical url =
+  H.link ! A.rel "canonical" ! A.href ( H.toValue  url) 
+
 gaEvent :: String-> String ->H.Attribute
 gaEvent ev ct =
   let

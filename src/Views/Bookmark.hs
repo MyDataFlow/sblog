@@ -30,8 +30,8 @@ import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
-renderBookmark :: String -> String  -> [(String,String)] -> M.Bookmark -> LT.Text
-renderBookmark host name prevs br =
+renderBookmark :: String -> String  -> [(String,String)] -> Bool -> M.Bookmark -> LT.Text
+renderBookmark host name prevs canon br =
     VL.renderMain title [seo] [render]
   where
     olink = A.href (H.toValue $ showURI
@@ -39,6 +39,7 @@ renderBookmark host name prevs br =
     seo = do
       openGraph title (show fullURL) (M.bookmarkTitle br)
       keywordsAndDescription (showTags $ M.bookmarkTags br) (M.bookmarkTitle br)
+      when canon $ canonical (show fullURL)
     title = (M.bookmarkTitle br) ++ "-" ++ name
     fullURL =
       relativeTo (toURI $ "/bookmarks/" ++ (show $ M.bookmarkID br)) (toURI host)
