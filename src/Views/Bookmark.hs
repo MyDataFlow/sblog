@@ -34,6 +34,8 @@ renderBookmark :: String -> String  -> [(String,String)] -> M.Bookmark -> LT.Tex
 renderBookmark host name prevs br =
     VL.renderMain title [seo] [render]
   where
+    olink = A.href (H.toValue $ showURI
+      $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))
     seo = do
       openGraph title (show fullURL) (M.bookmarkTitle br)
       keywordsAndDescription (showTags $ M.bookmarkTags br) (M.bookmarkTitle br)
@@ -44,8 +46,11 @@ renderBookmark host name prevs br =
       H.div $ do
         H.div ! A.class_ "ui main text container" $ do
           breadcrumb prevs (M.bookmarkTitle br)
-          H.h1 ! A.class_ "ui header" $ H.toHtml (M.bookmarkTitle br)
-          H.div ! A.class_ "ui article text container" $ 
+          H.h1 ! A.class_ "ui header" $ do
+            H.div ! A.class_ "ui small right floated primary basic button" $
+              H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! olink $ "原文"
+            H.toHtml (M.bookmarkTitle br)
+          H.div ! A.class_ "ui article text container" $
             H.div ! A.class_ "markdown-body" $ do
               H.preEscapedToHtml  (M.bookmarkSummary br)
               H.p $ ""
