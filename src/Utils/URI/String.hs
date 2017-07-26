@@ -4,9 +4,14 @@ module Utils.URI.String(
   showRelativeURI
   ,showURI
   ,toURI
+  ,toPath
 )where
-import Network.URI
+
+
+import Data.List
 import Data.Maybe
+
+import Network.URI
 
 showRelativeURI :: URI -> String
 showRelativeURI URI{..} = uriPath ++ uriQuery
@@ -24,3 +29,9 @@ toURI u =
       case parseRelativeReference u of
         Nothing -> fromJust $ parseURIReference u
         Just uri -> uri
+
+toPath :: [String] -> String
+toPath =
+    intercalate "/" . map esc
+  where
+    esc = escapeURIString isAllowedInURI

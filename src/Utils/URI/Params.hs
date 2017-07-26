@@ -5,6 +5,8 @@ module Utils.URI.Params(
   ,updateUrlParams
   ,uriParams
   ,deleteQueryKey
+  ,editQuery
+  ,formEncodeUrl
 )where
 
 import Control.Arrow
@@ -25,6 +27,7 @@ deleteQueryKey key uri =
 editQuery :: ([(String,String)] -> [(String,String)]) -> String -> String
 editQuery f = ('?':) . formEncodeUrl . f . formDecode . dropWhile (=='?')
 
+formEncodeUrl :: [(String, String)] -> String
 formEncodeUrl = intercalate "&" . map keyval . map (esc *** esc)
   where keyval (key,val) = key ++ "=" ++ val
         esc = escapeURIString isAllowedInURI
