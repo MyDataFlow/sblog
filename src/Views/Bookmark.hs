@@ -60,15 +60,18 @@ renderBookmark host name prevs canon br =
                   H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
 
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
-  Pagination -> [M.Tag] -> [M.Bookmark] -> LT.Text
-renderIndex host name tag tid pn ts brs =
-    VL.render 3 title [] [(sidebar base tid ts)] [render]
+  Pagination -> [M.Tag] -> Bool -> [M.Bookmark] -> LT.Text
+renderIndex host name tag tid pn ts canon brs =
+    VL.render 3 title [renderCanonical] [(sidebar base tid ts)] [render]
   where
     title = "书签-" ++ name
     base =
       case tag of
         Nothing -> toURI "/bookmarks"
         Just t -> updateUrlParam  "tag" (T.unpack t) $ toURI  "/bookmarks"
+    fullURL =
+      relativeTo (toURI "/articles") (toURI host)
+    renderCanonical = when canon $ canonical (show fullURL)
     render =
       H.div $ do
         renderBookmarks

@@ -54,16 +54,19 @@ renderArticle host name prevs canon ar =
             H.div $
               H.h5 ! A.class_ "ui block header" $
                 H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
-renderIndex :: String -> (Maybe T.Text) -> Int64 ->
-  Pagination -> [M.Tag] -> [M.Article] -> LT.Text
-renderIndex name tag tid pn ts ars =
-    VL.render 2 title [] [(sidebar base tid ts)] [render]
+renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
+  Pagination -> [M.Tag] -> Bool -> [M.Article] -> LT.Text
+renderIndex host name tag tid pn ts canon ars =
+    VL.render 2 title [renderCanonical] [(sidebar base tid ts)] [render]
   where
     title = "文章-" ++ name
     base =
       case tag of
         Nothing -> toURI "/articles"
         Just t -> updateUrlParam  "tag" (T.unpack t) $ toURI  "/articles"
+    fullURL =
+          relativeTo (toURI "/articles") (toURI host)
+    renderCanonical = when canon $ canonical (show fullURL)
     render =
       H.div $ do
         renderArticles

@@ -32,14 +32,14 @@ data SitemapUrl = SitemapUrl
     , sitemapPriority :: Maybe Double
     }
 
-showFreq :: SitemapChangeFreq -> String
-showFreq Always  = "always"
-showFreq Hourly  = "hourly"
-showFreq Daily   = "daily"
-showFreq Weekly  = "weekly"
-showFreq Monthly = "monthly"
-showFreq Yearly  = "yearly"
-showFreq Never   = "never"
+instance Show  SitemapChangeFreq where
+  show Always  = "always"
+  show Hourly  = "hourly"
+  show Daily   = "daily"
+  show Weekly  = "weekly"
+  show Monthly = "monthly"
+  show Yearly  = "yearly"
+  show Never   = "never"
 
 -- | A basic robots file which just lists the "Sitemap: " line.
 robots :: String -> String -> T.Text
@@ -90,7 +90,7 @@ xmlUrl url =
     xmlChangeFreq =
       case sitemapChangeFreq url of
         Nothing -> Nothing
-        Just cf -> return $ elementString "changefreq" $ showFreq cf
+        Just cf -> return $ elementString "changefreq" $ show cf
     xmlPriority =
       case sitemapPriority url of
         Nothing -> Nothing

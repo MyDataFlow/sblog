@@ -53,7 +53,7 @@ indexProcessor req =  do
     ,pnPerPage = (count req)
     ,pnMenuClass = "ui right floated pagination menu"
   }
-  let r = VB.renderIndex host name (tag req) tid pn tags ars
+  let r = VB.renderIndex host name (tag req) tid pn tags (tag req /= Nothing) ars
   return $ (status200,r)
   where
     p = fromInteger $ page req

@@ -46,13 +46,14 @@ indexProcessor req =  do
   (ars,total,tid) <- fetchData
   tags <- DB.runDBTry $ DB.fetchTags 2
   name <- lift (asks siteName)
+  host <- lift (asks siteHost)
   let pn = def {
     pnCurrentPage = (page req)
     ,pnTotal = (toInteger total)
     ,pnPerPage = (count req)
     ,pnMenuClass = "ui right floated pagination menu"
   }
-  let r = VA.renderIndex name (tag req) tid pn tags ars
+  let r = VA.renderIndex host name (tag req) tid pn tags (tag req /= Nothing)  ars
   return $ (status200,r)
   where
     p = fromInteger $ page req
