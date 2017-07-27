@@ -42,7 +42,7 @@ feedProcessor  =  do
     Web.setHeader "Content-Type" "text/xml"
     return (status200,LT.pack $ renderFeed host name feeds)
   where
-    url host path = show $ relativeTo (toURI path) (toURI host)
+    url host path = show $ updateUrlParam "s" "rss" $ relativeTo (toURI path) (toURI host)
     fromArticle host name ar =
       let
         u = url host $ "/articles/" ++ (show $ DB.articleID ar)
