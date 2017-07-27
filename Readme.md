@@ -4,6 +4,7 @@
  [x] 书签CURD   
  [x] OpenGraph    
  [x] Sitemaps   
+ [x] RSS  
  [ ] CSRF
 
 使用环境

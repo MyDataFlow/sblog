@@ -26,6 +26,7 @@ import qualified Handlers.Index as HI
 import qualified Handlers.Article as HA
 import qualified Handlers.Bookmark as HB
 import qualified Handlers.Sitemap as HS
+import qualified Handlers.Rss as HR
 
 onError :: ServerError -> Response ()
 onError err = do
@@ -43,6 +44,7 @@ routing = do
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
   Web.get "/" $ void $ HI.indexR
   Web.get "/sitemap.xml" $ void $ HS.sitemapR
+  Web.get "/feed" $ void $ HR.feedR
   Web.get "/robots.txt" $ void $ HS.robotsR
   Web.get "/bookmarks" $ void $ HB.indexR
   Web.get "/bookmarks/tag/:tag" $ void $ HB.indexR

@@ -33,7 +33,8 @@ renderNormalMenu active =
     menus = [(1,"首页","/")
             ,(2,"文章","/articles")
             ,(3,"书签","/bookmarks")
-            ,(4,"微博关注","http://weibo.com/u/1900044837")]
+            ,(4,"RSS","/feed")
+            ,(5,"微博","http://weibo.com/u/1900044837")]
 
 renderHeader :: String -> [H.Html] -> H.Html
 renderHeader title meta =
