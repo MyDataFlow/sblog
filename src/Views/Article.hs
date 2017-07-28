@@ -22,16 +22,19 @@ import Text.Blaze.Html.Renderer.Text
 
 import Views.Common.Widgets
 import Views.Common.SEO
+import Views.Common.Recommand
 import qualified Views.Layout as VL
 
 import Utils.BlazeExtra.Pagination as Pagination
+
 import Utils.URI.String
 import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
-renderArticle :: String -> String  -> [(String,String)] -> Bool -> M.Article  -> LT.Text
-renderArticle host name prevs canon ar =
+renderArticle :: String -> String  -> [(String,String)]
+  ->Bool -> [(String,String)]->M.Article  -> LT.Text
+renderArticle host name prevs canon rcs ar =
     VL.renderMain title [seo] [render]
   where
     seo = do
@@ -51,12 +54,14 @@ renderArticle host name prevs canon ar =
           H.div ! A.class_ "markdown-body" $ do
             H.preEscapedToHtml (M.articleBody ar)
             H.p $ ""
-            H.div $
+            H.div $ do
+              renderRecommand rcs
               H.h5 ! A.class_ "ui block header" $ do
                 H.p $
                   H.a ! A.href  (H.toValue $ show fullURL) $
                     H.toHtml $ "文章连接："  ++ (show fullURL)
                 H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Article] -> LT.Text
 renderIndex host name tag tid pn ts canon ars =

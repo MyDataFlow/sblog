@@ -101,3 +101,21 @@ fetchTagBookmarksCount tagID c = do
       \tg.tag_id = ? AND tg.related_type = 1 \
       \AND b.id = tg.related_id" (Only tagID)
     return $ fromOnly $ head rs
+
+fetchRandRecommandBookmark :: Int64 -> Connection -> IO [(Int64,String)]
+fetchRandRecommandBookmark tid c = do
+    rs <- query c "SELECT b.id,b.title FROM bookmarks b ,taggings t  \
+      \ WHERE t.tag_id = ? AND t.related_type = 1 AND b.id = t.related_id \
+      \ ORDER BY random() LIMIT 1" (Only tid)
+    mapM toResult rs
+  where
+    toResult (i,t) = return (i,t)
+
+fetchRecommandBookmark :: Int64 -> Int64 -> Connection -> IO [(Int64,String)]
+fetchRecommandBookmark tid aid c = do
+    rs <- query c "SELECT b.id,b.title FROM bookmarks b ,taggings t  \
+      \ WHERE t.tag_id = ? AND t.related_type = 1 AND b.id = t.related_id \
+      \ AND b.id <> ? ORDER BY random() LIMIT 1" (tid,aid)
+    mapM toResult rs
+  where
+    toResult (i,t) = return (i,t)

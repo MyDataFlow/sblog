@@ -112,3 +112,21 @@ fetchArticle aid c = do
   rs <- query c "SELECT id,title,summary,body,markdown,published,created_at,updated_at FROM articles \
     \ WHERE id = ?" (Only aid)
   head $ map (digest c) rs
+
+fetchRandRecommandArticle :: Int64 -> Connection -> IO [(Int64,String)]
+fetchRandRecommandArticle tid c = do
+    rs <- query c "SELECT a.id,a.title FROM articles a ,taggings t  \
+      \ WHERE t.tag_id = ? AND t.related_type = 2 AND a.id = t.related_id \
+      \ AND a.published = true  ORDER BY random() LIMIT 1" (Only tid)
+    mapM toResult rs
+  where
+    toResult (i,t) = return (i,t)
+
+fetchRecommandArticle :: Int64 -> Int64 -> Connection -> IO [(Int64,String)]
+fetchRecommandArticle tid aid c = do
+    rs <- query c "SELECT a.id,a.title FROM articles a ,taggings t  \
+    \ WHERE t.tag_id = ? AND t.related_type = 2 AND a.id = t.related_id \
+    \ AND a.id <> ? AND a.published = true  ORDER BY random() LIMIT 1" (tid,aid)
+    mapM toResult rs
+  where
+    toResult (i,t) = return (i,t)

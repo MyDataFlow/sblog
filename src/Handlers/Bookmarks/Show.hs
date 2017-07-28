@@ -7,6 +7,8 @@ module Handlers.Bookmarks.Show(
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
+import Data.List
+import Data.Int
 
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.Reader (MonadReader(..),asks)
@@ -38,13 +40,26 @@ instance FormParams BookmarkShow where
   fromParams m = BookmarkShow <$>
     lookupInt "id" 0 m <*> Just (M.lookup "tag" m)
 
+recommand:: Int64 -> [DB.Tag] -> Response [(String,String)]
+recommand bid tags =
+  mapM fetchRecommand tags >>= \rcs ->
+    return $  removeDumps $ concat rcs
+  where
+    removeDumps = map head.group.sort -- (map head).group sort
+    toRecommand p (i,t) = (p ++ show i,t)
+    fetchRecommand :: DB.Tag -> Response [(String,String)]
+    fetchRecommand t = do
+      ars <- DB.runDBTry $ DB.fetchRandRecommandArticle (DB.tagID t)
+      brs <- DB.runDBTry $ DB.fetchRecommandBookmark (DB.tagID t) bid
+      return $ union (map (toRecommand "/articles/") ars) (map (toRecommand "/bookmarks/") brs)
 showProcessor :: Processor BookmarkShow LT.Text
 showProcessor req =  do
   br <- DB.runDBTry $ DB.fetchBookmark intBid
   bs <- breadcrumbs
   host <- lift (asks siteHost)
   name <- lift (asks siteName)
-  let r = VB.renderBookmark host name bs (tag req /= Nothing) br
+  rcs <- recommand (DB.bookmarkID br) (DB.bookmarkTags br)
+  let r = VB.renderBookmark host name bs (tag req /= Nothing) rcs br
   return $ (status200,r)
   where
     intBid = fromInteger (bid req)

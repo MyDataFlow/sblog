@@ -22,6 +22,7 @@ import Text.Blaze.Html.Renderer.Text
 
 import Views.Common.Widgets
 import Views.Common.SEO
+import Views.Common.Recommand
 import qualified Views.Layout as VL
 
 import Utils.BlazeExtra.Pagination as Pagination
@@ -30,8 +31,9 @@ import Utils.URI.Params
 
 import qualified Models.DB.Schema as M
 
-renderBookmark :: String -> String  -> [(String,String)] -> Bool -> M.Bookmark -> LT.Text
-renderBookmark host name prevs canon br =
+renderBookmark :: String -> String  -> [(String,String)] -> Bool
+  -> [(String,String)]  -> M.Bookmark -> LT.Text
+renderBookmark host name prevs canon rcs br =
     VL.renderMain title [seo] [render]
   where
     olink = A.href (H.toValue $ showURI
@@ -55,7 +57,8 @@ renderBookmark host name prevs canon br =
             H.div ! A.class_ "markdown-body" $ do
               H.preEscapedToHtml  (M.bookmarkSummary br)
               H.p $ ""
-              H.div $
+              H.div $ do
+                renderRecommand rcs
                 H.h5 ! A.class_ "ui block header" $ do
                   H.p $
                     H.a ! A.href  (H.toValue $ show fullURL) $
