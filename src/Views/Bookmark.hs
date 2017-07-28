@@ -57,7 +57,8 @@ renderBookmark host name prevs canon br =
               H.p $ ""
               H.div $
                 H.h5 ! A.class_ "ui block header" $
-                  H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+                  H.a ! A.href  (H.toValue $ show fullURL) $
+                    H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
 
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Bookmark] -> LT.Text
