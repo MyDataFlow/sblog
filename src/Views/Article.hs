@@ -52,9 +52,11 @@ renderArticle host name prevs canon ar =
             H.preEscapedToHtml (M.articleBody ar)
             H.p $ ""
             H.div $
-              H.h5 ! A.class_ "ui block header" $
-                H.a ! A.href  (H.toValue $ show fullURL) $
-                  H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+              H.h5 ! A.class_ "ui block header" $ do
+                H.p $
+                  H.a ! A.href  (H.toValue $ show fullURL) $
+                    H.toHtml $ "文章连接："  ++ (show fullURL)
+                H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Article] -> LT.Text
 renderIndex host name tag tid pn ts canon ars =

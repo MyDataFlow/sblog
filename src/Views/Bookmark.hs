@@ -49,16 +49,18 @@ renderBookmark host name prevs canon br =
           breadcrumb prevs (M.bookmarkTitle br)
           H.h1 ! A.class_ "ui header" $ do
             H.div ! A.class_ "ui small right floated primary basic button" $
-              H.a ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! olink $ "原文"
+              H.a ! (gaEvent "Read Bookmark" title) !  olink $ "原文"
             H.toHtml (M.bookmarkTitle br)
           H.div ! A.class_ "ui article text container" $
             H.div ! A.class_ "markdown-body" $ do
               H.preEscapedToHtml  (M.bookmarkSummary br)
               H.p $ ""
               H.div $
-                H.h5 ! A.class_ "ui block header" $
-                  H.a ! A.href  (H.toValue $ show fullURL) $
-                    H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+                H.h5 ! A.class_ "ui block header" $ do
+                  H.p $
+                    H.a ! A.href  (H.toValue $ show fullURL) $
+                      H.toHtml $ "文章连接："  ++ (show fullURL)
+                  H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
 
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Bookmark] -> LT.Text
