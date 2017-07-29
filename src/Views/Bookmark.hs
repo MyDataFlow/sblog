@@ -56,7 +56,7 @@ renderBookmark host name prevs canon rcs br =
         H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
           H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
           H.script ! A.type_ "text/javascript" ! A.id "-mob-share"
-                ! A.src "http://f1.webshare.mob.com/code/mob-share.js?appkey=1d704951d1a17" $ ""
+                ! A.src "https://f1.webshare.mob.com/code/mob-share.js?appkey=1d704951d1a17" $ ""
         H.div ! A.class_ "ui article text container" $ do
           H.div ! A.class_ "-mob-share-ui" ! A.style "display: none" $ do
             H.ul ! A.class_ "-mob-share-list" $ do
