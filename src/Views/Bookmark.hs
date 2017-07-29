@@ -53,17 +53,29 @@ renderBookmark host name prevs canon rcs br =
             H.div ! A.class_ "ui small right floated primary basic button" $
               H.a ! (gaEvent "Read Bookmark" title) !  olink $ "原文"
             H.toHtml (M.bookmarkTitle br)
-          H.div ! A.class_ "ui article text container" $
-            H.div ! A.class_ "markdown-body" $ do
-              H.preEscapedToHtml  (M.bookmarkSummary br)
-              H.p $ ""
-              H.div $ do
-                renderRecommand rcs
-                H.h5 ! A.class_ "ui block header" $ do
-                  H.p $
-                    H.a ! A.href  (H.toValue $ show fullURL) $
-                      H.toHtml $ "文章连接："  ++ (show fullURL)
-                  H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+        H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
+          H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
+          H.script ! A.type_ "text/javascript" ! A.id "-mob-share"
+                ! A.src "http://f1.webshare.mob.com/code/mob-share.js?appkey=1d704951d1a17" $ ""
+        H.div ! A.class_ "ui article text container" $ do
+          H.div ! A.class_ "-mob-share-ui" ! A.style "display: none" $ do
+            H.ul ! A.class_ "-mob-share-list" $ do
+              H.li ! A.class_ "-mob-share-weibo" $ H.p "新浪微博"
+              H.li ! A.class_ "-mob-share-qzone" $ H.p "QQ空间"
+              H.li ! A.class_ "-mob-share-qq" $ H.p "QQ好友"
+              H.li ! A.class_ "-mob-share-facebook" $ H.p "Facebook"
+              H.li ! A.class_ "-mob-share-twitter" $ H.p "Twitter"
+              H.div ! A.class_ "-mob-share-close" $ "取消"
+          H.div ! A.class_ "markdown-body" $ do
+            H.preEscapedToHtml  (M.bookmarkSummary br)
+            H.p $ ""
+            H.div $ do
+              renderRecommand rcs
+              H.h5 ! A.class_ "ui block header" $ do
+                H.p $
+                  H.a ! A.href  (H.toValue $ show fullURL) $
+                    H.toHtml $ "文章连接："  ++ (show fullURL)
+                H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
 
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Bookmark] -> LT.Text

@@ -50,7 +50,19 @@ renderArticle host name prevs canon rcs ar =
           breadcrumb prevs (M.articleTitle ar)
           H.h1 ! A.class_ "ui header" $ H.toHtml (M.articleTitle ar)
           H.div ! A.class_ "ui segment" $ H.toHtml (M.articleSummary ar)
-        H.div ! A.class_ "ui article text container" $
+        H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
+            H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
+            H.script ! A.type_ "text/javascript" ! A.id "-mob-share"
+              ! A.src "http://f1.webshare.mob.com/code/mob-share.js?appkey=1d704951d1a17" $ ""
+        H.div ! A.class_ "ui article text container" $ do
+          H.div ! A.class_ "-mob-share-ui" ! A.style "display: none" $ do
+            H.ul ! A.class_ "-mob-share-list" $ do
+              H.li ! A.class_ "-mob-share-weibo" $ H.p "新浪微博"
+              H.li ! A.class_ "-mob-share-qzone" $ H.p "QQ空间"
+              H.li ! A.class_ "-mob-share-qq" $ H.p "QQ好友"
+              H.li ! A.class_ "-mob-share-facebook" $ H.p "Facebook"
+              H.li ! A.class_ "-mob-share-twitter" $ H.p "Twitter"
+              H.div ! A.class_ "-mob-share-close" $ "取消"
           H.div ! A.class_ "markdown-body" $ do
             H.preEscapedToHtml (M.articleBody ar)
             H.p $ ""
