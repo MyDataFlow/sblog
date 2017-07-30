@@ -82,7 +82,9 @@ renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
 renderIndex host name tag tid pn ts canon brs =
     VL.render 3 title [renderCanonical] [(sidebar base tid ts)] [render]
   where
-    title = "书签-" ++ name
+    title = case tag of
+      Nothing -> "书签-" ++ name
+      Just t -> (T.unpack t) ++ "相关的书签-" ++ name
     base =
       case tag of
         Nothing -> toURI "/bookmarks"

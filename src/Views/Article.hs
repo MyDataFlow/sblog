@@ -79,7 +79,9 @@ renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
 renderIndex host name tag tid pn ts canon ars =
     VL.render 2 title [renderCanonical] [(sidebar base tid ts)] [render]
   where
-    title = "文章-" ++ name
+    title = case tag of
+      Nothing -> "文章-" ++ name
+      Just t -> (T.unpack t) ++ "相关的文章-" ++ name
     base =
       case tag of
         Nothing -> toURI "/articles"
