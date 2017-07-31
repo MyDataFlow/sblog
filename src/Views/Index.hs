@@ -42,9 +42,9 @@ renderIndex  host name bookmarks articles =
             mapM_ (segmentBookmark host name Nothing) bookmarks
     renderAds =
       H.div ! A.class_ "ui medium rectangle ad" $ do
-        H.script ! A.type_ "text/javascript"
+        H.script ! A.async "true"
           ! A.src "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" $ ""
-        H.ins ! A.class_ "adsbygoogle" ! A.style "display:inline-block;width:300px;height:250px"
+        H.ins ! A.class_ "adsbygoogle" ! A.style "display:block"
           ! H.customAttribute "data-ad-client" "ca-pub-7356196370921219"
           ! H.customAttribute "data-ad-slot"  "6923925602"
           ! H.customAttribute "data-ad-format" "auto" $ ""
