@@ -16,6 +16,8 @@ import qualified Utils.BlazeExtra.Attributes as EA
 import Utils.URI.String
 import Utils.URI.Params
 
+import Views.Common.SEO
+
 import qualified Models.DB.Schema as M
 
 renderRecommand :: [(String,String)]-> H.Html
@@ -30,4 +32,5 @@ renderRecommand items =
   where
     render (url,title) = do
       H.br
-      H.a ! EA.hrefSet (toURI url) "s" "recommand" $ H.toHtml title
+      H.a ! (gaEvent "Read Recommand" title) ! EA.hrefSet (toURI url) "s" "recommand" $
+        H.toHtml title
