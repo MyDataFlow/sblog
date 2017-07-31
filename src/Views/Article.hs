@@ -63,6 +63,14 @@ renderArticle host name prevs canon rcs ar =
               H.li ! A.class_ "-mob-share-facebook" $ H.p "Facebook"
               H.li ! A.class_ "-mob-share-twitter" $ H.p "Twitter"
               H.div ! A.class_ "-mob-share-close" $ "取消"
+          H.script ! A.async "true"
+            ! A.src "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" $ ""
+          H.ins ! A.class_ "adsbygoogle" ! A.style "display:block; text-align:center;"
+            ! H.customAttribute "data-ad-client" "ca-pub-7356196370921219"
+            ! H.customAttribute "data-ad-slot"  "8705224210"
+            ! H.customAttribute "data-ad-layout" "in-article"
+            ! H.customAttribute "data-ad-format" "fluid" $ ""
+          H.script $ "(adsbygoogle = window.adsbygoogle || []).push({});"
           H.div ! A.class_ "markdown-body" $ do
             H.preEscapedToHtml (M.articleBody ar)
             H.p $ ""
