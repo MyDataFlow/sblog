@@ -51,7 +51,7 @@ renderBookmark host name prevs canon rcs br =
           breadcrumb prevs (M.bookmarkTitle br)
           H.h1 ! A.class_ "ui header" $ do
             H.div ! A.class_ "ui small right floated primary basic button" $
-              H.a ! (gaEvent "Read Bookmark" title) !  olink $ "原文"
+              H.a ! A.target "_blank" ! (gaEvent "Read Bookmark" title) !  olink $ "原文"
             H.toHtml (M.bookmarkTitle br)
         H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
           H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
