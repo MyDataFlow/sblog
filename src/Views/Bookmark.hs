@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Data.String (fromString)
 import Data.Int
+import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)
 
 import Network.URI
 
@@ -36,6 +37,7 @@ renderBookmark :: String -> String  -> [(String,String)] -> Bool
 renderBookmark host name prevs canon rcs br =
     VL.renderMain title [seo] [render]
   where
+    time = localTimeToUTC utc $ M.bookmarkUpdatedAt br
     olink = A.href (H.toValue $ showURI
       $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))
     seo = do
@@ -53,6 +55,7 @@ renderBookmark host name prevs canon rcs br =
             H.div ! A.class_ "ui small right floated primary basic button" $
               H.a ! A.target "_blank" ! (gaEvent "Read Bookmark" title) !  olink $ "原文"
             H.toHtml (M.bookmarkTitle br)
+          H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
         H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
           H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
           H.script ! A.type_ "text/javascript" ! A.id "-mob-share"

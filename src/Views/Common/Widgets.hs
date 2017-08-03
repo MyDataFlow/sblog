@@ -7,6 +7,7 @@ import qualified Data.Text as T
 import Data.Text.Lazy(Text)
 import Data.String (fromString)
 import Data.Int
+import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)
 
 import Network.URI
 import Text.Blaze.Html5((!))
@@ -82,7 +83,9 @@ segmentArticle tag ar =
         H.div ! A.class_ "ui small right floated primary basic button" $
           H.a ! (gaEvent "Read Article" title) !  link $ "阅读原文"
         H.div ! A.class_ "header" $ H.p $ H.toHtml title
-        H.div ! A.class_ "description" $ H.p $ H.toHtml summary
+        H.div ! A.class_ "description" $ do 
+          H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
+          H.p $ H.toHtml summary
         H.div ! A.class_ "extra" $
           if length ts == 0
             then H.span ""
@@ -93,6 +96,7 @@ segmentArticle tag ar =
     summary = M.articleSummary ar
     ts = M.articleTags ar
     l = "/articles/" ++  (show $ M.articleID ar)
+    time = localTimeToUTC utc $ M.articleUpdatedAt ar
     link =
       case tag of
         Nothing -> EA.hrefURI $ toURI l
@@ -114,11 +118,13 @@ segmentBookmark host name tag  br =
           H.div ! A.class_ "ui small right floated primary basic button" $
             H.a ! A.target "_blank" ! (gaEvent "Read Bookmark" title) ! A.rel "nofollow" ! olink $ "原文"
           H.div ! A.class_ "header" $ H.p $ H.toHtml title
+          H.div ! A.class_ "description" $ H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
           H.div ! A.class_ "extra" $ do
             if length ts == 0
               then H.span ""
               else tags (toURI  "/bookmarks") ts
   where
+    time = localTimeToUTC utc $ M.bookmarkUpdatedAt br
     bid = M.bookmarkID br
     title = M.bookmarkTitle br
     summary = M.bookmarkSummary br
@@ -131,3 +137,5 @@ segmentBookmark host name tag  br =
 
     olink = A.href (H.toValue $ showURI
       $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))
+    
+    

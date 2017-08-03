@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Data.String (fromString)
 import Data.Int
+import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)
 
 import Network.URI
 
@@ -37,6 +38,7 @@ renderArticle :: String -> String  -> [(String,String)]
 renderArticle host name prevs canon rcs ar =
     VL.renderMain title [seo] [render]
   where
+    time = localTimeToUTC utc $ M.articleUpdatedAt ar
     seo = do
       openGraph title (show fullURL) (M.articleSummary ar)
       keywordsAndDescription (showTags $ M.articleTags ar) (M.articleSummary ar)
@@ -49,6 +51,7 @@ renderArticle host name prevs canon rcs ar =
         H.div ! A.class_ "ui main text container" $ do
           breadcrumb prevs (M.articleTitle ar)
           H.h1 ! A.class_ "ui header" $ H.toHtml (M.articleTitle ar)
+          H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
           H.div ! A.class_ "ui segment" $ H.toHtml (M.articleSummary ar)
         H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
             H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"

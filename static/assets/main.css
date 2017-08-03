@@ -11,7 +11,7 @@ body {
 .fixed.launch.button {
   display: none;
   position: fixed;
-  top: 2.5em;
+  bottom: 2.5em;
   right: 0px;
 
   height: auto;
