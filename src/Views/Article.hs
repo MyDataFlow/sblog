@@ -5,12 +5,14 @@ module Views.Article(
   renderArticle
   ,renderIndex
   ,renderContent
+  ,renderBreadcrumb
 )where
 
 import Control.Monad
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as Map
+import Data.Maybe
 import Data.String (fromString)
 import Data.Int
 import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)
@@ -33,27 +35,50 @@ import Utils.BlazeExtra.Pagination as Pagination
 import Utils.URI.String
 import Utils.URI.Params
 import App.Types
+import Views.Types
 import qualified Models.DB.Schema as M
+renderBreadcrumb :: [(String,String)] -> M.Article -> Breadcrumb
+renderBreadcrumb prevs ar = assemble
+  where
+    toLink (name,url) = Link name url
+    assemble =
+      let
+        links = map toLink prevs
+      in
+        Breadcrumb links (M.articleTitle ar)
 renderContent :: String -> String -> [(String,String)]->M.Article -> Response LT.Text
 renderContent host name rcs ar = do
-    VL.renderWithTemplate "articles/partials/_main_content.html" assemble
+    VL.renderWithTemplate "articles/_content.html" assemble
   where
     assemble :: Map.Map String T.Text
     assemble = Map.fromList
         [("fullURL",T.pack $ show fullURL)
         ,("recommands",LT.toStrict $ renderHtml $ renderRecommand rcs )
         ,("content",T.pack $ M.articleBody ar)
-        ,("name",T.pack name)
+        ,("site.name",T.pack name)
         ]
     fullURL =
       relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
 
 
 renderArticle :: String -> String  -> [(String,String)]
-  ->Bool -> LT.Text ->M.Article  -> LT.Text
-renderArticle host name prevs canon content ar =
-    VL.renderMain title [seo] [render]
+  ->Bool -> LT.Text ->M.Article  -> Response LT.Text
+renderArticle host name bread canon content ar = do
+    pageContent <- render
+    let p = page pageContent
+    VL.renderPage p
   where
+    page c = Page (T.pack $ title)
+      (Just $ renderBreadcrumb bread ar)
+      (LT.toStrict $ renderHtml seo)
+      (LT.toStrict c)
+    assemble :: Map.Map String T.Text
+    assemble = Map.fromList
+      [("title",T.pack $ (M.articleTitle ar))
+      ,("summary",T.pack $ M.articleSummary ar)
+      ,("publish",T.pack $ formatTime defaultTimeLocale "%Y/%m/%d" time)
+      ,("content",LT.toStrict content)
+      ]
     time = localTimeToUTC utc $ M.articleUpdatedAt ar
     seo = do
       openGraph title (show fullURL) (M.articleSummary ar)
@@ -62,35 +87,8 @@ renderArticle host name prevs canon content ar =
     title = (M.articleTitle ar) ++ "-" ++ name
     fullURL =
       relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
-    render =
-      H.div $ do
-        H.div ! A.class_ "ui main text container" $ do
-          breadcrumb prevs (M.articleTitle ar)
-          H.h1 ! A.class_ "ui header" $ H.toHtml (M.articleTitle ar)
-          H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
-          H.div ! A.class_ "ui segment" $ H.toHtml (M.articleSummary ar)
-        H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
-            H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
-            H.script ! A.type_ "text/javascript" ! A.id "-mob-share"
-              ! A.src "https://f1.webshare.mob.com/code/mob-share.js?appkey=1d704951d1a17" $ ""
-        H.div ! A.class_ "ui article text container" $ do
-          H.div ! A.class_ "-mob-share-ui" ! A.style "display: none" $ do
-            H.ul ! A.class_ "-mob-share-list" $ do
-              H.li ! A.class_ "-mob-share-weibo" $ H.p "新浪微博"
-              H.li ! A.class_ "-mob-share-qzone" $ H.p "QQ空间"
-              H.li ! A.class_ "-mob-share-qq" $ H.p "QQ好友"
-              H.li ! A.class_ "-mob-share-facebook" $ H.p "Facebook"
-              H.li ! A.class_ "-mob-share-twitter" $ H.p "Twitter"
-              H.div ! A.class_ "-mob-share-close" $ "取消"
-          H.script ! A.async "true" ! A.type_ "text/javascript"
-            ! A.src "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" $ ""
-          H.ins ! A.class_ "adsbygoogle" ! A.style "display:block; text-align:center;"
-            ! H.customAttribute "data-ad-client" "ca-pub-7356196370921219"
-            ! H.customAttribute "data-ad-slot"  "8705224210"
-            ! H.customAttribute "data-ad-layout" "in-article"
-            ! H.customAttribute "data-ad-format" "fluid" $ ""
-          H.script ! A.type_ "text/javascript"  $ "(adsbygoogle = window.adsbygoogle || []).push({});"
-          H.preEscapedToHtml content
+    render = VL.renderWithTemplate "articles/show.html" assemble
+
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Article] -> LT.Text
 renderIndex host name tag tid pn ts canon ars =

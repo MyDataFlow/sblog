@@ -5,6 +5,7 @@ module Views.Layout(
   render
   ,renderMain
   ,renderWithTemplate
+  ,renderPage
 )where
 import Control.Monad
 import Control.Monad.IO.Class(MonadIO,liftIO)
@@ -27,10 +28,16 @@ import App.Types
 
 renderWithTemplate :: (ToMustache k) => FilePath -> k -> Response LT.Text
 renderWithTemplate tpl k = do
-  r <- liftIO $ hastache ["templates"] tpl k
+  r <- liftIO $ hastache ["templates","templates/partials/"] tpl k
   case r of
     Just t ->  return $ LT.fromStrict t
     Nothing -> Web.raise $ AppError $ LT.pack $ "Can't find template " ++ tpl
+renderPage :: (ToMustache k) => k -> Response LT.Text
+renderPage k = do
+  r <- liftIO $ hastache ["templates","templates/partials/"] "layout.html" k
+  case r of
+    Just t ->  return $ LT.fromStrict t
+    Nothing -> Web.raise $ AppError $ LT.pack $ "Can't find template "
 
 defaultMeta :: [H.Html]
 defaultMeta =
