@@ -16,7 +16,7 @@ import Control.Monad.IO.Class(MonadIO,liftIO)
 
 import Network.HTTP.Types.Status
 import qualified Web.Scotty.Trans as Web
-import qualified Web.Scotty.Cookie as Cookie
+import qualified Utils.Scotty.Cookie as Cookie
 
 import App.Types
 import App.Context

@@ -13,8 +13,7 @@ import Control.Exception
 import Control.Monad
 
 import Options.Applicative
-import qualified Data.Configurator as C
-import qualified Data.Configurator.Parser as C
+import qualified Data.Yaml.Config as C
 
 import App.Types
 
@@ -27,33 +26,35 @@ pathParser =
 readOptions :: IO AppConf
 readOptions = do
     cfgPath <- execParser opts
-
-    conf <- catch
-        (C.readConfig =<< C.load [C.Required cfgPath])
-        configNotfoundHint
-    let (mAppConf, errs) = flip C.runParserA conf $
-            AppConf <$> C.key "port"
-            <*> C.key "jwtKey"
-            <*> C.key "adminPassword"
-            <*> C.key "blogHost"
-            <*> C.key "blogName"
-            <*> C.key "dbHost"
-            <*> C.key "dbPort"
-            <*> C.key "dbUser"
-            <*> C.key "dbPassword"
-            <*> C.key "dbDatabase"
-
-    case mAppConf of
-        Nothing -> do
-            forM_ errs $ hPrint stderr
-            exitFailure
-        Just appConf ->
-            return appConf
-    where
-        opts = info (helper <*> pathParser)
-            ( fullDesc
-            <> progDesc "Server of Haskell")
-        configNotfoundHint :: IOError -> IO a
-        configNotfoundHint e = do
-            hPutStrLn stderr $ "Cannot open config file:\n\t" <> show e
-            exitFailure
+    cfg <- catch (C.load cfgPath) configNotfoundHint
+    serverCfg <-  C.subconfig "server" cfg
+    dbCfg <- C.subconfig "db" cfg
+    blogCfg <- C.subconfig "blog" cfg
+    let db = DBConf {
+        dbHost = C.lookupDefault "host" "127.0.0.1" dbCfg
+        ,dbPort = C.lookupDefault "port" 5432 dbCfg
+        ,dbUser = C.lookupDefault "user" "postgres" dbCfg
+        ,dbPassword = C.lookupDefault "password" "" dbCfg
+        ,dbDatabase = C.lookupDefault "database" "postgres" dbCfg
+        }
+    let server = ServerConf {
+        serverPort = C.lookupDefault "port" 3000 serverCfg
+        ,serverJWT = C.lookupDefault "jwt" "" serverCfg
+        ,serverCSRF = C.lookupDefault  "csrf" "" serverCfg
+        }
+    let blog = BlogConf {
+        blogNme = C.lookupDefault "name" "" blogCfg
+        blogHost = C.lookupDefault "host" "" blogCfg
+        }
+    return AppConf {
+        dbConf = db
+        ,serverConf = server
+        ,blogConf = blog
+    }
+  where
+    opts = info (helper <*> pathParser)
+        ( fullDesc <> progDesc "Server of Haskell")
+    configNotfoundHint :: IOError -> IO a
+    configNotfoundHint e = do
+      hPutStrLn stderr $ "Cannot open config file:\n\t" <> show e
+      exitFailure

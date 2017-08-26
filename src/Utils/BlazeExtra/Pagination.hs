@@ -27,6 +27,9 @@ data Pagination = Pagination
   , pnPrev        :: String
   , pnNext        :: String
   , pnMenuClass   :: String
+  , pnActiveClass :: String 
+  , pnDeActiveClass :: String 
+  , pnDisabledClass :: String 
   } deriving (Show)
 
 instance Default Pagination where
@@ -39,6 +42,9 @@ instance Default Pagination where
         , pnPrev        = "前一页"
         , pnNext        = "后一页"
         , pnMenuClass   = "ui pagination menu"
+        , pnActiveClass = "active item"
+        , pnDeActiveClass = "item"
+        , pnDisabledClass = "disabled item"
         }
 
 -- | Get the page count of the pagination results.
@@ -68,15 +74,15 @@ render uri pn@Pagination{..}  =
     items =
       forM_ [start..end] $ \i ->
         let
-          theclass = if i == pnCurrentPage then "active item" else "item"
+          theclass = if i == pnCurrentPage then pnActiveClass else pnDeActiveClass
         in
-          H.div ! A.class_ theclass $
+          H.div ! A.class_ (H.toValue theclass) $
             H.a ! EA.hrefSet uri paramName (show i) $ H.toHtml (show i)
     prevPart =
-      H.div ! A.class_ "item" $ do
+      H.div ! A.class_ (H.toValue pnDeActiveClass) $ do
         H.a ! EA.hrefSet uri paramName (show (pnCurrentPage -1)) $ H.toHtml pnPrev
         items
-    middlePart = H.div ! A.class_ "disabled item" $ "..."
+    middlePart = H.div ! A.class_  (H.toValue pnDisabledClass) $ "..."
     nextPart =
-      H.div ! A.class_ "item" $
+      H.div ! A.class_ (H.toValue pnDeActiveClass)  $
         H.a ! EA.hrefSet uri paramName (show (pnCurrentPage + 1)) $ H.toHtml pnNext

@@ -26,41 +26,39 @@ import App.Types
 
 createConnections :: AppConf -> IO DBConnections
 createConnections cfg = do
-        db <- createPool (connect connInfo) close 1 30 10
-        return db
-    where
-        connInfo = ConnectInfo {
-            connectHost = dbHost cfg
-            ,connectPort = fromIntegral (dbPort cfg)
-            ,connectUser = dbUser cfg
-            ,connectPassword = dbPassword cfg
-            ,connectDatabase = dbDatabase cfg
-        }
+    db <- createPool (connect connInfo) close 1 30 10
+    return db
+  where
+    dbCfg = dbConf cfg
+    connInfo = ConnectInfo {
+        connectHost = dbHost dbCfg
+        ,connectPort = fromIntegral (dbPort dbCfg)
+        ,connectUser = dbUser dbCfg
+        ,connectPassword = dbPassword dbCfg
+        ,connectDatabase = dbDatabase dbCfg
+    }
 
 -- MonadIO (m ReaderT AppContext IO) -> m ReaderT AppContext IO
 
-runDBTry:: (Connection -> IO b) -> Response b
+runDBTry :: (Connection -> IO b) -> Response b
 runDBTry q = do
     -- lift :: App -> ActionT ServerError App
     conns <- lift (asks dbConns)
     -- liftIO :: IO Either ->  ActionT ServerError  Either
-    e <- liftIO $ withResource conns $ \c ->
+    r <- liftIO $ withResource conns $ \c ->
       withTransaction c $ do
-        catchViolation' catcher . liftIO . liftM Right $ q c
-    either Web.raise return e
-
+        catchViolation' catcher $ liftIO . liftM Right $ q c
+    either Web.raise return r
 
 runDB :: ( MonadTrans m,MonadIO (m App)) => (Connection -> IO b) -> m App b
 runDB q = do
   conns <- lift (asks dbConns)
   liftIO  $ withResource conns $ \c ->
-    withTransaction c $ do
-      q c
-
+    withTransaction c $ q c
 --catcher :: MonadTrans IO m => SqlError -> ConstraintViolation -> m (Either ServerError a)
 catcher e = f
   where
     f c = return . Left $ DBError c
 
---catchViolation' :: (MonadCatchIO m) => (SqlError -> ConstraintViolation -> m a) -> m a -> m a
+--catchViolation' :: (MonadIO m) => (SqlError -> ConstraintViolation -> m a) -> m a -> m a
 catchViolation' f m = catch m (\e -> maybe (throw e) (f e) $ constraintViolation e)
