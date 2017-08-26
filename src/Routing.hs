@@ -8,7 +8,8 @@ module Routing(
 
 import Control.Monad.Trans
 import Control.Monad.Reader
-
+import qualified Data.Text as T
+import qualified Data.Map as M
 import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
 
@@ -28,6 +29,8 @@ import qualified Handlers.Bookmark as HB
 import qualified Handlers.Sitemap as HS
 import qualified Handlers.Rss as HR
 
+import Views.Layout
+
 onError :: ServerError -> Response ()
 onError err = do
   if (status err) == unauthorized401
@@ -42,6 +45,10 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
+  Web.get "/template" $ do
+    let m = M.fromList [(T.pack "person",T.pack "David")]
+    t <- renderWithTemplate "partials/_hello.html" m
+    Web.html t
   Web.get "/" $ void $ HI.indexR
   Web.get "/sitemap.xml" $ void $ HS.sitemapR
   Web.get "/feed" $ void $ HR.feedR

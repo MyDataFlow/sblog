@@ -41,6 +41,7 @@ executable sblog
                       ,postgresql-simple
                       ,blaze-html
                       ,blaze-builder
+                      ,mustache
                       ,xml
                       ,feed
                       ,optparse-applicative

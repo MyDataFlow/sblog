@@ -4,18 +4,33 @@
 module Views.Layout(
   render
   ,renderMain
+  ,renderWithTemplate
 )where
 import Control.Monad
-import Data.Text.Lazy(Text)
+import Control.Monad.IO.Class(MonadIO,liftIO)
+
+import qualified Data.Text.Lazy as LT
+import qualified Data.Text as T
 import Data.String (fromString)
+import Data.Maybe
 
 import Text.Blaze.Html5 ((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+import qualified Web.Scotty.Trans as Web
 import qualified Utils.BlazeExtra.Html as EH
+import Utils.Scotty.MustacheRender
 
 import Text.Blaze.Html.Renderer.Text
 import Views.Common.Widgets
+import App.Types
+
+renderWithTemplate :: (ToMustache k) => FilePath -> k -> Response LT.Text
+renderWithTemplate tpl k = do
+  r <- liftIO $ hastache ["templates"] tpl k
+  case r of
+    Just t ->  return $ LT.fromStrict t
+    Nothing -> Web.raise $ AppError "Can't find template"
 
 defaultMeta :: [H.Html]
 defaultMeta =
@@ -61,7 +76,7 @@ renderInner title meta sidePart mainPart menu =
       EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
       EH.jsLink "/assets/ga.js"
 
-render :: Int -> String -> [H.Html] -> [H.Html] -> [H.Html]  -> Text
+render :: Int -> String -> [H.Html] -> [H.Html] -> [H.Html]  -> LT.Text
 render active title meta sidePart mainPart =
   renderHtml $
     renderInner title combineMeta sidePart mainPart $
@@ -82,7 +97,7 @@ renderMainInner title meta mainPart  =
         EH.jsLink "https://cdn.bootcss.com/semantic-ui/2.2.10/semantic.min.js"
         EH.jsLink "/assets/ga.js"
 
-renderMain :: String -> [H.Html] -> [H.Html]  -> Text
+renderMain :: String -> [H.Html] -> [H.Html]  -> LT.Text
 renderMain title meta mainPart =
     renderHtml $ renderMainInner title combineMeta  mainPart
   where

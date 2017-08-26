@@ -15,6 +15,7 @@ import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
 import qualified Utils.BlazeExtra.Attributes as EA
+
 import Utils.URI.String
 import Utils.URI.Params
 
@@ -83,7 +84,7 @@ segmentArticle tag ar =
         H.div ! A.class_ "ui small right floated primary basic button" $
           H.a ! (gaEvent "Read Article" title) !  link $ "阅读原文"
         H.div ! A.class_ "header" $ H.p $ H.toHtml title
-        H.div ! A.class_ "description" $ do 
+        H.div ! A.class_ "description" $ do
           H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
           H.p $ H.toHtml summary
         H.div ! A.class_ "extra" $
@@ -137,5 +138,3 @@ segmentBookmark host name tag  br =
 
     olink = A.href (H.toValue $ showURI
       $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))
-    
-    
