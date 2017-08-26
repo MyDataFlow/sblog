@@ -4,11 +4,13 @@
 module Views.Article(
   renderArticle
   ,renderIndex
+  ,renderContent
 )where
 
 import Control.Monad
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
+import qualified Data.Map as Map
 import Data.String (fromString)
 import Data.Int
 import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)
@@ -30,12 +32,26 @@ import Utils.BlazeExtra.Pagination as Pagination
 
 import Utils.URI.String
 import Utils.URI.Params
-
+import App.Types
 import qualified Models.DB.Schema as M
+renderContent :: String -> String -> [(String,String)]->M.Article -> Response LT.Text
+renderContent host name rcs ar = do
+    VL.renderWithTemplate "articles/partials/_main_content.html" assemble
+  where
+    assemble :: Map.Map String T.Text
+    assemble = Map.fromList
+        [("fullURL",T.pack $ show fullURL)
+        ,("recommands",LT.toStrict $ renderHtml $ renderRecommand rcs )
+        ,("content",T.pack $ M.articleBody ar)
+        ,("name",T.pack name)
+        ]
+    fullURL =
+      relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
+
 
 renderArticle :: String -> String  -> [(String,String)]
-  ->Bool -> [(String,String)]->M.Article  -> LT.Text
-renderArticle host name prevs canon rcs ar =
+  ->Bool -> LT.Text ->M.Article  -> LT.Text
+renderArticle host name prevs canon content ar =
     VL.renderMain title [seo] [render]
   where
     time = localTimeToUTC utc $ M.articleUpdatedAt ar
@@ -74,17 +90,7 @@ renderArticle host name prevs canon rcs ar =
             ! H.customAttribute "data-ad-layout" "in-article"
             ! H.customAttribute "data-ad-format" "fluid" $ ""
           H.script ! A.type_ "text/javascript"  $ "(adsbygoogle = window.adsbygoogle || []).push({});"
-          H.div ! A.class_ "markdown-body" $ do
-            H.preEscapedToHtml (M.articleBody ar)
-            H.p $ ""
-            H.div $ do
-              renderRecommand rcs
-              H.h5 ! A.class_ "ui block header" $ do
-                H.p $
-                  H.a ! A.href  (H.toValue $ show fullURL) $
-                    H.toHtml $ "文章连接："  ++ (show fullURL)
-                H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
-
+          H.preEscapedToHtml content
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Article] -> LT.Text
 renderIndex host name tag tid pn ts canon ars =

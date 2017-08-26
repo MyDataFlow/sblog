@@ -9,6 +9,7 @@ module Views.Bookmark(
 import Control.Monad
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
+import qualified Data.Map as M
 import Data.String (fromString)
 import Data.Int
 import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)

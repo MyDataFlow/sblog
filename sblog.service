@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Restart=always
-Environment=HOME=/var/www/sblog
+Environment=HOME=/var/www/sblog PWD=/var/www/sblog
 User=root
 LimitNOFILE=32768
 ExecStart=/var/www/sblog/dist/build/sblog/sblog /var/www/sblog/application.conf.pro

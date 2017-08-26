@@ -60,7 +60,8 @@ showProcessor req =  do
   host <- lift (asks siteHost)
   name <- lift (asks siteName)
   rcs <- recommand (DB.articleID ar) (DB.articleTags ar)
-  let r = VA.renderArticle host name bs (tag req /= Nothing) rcs ar
+  content <- VA.renderContent host name rcs ar
+  let r = VA.renderArticle host name bs (tag req /= Nothing) content ar
   return $ (status200,r)
   where
     intBid = fromInteger (aid req)

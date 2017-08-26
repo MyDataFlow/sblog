@@ -30,7 +30,7 @@ renderWithTemplate tpl k = do
   r <- liftIO $ hastache ["templates"] tpl k
   case r of
     Just t ->  return $ LT.fromStrict t
-    Nothing -> Web.raise $ AppError "Can't find template"
+    Nothing -> Web.raise $ AppError $ LT.pack $ "Can't find template " ++ tpl
 
 defaultMeta :: [H.Html]
 defaultMeta =
