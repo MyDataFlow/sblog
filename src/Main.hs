@@ -22,11 +22,11 @@ import qualified Routing as R
 
 main :: IO ()
 main = do
-    hSetBuffering stdout LineBuffering
-    hSetBuffering stdin  LineBuffering
-    hSetBuffering stderr NoBuffering
-    conf <- readOptions
-    conns <- DB.createConnections conf
-    let ctx = createContext conns conf
-    Web.scottyT (port conf) (runApp ctx) R.routing
-    return ()
+  hSetBuffering stdout LineBuffering
+  hSetBuffering stdin  LineBuffering
+  hSetBuffering stderr NoBuffering
+  conf <- readOptions
+  conns <- DB.createConnections conf
+  let ctx = createContext conns conf
+  Web.scottyT (serverPort $ serverConf  conf) (runApp ctx) R.routing
+  return ()

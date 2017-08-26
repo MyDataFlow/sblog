@@ -34,14 +34,15 @@ data DBConf = DBConf {
 } deriving (Show,Eq)
 
 data ServerConf = ServerConf {
-  port :: Int
-  ,jwtConf :: String
-  ,csrfConf ::String
+  serverPort :: Int
+  ,serverJWT :: String
+  ,serverCSRF ::String
 }deriving (Show,Eq)
 
 data BlogConf = BlogConf {
   blogName :: String
   ,blogHost :: String
+  ,blogPassword :: String
 } deriving (Show)
 
 data AppConf = AppConf {
@@ -58,6 +59,7 @@ data AppContext = AppContext {
   ,csrfKey :: String
   ,siteName :: String
   ,siteHost :: String
+  ,sitePassword :: String
 }
 data AppState = AppState {
   csrfToken :: ST.Text

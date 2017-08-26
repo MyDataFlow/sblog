@@ -19,10 +19,11 @@ createContext ::DBConnections -> AppConf-> AppContext
 createContext conns conf =
   AppContext {
     dbConns = conns
-    ,jwtKey = jwtConf $ serverConf conf
-    ,csrfKey = csrfConf $ serverConf conf
+    ,jwtKey = serverJWT $ serverConf conf
+    ,csrfKey = serverCSRF $ serverConf conf
     ,siteName = blogName $ blogConf conf
-    ,siteHost = blogHost $ blogConf conf 
+    ,siteHost = blogHost $ blogConf conf
+    ,sitePassword = blogPassword $ blogConf conf
   }
 
 runApp :: AppContext ->App a -> IO a

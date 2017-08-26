@@ -42,16 +42,17 @@ instance FormParams LoginForm where
 
 loginProcessor :: Processor LoginForm LT.Text
 loginProcessor req = do
-    p <- lift (asks admin)
+    p <- lift (asks sitePassword)
     if p == T.unpack (password req)
       then doLogin
       else Web.raise $ Exception unauthorized401 "Authorization required"
   where
     doLogin = do
-      s <- lift (asks secret)
-      cookie <- liftIO $ generateCookie s "admin"
-      Cookie.setCookie $
-        Cookie.makeSimpleCookie "Authorization" (T.pack cookie)
+      s <- lift (asks jwtKey)
+      cookie <- liftIO $ generateCookie $
+          def { jwtSecret = T.pack s
+              , jwtPayload = "admin"}
+      Cookie.setCookie $ Cookie.makeRootSimpleCookie "Authorization"  cookie
       return (status302,"/admin")
 
 
