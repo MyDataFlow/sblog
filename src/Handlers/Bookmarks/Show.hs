@@ -63,13 +63,13 @@ showProcessor req =  do
     intBid = fromInteger (bid req)
     breadcrumbs =
       case tag req of
-        Nothing -> return [("书签","/bookmarks")]
+        Nothing -> return [("推荐阅读","/bookmarks")]
         Just t -> ref $ T.unpack t
     ref t = do
       r  <- Web.header "Referer"
       case r of
-        Nothing -> return [("书签","/bookmarks"),(t,tagURI t)]
-        Just u -> return [("书签","/bookmarks") ,(t,LT.unpack u)]
+        Nothing -> return [("推荐阅读","/bookmarks"),(t,tagURI t)]
+        Just u -> return [("推荐阅读","/bookmarks") ,(t,LT.unpack u)]
     tagURI t =
       showURI $ updateUrlParam "tag" t (toURI $ "/bookmarks")
 showR :: Response LT.Text
