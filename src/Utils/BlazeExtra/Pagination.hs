@@ -27,9 +27,9 @@ data Pagination = Pagination
   , pnPrev        :: String
   , pnNext        :: String
   , pnMenuClass   :: String
-  , pnActiveClass :: String 
-  , pnDeActiveClass :: String 
-  , pnDisabledClass :: String 
+  , pnActiveClass :: String
+  , pnDeActiveClass :: String
+  , pnDisabledClass :: String
   } deriving (Show)
 
 instance Default Pagination where
@@ -41,10 +41,10 @@ instance Default Pagination where
         , pnWidth       = 4
         , pnPrev        = "前一页"
         , pnNext        = "后一页"
-        , pnMenuClass   = "ui pagination menu"
-        , pnActiveClass = "active item"
-        , pnDeActiveClass = "item"
-        , pnDisabledClass = "disabled item"
+        , pnMenuClass   = "btn-group btn-corner"
+        , pnActiveClass = "btn btn-danger"
+        , pnDeActiveClass = "btn"
+        , pnDisabledClass = "btn disabled"
         }
 
 -- | Get the page count of the pagination results.
@@ -56,33 +56,50 @@ pnPageCount Pagination{..} = max 1 $
   where total = fromIntegral pnTotal
         perpage = fromIntegral pnPerPage
 
+
 render :: URI ->  Pagination -> H.Html
-render uri pn@Pagination{..}  =
+render uri pn@Pagination{..}   =
     if pnTotal <= pnPerPage
       then H.div ""
       else
-          H.div ! A.class_ (H.toValue pnMenuClass) $ do
+          H.div ! A.id "pagination" ! A.class_ (H.toValue pnMenuClass) $ do
             when (pnCurrentPage > 1) $ prevPart
-            when (end < pageCount) $ middlePart
+            when (pnCurrentPage - pnWidth > 1) $ do
+              items 1 2
+              omittedPart
+              items start pnCurrentPage
+            when (pnCurrentPage - pnWidth < 1) $ items 1 pnCurrentPage
+            when (pageCount - pnCurrentPage < pnWidth) $ items (pnCurrentPage + 1) pageCount
+            when (pageCount - pnCurrentPage > pnWidth) $ do
+              items (pnCurrentPage + 1) (end - 1)
+              omittedPart
+              items (pageCount - 1) pageCount
             when (pnCurrentPage < pageCount) $ nextPart
   where
-    w = pnWidth
-    start = max 1 (pnCurrentPage - 2)
-    end = min pageCount (start + w)
+    start = max 1 (pnCurrentPage - round((fromIntegral pnWidth)/2))
+    end = min pageCount (start + pnWidth)
     pageCount = pnPageCount pn
     paramName = pnName ++ "_page"
-    items =
-      forM_ [start..end] $ \i ->
+    items s e =
+      forM_ [s..e] $ \i ->
         let
           theclass = if i == pnCurrentPage then pnActiveClass else pnDeActiveClass
         in
-          H.div ! A.class_ (H.toValue theclass) $
-            H.a ! EA.hrefSet uri paramName (show i) $ H.toHtml (show i)
-    prevPart =
-      H.div ! A.class_ (H.toValue pnDeActiveClass) $ do
-        H.a ! EA.hrefSet uri paramName (show (pnCurrentPage -1)) $ H.toHtml pnPrev
-        items
-    middlePart = H.div ! A.class_  (H.toValue pnDisabledClass) $ "..."
-    nextPart =
-      H.div ! A.class_ (H.toValue pnDeActiveClass)  $
-        H.a ! EA.hrefSet uri paramName (show (pnCurrentPage + 1)) $ H.toHtml pnNext
+          H.a ! A.class_ (H.toValue theclass)
+            ! H.dataAttribute "page" (H.toValue i)
+            ! H.dataAttribute "count" (H.toValue pnPerPage)
+            ! EA.hrefSet uri paramName (show i)
+            $ H.toHtml $ show i
+    omittedPart = H.a ! A.class_ (H.toValue pnDisabledClass) $ "..."
+    prevPart = H.a ! A.class_ (H.toValue pnDeActiveClass)
+      ! H.dataAttribute "page"  (H.toValue (pnCurrentPage -1))
+      ! H.dataAttribute "count" (H.toValue pnPerPage)
+      ! EA.hrefSet uri paramName (show $ pnCurrentPage -1)
+      $ H.toHtml pnPrev
+    nextPart = H.a ! A.class_ (H.toValue pnDeActiveClass)
+      ! H.dataAttribute "page"  (H.toValue (pnCurrentPage + 1))
+      ! H.dataAttribute "count" (H.toValue pnPerPage)
+      ! EA.hrefSet uri paramName (show $ pnCurrentPage +1)
+      $ H.toHtml pnNext
+
+    --1 2 [3 4] (5 6 |7| 8 9) [10 11] 12 13
