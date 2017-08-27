@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Models.Schema(
+module Models.Schemas(
   module Models.Schemas.Tag
   ,module Models.Schemas.Entry
 ) where

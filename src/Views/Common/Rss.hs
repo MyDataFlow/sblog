@@ -4,14 +4,14 @@ module Views.Common.Rss(
   renderFeed
 ) where
 import Data.Time (UTCTime)
-
+import qualified Data.Text as T
 import Text.Feed.Types
 import Text.Feed.Util
 import Text.RSS.Export
 import Text.RSS.Syntax
 import Text.XML.Light.Output
 
-renderFeed :: String -> String -> String ->[(String,String,String,UTCTime)] -> String
+renderFeed :: String  -> String -> String ->[(String ,String ,String,UTCTime)] -> String 
 renderFeed host name desc items =
     showTopElement $ xmlRSS feed
   where

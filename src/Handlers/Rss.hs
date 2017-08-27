@@ -27,37 +27,29 @@ import Utils.URI.Params
 
 import Handlers.Actions.Types
 import Handlers.Actions.Common
-
+import Models.Schemas
 import qualified Models.DB as DB
 import Views.Common.Rss
 
+url host path = show $ updateUrlParam "s" "rss" $ relativeTo (toURI path) (toURI host)
+fromEntry host name e =
+  let
+    u = url host $ toPath ["entries",show $ entryID e,T.unpack $ entryTitle e]
+    t = T.unpack $ T.intercalate "-" [entryTitle e, name]
+    s = T.unpack $ entrySummary e
+    time = localTimeToUTC utc (entryUpdatedAt e)
+  in
+    (u,t,s,time)
 feedProcessor :: Response (Status,LT.Text)
 feedProcessor  =  do
-    host <- lift (asks siteHost)
-    name <- lift (asks siteName)
-    brs <- DB.runDBTry $ DB.fetchBookmarks 1 10
-    ars <- DB.runDBTry $ DB.fetchArticles True 1 10
-    let feeds = (map (fromArticle host name) ars) ++ (map (fromBookmark host name) brs)
-    Web.setHeader "Content-Type" "text/xml"
-    return (status200,LT.pack $ renderFeed host name feeds)
-  where
-    url host path = show $ updateUrlParam "s" "rss" $ relativeTo (toURI path) (toURI host)
-    fromArticle host name ar =
-      let
-        u = url host $ "/articles/" ++ (show $ DB.articleID ar)
-        t = (DB.articleTitle ar) ++ "-" ++ name
-        s = (DB.articleSummary ar)
-        time = localTimeToUTC utc (DB.articleUpdatedAt ar)
-      in
-        (u,t,s,time)
-    fromBookmark host name br =
-      let
-        u = url host $ "/bookmarks/" ++ (show $ DB.bookmarkID br)
-        t = (DB.bookmarkTitle br) ++ "-" ++ name
-        s = (DB.bookmarkTitle br)
-        time = localTimeToUTC utc (DB.bookmarkUpdatedAt br)
-      in
-        (u,t,s,time)
+  host <- lift (asks siteHost)
+  name <- lift (asks siteName)
+  es <- DB.runDBTry $ DB.fetchEntries True 1 10
+  let textName = T.pack name
+  let feeds = map (fromEntry host textName) es
+  Web.setHeader "Content-Type" "text/xml"
+  return (status200,LT.pack $ renderFeed host name "精选英文技术、创业文章，各种教程" feeds)
+
 
 feedR :: Response LT.Text
 feedR = do

@@ -28,6 +28,7 @@ import Utils.URI.Params
 import Handlers.Actions.Types
 import Handlers.Actions.Common
 
+import Models.Schemas
 import qualified Models.DB as DB
 import Views.Common.Sitemap
 --data SitemapUrl = SitemapUrl
@@ -38,7 +39,7 @@ import Views.Common.Sitemap
 --    }
 
 url host path = show $ relativeTo (toURI path) (toURI host)
-tagURI base t = showURI $ updateUrlParam "tag" t $ toURI base
+tagURI base t = show $ updateUrlParam "tag" t $ toURI base
 
 generateSitemapUrl :: (String,Maybe UTCTime,SitemapChangeFreq,Double) -> SitemapUrl
 generateSitemapUrl (url,time,cf,priority)=
@@ -48,44 +49,38 @@ generateSitemapUrl (url,time,cf,priority)=
             ,sitemapChangeFreq = Just cf
             ,sitemapPriority = Just priority
           }
-fromRecord :: String -> String -> Int -> (Int64,LocalTime) -> Response [ (String,Maybe UTCTime,SitemapChangeFreq,Double)]
-fromRecord host path rt (rid,t) = do
-  tags <- DB.runDBTry $ DB.fetchRelatedTags rid rt
+fromRecord :: String -> String -> (Int64,T.Text,LocalTime) -> Response [ (String,Maybe UTCTime,SitemapChangeFreq,Double)]
+fromRecord host path  (rid,title,t) = do
+  tags <- DB.runDBTry $ DB.fetchTags rid
   let bst = map generate tags
   return $ bs ++ bst
   where
-    base = url host $ path ++ (show $ rid)
+    base = url host $ toPath [path, show $ rid,T.unpack title]
     lastMod = Just $ localTimeToUTC utc t
     bs = [(base,lastMod,Monthly,0.6)]
-    generate t = (tagURI base (DB.tagName t),lastMod,Monthly,0.5)
+    generate t = (tagURI base (T.unpack $ tagName t),lastMod,Monthly,0.5)
 
-fromTag :: String -> String  -> DB.Tag -> (String,Maybe UTCTime,SitemapChangeFreq,Double)
+fromTag :: String -> String  -> Tag -> (String,Maybe UTCTime,SitemapChangeFreq,Double)
 fromTag host path t =
-    (tagURI base (DB.tagName t),Nothing,Daily,0.8)
+    (tagURI base (T.unpack $ tagName t),Nothing,Daily,0.8)
   where
     base = url host path
 
 sitemapProcessor :: Response (Status,LT.Text)
 sitemapProcessor  =  do
     host <- lift (asks siteHost)
-    ars <- DB.runDBTry $ DB.fetchArticlesSitemap
-    brs <- DB.runDBTry $ DB.fetchBookmarksSitemap
-    ats <- DB.runDBTry $ DB.fetchTags 2
-    bts <- DB.runDBTry $ DB.fetchTags 1
+    es <- DB.runDBTry $ DB.fetchSitemap
+    ts <- DB.runDBTry $ DB.fetchAllTags
     let baseItems = map generateSitemapUrl (bs host)
-    let atItems = map generateSitemapUrl $ map (fromTag host "/articles") ats
-    let btItems = map generateSitemapUrl $ map (fromTag host "/bookmarks") bts
-    arTuples <- mapM (fromRecord host "/articles/"  2) ars
-    brTuples <- mapM (fromRecord host "/bookmarks/" 1) brs
-    let arItems = map generateSitemapUrl $ concat arTuples
-    let brItems = map generateSitemapUrl $ concat brTuples
+    let tItems = map generateSitemapUrl $ map (fromTag host "/entries") ts
+    eTuples <- mapM (fromRecord host "entries" ) es
+    let eItems = map generateSitemapUrl $ concat eTuples
     Web.setHeader "Content-Type" "text/xml"
-    return (status200,LT.pack $ sitemap $ baseItems ++ atItems ++ btItems ++ arItems ++ brItems)
+    return (status200,LT.pack $ sitemap $ baseItems ++ tItems ++ eItems)
   where
     bs host = [
               (url host "/",Nothing,Daily,1)
-              ,(url host "/articles",Nothing,Daily,1)
-              ,(url host "/bookmarks",Nothing,Daily,1)
+              ,(url host "/entries",Nothing,Daily,1)
               ]
 
 

@@ -2,7 +2,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Utils.URI.String(
   showRelativeURI
-  ,showURI
   ,toURI
   ,toPath
 )where
@@ -15,9 +14,6 @@ import Network.URI
 
 showRelativeURI :: URI -> String
 showRelativeURI URI{..} = uriPath ++ uriQuery
-
-showURI :: URI -> String
-showURI uri = show uri
 
 toURI :: String -> URI
 toURI u =

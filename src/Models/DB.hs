@@ -2,12 +2,10 @@
 
 module Models.DB(
   module Models.DB.Connections
-  ,module Models.Bookmarks
-  ,module Models.Articles
-  ,module Models.Tags
+  ,module Models.DB.Entries
+  ,module Models.DB.Tags
 )where
 
 import Models.DB.Connections
-import Models.Bookmarks hiding(digest)
-import Models.Articles hiding(digest)
-import Models.Tags
+import Models.DB.Entries hiding(digest)
+import Models.DB.Tags hiding(digest)

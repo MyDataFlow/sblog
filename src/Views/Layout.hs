@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
-
 module Views.Layout(
   renderWithTemplate
   ,render
@@ -11,6 +10,8 @@ import Control.Monad.IO.Class(MonadIO,liftIO)
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text as T
 import Data.Maybe
+
+import qualified Web.Scotty.Trans  as Web
 
 import Utils.Scotty.MustacheRender
 

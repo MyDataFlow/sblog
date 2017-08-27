@@ -34,15 +34,15 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE  IF NOT EXISTS entries (
-    id bigserial PRIMARY KEY NOT NULL,
-    title text NOT NULL,
-    url text DEFAULT "",
-    summary text DEFAULT "",
-    body text NOT NULL,
-    markdown text NOT NULL,
-    published boolean DEFAULT false,
-    created_at timestamp without time zone NOT NULL DEFAULT now(),
-    updated_at timestamp without time zone NOT NULL DEFAULT now()
+  id bigserial PRIMARY KEY NOT NULL,
+  title text NOT NULL,
+  url text DEFAULT NULL,
+  summary text NOT NULL,
+  body text NOT NULL,
+  markdown text NOT NULL,
+  published boolean DEFAULT false,
+  created_at timestamp without time zone NOT NULL DEFAULT now(),
+  updated_at timestamp without time zone NOT NULL DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS tags (

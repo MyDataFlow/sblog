@@ -40,8 +40,6 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
-
-  Web.get "/" $ void $ HI.indexR
   Web.get "/sitemap.xml" $ void $ HS.sitemapR
   Web.get "/feed" $ void $ HR.feedR
   Web.get "/rss.xml" $ void $ HR.feedR
