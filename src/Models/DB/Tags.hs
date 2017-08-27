@@ -24,7 +24,7 @@ fetchTagID name c = do
   return $ fromOnly $ head rs
 fetchAllTags :: Connection -> IO [Tag]
 fetchAllTags conn = do
-  query_ conn "SELECT t.id,t.name,count(t.id) FROM tags AS t "
+  query_ conn "SELECT t.id,t.name,count(t.id) FROM tags AS t GROUP BY t.id"
 fetchTags :: Int64 ->  Connection -> IO [Tag]
 fetchTags rid c = do
   query c " SELECT t.id,t.name,count(t.id) FROM tags as t, taggings as tg \

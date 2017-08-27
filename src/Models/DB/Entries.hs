@@ -23,7 +23,8 @@ digest c r = do
 
 fetchSitemap:: Connection -> IO [(Int64,T.Text,LocalTime)]
 fetchSitemap c = do
-  query_ c "SELECT id,title,updated_at FROM entries WHERE published = true"
+  query_ c "SELECT id,title,updated_at FROM entries \
+    \ WHERE published = true ORDER BY id DESC" 
 
 fetchAllEntries ::   Int -> Int -> Connection -> IO [Entry]
 fetchAllEntries page count  c = do

@@ -63,6 +63,6 @@ CREATE TABLE IF NOT EXISTS series (
   name   VARCHAR(255) NOT NULL,
   index    INTEGER NOT NULL,
 
-  PRIMARY KEY (entry_id, series),
+  PRIMARY KEY (entry_id, name),
   FOREIGN KEY (entry_id) REFERENCES entries (id) ON DELETE CASCADE
 );

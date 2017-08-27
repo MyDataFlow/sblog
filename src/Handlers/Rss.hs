@@ -45,8 +45,7 @@ feedProcessor  =  do
   host <- lift (asks siteHost)
   name <- lift (asks siteName)
   es <- DB.runDBTry $ DB.fetchEntries True 1 10
-  let textName = T.pack name
-  let feeds = map (fromEntry host textName) es
+  let feeds = map (fromEntry host (T.pack name)) es
   Web.setHeader "Content-Type" "text/xml"
   return (status200,LT.pack $ renderFeed host name "精选英文技术、创业文章，各种教程" feeds)
 
