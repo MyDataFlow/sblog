@@ -5,7 +5,9 @@
 		<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <meta viewport="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-    {{{seo}}}
+    {{#seo}}
+      {{{seo}}}
+    {{/seo}}
 		<title>{{title}}</title>
     {{> layout/_css.html}}
 	</head>
@@ -22,11 +24,7 @@
             {{> layout/_breadcrumb.html}}
           {{/breadcrumb}}
 				 <div class="page-content">
-					 <div class="row">
-					   <div class="col-xs-12">
-              {{{content}}}
-					   </div><!-- /.col -->
-					 </div><!-- /.row -->
+            {{{content}}}
 				 </div><!-- /.page-content -->
 			  </div>
       </div><!-- /.main-content -->

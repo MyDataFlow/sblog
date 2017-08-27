@@ -1,25 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Common where
+module Handlers.Common(
+  lookupIntWithDefault
+  ,lookupTextWithDefault
+  ,PagingParams(..)
+)where
 
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as LT
+import qualified Data.Map as M
 import Data.Maybe
 import Data.Text.Read
-import Data.Text
-import qualified Data.Map as M
-
-import Network.URI
-import qualified Text.Blaze.Html5 as H
+import Data.Default
 
 import App.Types
-import App.Context
-
-import qualified Models.DB as DB
-
+import Handlers.Actions.Types
 
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe (Left _) = Nothing
 eitherToMaybe (Right val) = Just val
 
-textToInt :: Text -> Maybe Integer
+textToInt :: T.Text -> Maybe Integer
 textToInt t =
   let
     eitherPair = decimal t
@@ -27,8 +27,25 @@ textToInt t =
   in
     fst <$> maybePair
 
-lookupInt :: Text -> Integer -> (M.Map Text Text) -> Maybe Integer
-lookupInt k v m =
+lookupIntWithDefault :: T.Text -> Integer -> (M.Map T.Text  T.Text ) -> Maybe Integer
+lookupIntWithDefault k v m =
   case M.lookup k m of
     Nothing -> Just v
     Just text -> textToInt text
+lookupTextWithDefault :: T.Text -> T.Text -> (M.Map T.Text  T.Text ) -> Maybe T.Text
+lookupTextWithDefault k v m =
+  case M.lookup k m of
+    Nothing -> Just v
+    value -> value
+
+data PagingParams = PagingParams {
+  rPage :: Integer
+  ,rCount :: Integer
+  ,rTag :: T.Text
+}
+
+instance FormParams PagingParams where
+  fromParams m = PagingParams <$>
+    lookupIntWithDefault "_page" 1 m <*>
+    lookupIntWithDefault "_count" 20 m <*>
+    lookupTextWithDefault "tag" "" m

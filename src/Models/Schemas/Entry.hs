@@ -13,7 +13,7 @@ data Entry = Entry {
   entryID :: Int64
   ,entryTitle :: T.Text
   ,entryURL :: Maybe T.Text
-  ,entrySummary :: T.Text
+  ,entrySummary :: Maybe T.Text
   ,entryBody :: T.Text
   ,entryMarkdown :: T.Text
   ,entryPublished :: Bool

@@ -14,7 +14,7 @@ import Database.PostgreSQL.Simple.ToField
 import Database.PostgreSQL.Simple.FromRow
 
 import App.Types
-import Models.Schemas
+import Models.Schema
 import qualified Models.DB.Tags as Tags
 
 digest c r = do
@@ -24,7 +24,7 @@ digest c r = do
 fetchSitemap:: Connection -> IO [(Int64,T.Text,LocalTime)]
 fetchSitemap c = do
   query_ c "SELECT id,title,updated_at FROM entries \
-    \ WHERE published = true ORDER BY id DESC" 
+    \ WHERE published = true ORDER BY id DESC"
 
 fetchAllEntries ::   Int -> Int -> Connection -> IO [Entry]
 fetchAllEntries page count  c = do
@@ -42,13 +42,27 @@ fetchEntries ::  Bool -> Int -> Int -> Connection -> IO [Entry]
 fetchEntries published page count  c = do
   let offset = (page - 1) * count
   rs <- query c "SELECT * FROM entries \
-    \ WHERE published = ?  ORDER BY id DESC OFFSET ? LIMIT ?" (published,offset,count)
+    \ WHERE published = ?  ORDER BY updated_at DESC OFFSET ? LIMIT ?" (published,offset,count)
   mapM (digest c) rs
 
 fetchEntriesCount :: Bool -> Connection -> IO Int64
 fetchEntriesCount published c = do
   rs <- query c "SELECT count(id) FROM entries WHERE published = ? " (Only published)
   return $ fromOnly $ head rs
+
+fetchTaggedEntries :: Int64-> Int -> Int -> Connection -> IO [Entry]
+fetchTaggedEntries tid page count conn = do
+  let offset = (page - 1) * count
+  rs <- query conn "SELECT e.* FROM taggings AS tg , entries AS e \
+    \ WHERE e.published = true AND tg.tag_id = ? AND e.id = tg.entry_id  \
+    \ ORDER BY id DESC OFFSET ? LIMIT ?" (tid,offset,count)
+  mapM (digest conn) rs
+fetchTaggedEntriesCount :: Int64 -> Connection -> IO Int64
+fetchTaggedEntriesCount tid conn = do
+  rs <- query conn "SELECT count(e.id) FROM taggings AS tg, entries AS e WHERE \
+      \ e.published = true AND tg.tag_id = ? AND e.id = tg.entry_id " (Only tid)
+  return $ fromOnly $ head rs
+
 fetchEntry :: Int64 -> Connection -> IO Entry
 fetchEntry eid c = do
   rs <- query c "SELECT * FROM entries \
@@ -92,22 +106,3 @@ updateEntry e tags conn = do
     deleteTags [] = return 0
     deleteTags ts = do
       Tags.removeTaggingsWithName (entryID e) ts conn
-
-
-fetchRandRecommandArticle :: Int64 -> Connection -> IO [(Int64,String)]
-fetchRandRecommandArticle tid c = do
-    rs <- query c "SELECT a.id,a.title FROM articles a ,taggings t  \
-      \ WHERE t.tag_id = ? AND t.related_type = 2 AND a.id = t.related_id \
-      \ AND a.published = true  ORDER BY random() LIMIT 1" (Only tid)
-    mapM toResult rs
-  where
-    toResult (i,t) = return (i,t)
-
-fetchRecommandArticle :: Int64 -> Int64 -> Connection -> IO [(Int64,String)]
-fetchRecommandArticle tid aid c = do
-    rs <- query c "SELECT a.id,a.title FROM articles a ,taggings t  \
-    \ WHERE t.tag_id = ? AND t.related_type = 2 AND a.id = t.related_id \
-    \ AND a.id <> ? AND a.published = true  ORDER BY random() LIMIT 1" (tid,aid)
-    mapM toResult rs
-  where
-    toResult (i,t) = return (i,t)

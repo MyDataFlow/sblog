@@ -28,7 +28,7 @@ import Utils.URI.Params
 import Handlers.Actions.Types
 import Handlers.Actions.Common
 
-import Models.Schemas
+import Models.Schema
 import qualified Models.DB as DB
 import Views.Common.Sitemap
 --data SitemapUrl = SitemapUrl

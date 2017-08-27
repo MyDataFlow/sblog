@@ -20,9 +20,9 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 import App.Types
 import App.Context
 
-
 import qualified Handlers.Sitemap as HS
 import qualified Handlers.Rss as HR
+import qualified Handlers.Entries.Index as HEIndex
 
 import Views.Layout
 
@@ -40,6 +40,8 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
+  Web.get "/" $ void $ HEIndex.indexR
+  Web.get "/entries" $ void $ HEIndex.indexR
   Web.get "/sitemap.xml" $ void $ HS.sitemapR
   Web.get "/feed" $ void $ HR.feedR
   Web.get "/rss.xml" $ void $ HR.feedR

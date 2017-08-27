@@ -1,16 +1,16 @@
 <div class="row">
-  <div class="col-md-6 col-md-offset-3 col-xs-12">
+  <div class="col-md-5 col-md-offset-2 col-xs-12">
     <div class="search-results">
-      {{# results}}
+      {{# entries}}
         <div class="search-result">
-          <h5 class="search-title">
-            <a href={{link}}>{{title}}</a>
-          </h5>
+          <h4 class="search-title">
+            <a href="{{link}}">{{title}}</a>
+          </h4>
         <div class="search-content">
           <p>
             {{# tags}}
-              <a href={{link}}
-                <span class={{class}}>{{title}}</span>
+              <a href="{{link}}"
+                <span class="{{theClass}}">{{title}}</span>
               </a>
             {{/ tags}}
           </p>
@@ -19,13 +19,11 @@
           {{/ summary}}
         </div>
       </div>
-      {{/ results}}
+      {{/ entries}}
     </div>
     {{{pagination}}}
   </div>
-</div>
-<div class="row">
-  <div class="col-md-6 col-md-offset-3 col-xs-12">
+  <div class="col-md-3 col-xs-12">
     {{> common/_tag_sidebar.html}}
   </div>
 </div>

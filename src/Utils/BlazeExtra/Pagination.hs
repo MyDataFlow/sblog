@@ -41,10 +41,10 @@ instance Default Pagination where
         , pnWidth       = 4
         , pnPrev        = "前一页"
         , pnNext        = "后一页"
-        , pnMenuClass   = "btn-group btn-corner"
-        , pnActiveClass = "btn btn-danger"
-        , pnDeActiveClass = "btn"
-        , pnDisabledClass = "btn disabled"
+        , pnMenuClass   = "pagination"
+        , pnActiveClass = "active"
+        , pnDeActiveClass = ""
+        , pnDisabledClass = "disabled"
         }
 
 -- | Get the page count of the pagination results.
@@ -62,14 +62,14 @@ render uri pn@Pagination{..}   =
     if pnTotal <= pnPerPage
       then H.div ""
       else
-          H.div ! A.id "pagination" ! A.class_ (H.toValue pnMenuClass) $ do
+          H.ul ! A.id "pagination" ! A.class_ (H.toValue pnMenuClass) $ do
             when (pnCurrentPage > 1) $ prevPart
             when (pnCurrentPage - pnWidth > 1) $ do
               items 1 2
               omittedPart
               items start pnCurrentPage
-            when (pnCurrentPage - pnWidth < 1) $ items 1 pnCurrentPage
-            when (pageCount - pnCurrentPage < pnWidth) $ items (pnCurrentPage + 1) pageCount
+            when (pnCurrentPage - pnWidth <= 1) $ items 1 pnCurrentPage
+            when (pageCount - pnCurrentPage <= pnWidth) $ items (pnCurrentPage + 1) pageCount
             when (pageCount - pnCurrentPage > pnWidth) $ do
               items (pnCurrentPage + 1) (end - 1)
               omittedPart
@@ -85,21 +85,21 @@ render uri pn@Pagination{..}   =
         let
           theclass = if i == pnCurrentPage then pnActiveClass else pnDeActiveClass
         in
-          H.a ! A.class_ (H.toValue theclass)
-            ! H.dataAttribute "page" (H.toValue i)
-            ! H.dataAttribute "count" (H.toValue pnPerPage)
-            ! EA.hrefSet uri paramName (show i)
-            $ H.toHtml $ show i
-    omittedPart = H.a ! A.class_ (H.toValue pnDisabledClass) $ "..."
-    prevPart = H.a ! A.class_ (H.toValue pnDeActiveClass)
-      ! H.dataAttribute "page"  (H.toValue (pnCurrentPage -1))
-      ! H.dataAttribute "count" (H.toValue pnPerPage)
-      ! EA.hrefSet uri paramName (show $ pnCurrentPage -1)
-      $ H.toHtml pnPrev
-    nextPart = H.a ! A.class_ (H.toValue pnDeActiveClass)
-      ! H.dataAttribute "page"  (H.toValue (pnCurrentPage + 1))
-      ! H.dataAttribute "count" (H.toValue pnPerPage)
-      ! EA.hrefSet uri paramName (show $ pnCurrentPage +1)
-      $ H.toHtml pnNext
+          H.li ! A.class_ (H.toValue theclass) $
+            H.a ! H.dataAttribute "page" (H.toValue i)
+              ! H.dataAttribute "count" (H.toValue pnPerPage)
+              ! EA.hrefSet uri paramName (show i)
+              $ H.toHtml $ show i
+    omittedPart = H.li ! A.class_ (H.toValue pnDisabledClass)  $ "..."
+    prevPart = H.li ! A.class_ (H.toValue pnDeActiveClass) $
+      H.a ! H.dataAttribute "page"  (H.toValue (pnCurrentPage -1))
+        ! H.dataAttribute "count" (H.toValue pnPerPage)
+        ! EA.hrefSet uri paramName (show $ pnCurrentPage -1)
+        $ H.toHtml pnPrev
+    nextPart = H.li ! A.class_ (H.toValue pnDeActiveClass) $
+      H.a ! H.dataAttribute "page"  (H.toValue (pnCurrentPage + 1))
+        ! H.dataAttribute "count" (H.toValue pnPerPage)
+        ! EA.hrefSet uri paramName (show $ pnCurrentPage +1)
+        $ H.toHtml pnNext
 
     --1 2 [3 4] (5 6 |7| 8 9) [10 11] 12 13

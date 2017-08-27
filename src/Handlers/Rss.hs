@@ -27,7 +27,7 @@ import Utils.URI.Params
 
 import Handlers.Actions.Types
 import Handlers.Actions.Common
-import Models.Schemas
+import Models.Schema
 import qualified Models.DB as DB
 import Views.Common.Rss
 
@@ -36,7 +36,9 @@ fromEntry host name e =
   let
     u = url host $ toPath ["entries",show $ entryID e,T.unpack $ entryTitle e]
     t = T.unpack $ T.intercalate "-" [entryTitle e, name]
-    s = T.unpack $ entrySummary e
+    s = case entrySummary e of
+        Nothing -> ""
+        Just s -> T.unpack s
     time = localTimeToUTC utc (entryUpdatedAt e)
   in
     (u,t,s,time)

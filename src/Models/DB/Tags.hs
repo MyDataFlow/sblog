@@ -15,7 +15,7 @@ import Database.PostgreSQL.Simple.FromField
 import Database.PostgreSQL.Simple.ToField
 
 import App.Types
-import Models.Schemas
+import Models.Schema
 
 fetchTagID :: T.Text -> Connection -> IO Int64
 fetchTagID name c = do
@@ -24,7 +24,8 @@ fetchTagID name c = do
   return $ fromOnly $ head rs
 fetchAllTags :: Connection -> IO [Tag]
 fetchAllTags conn = do
-  query_ conn "SELECT t.id,t.name,count(t.id) FROM tags AS t GROUP BY t.id"
+  query_ conn "SELECT t.id,t.name,count(t.id) c FROM tags AS t, taggings AS tg \
+    \ WHERE t.id = tg.tag_id  GROUP BY t.id ORDER BY c DESC"
 fetchTags :: Int64 ->  Connection -> IO [Tag]
 fetchTags rid c = do
   query c " SELECT t.id,t.name,count(t.id) FROM tags as t, taggings as tg \
