@@ -16,7 +16,7 @@ import qualified Text.Blaze.Html5.Attributes as A
 import qualified Utils.BlazeExtra.Attributes as EA
 import Utils.URI.String
 
-import qualified Models.DB.Schema as M
+import Models.Schema
 
 metaProperty p v =
     H.meta ! property p ! A.content v
@@ -25,13 +25,13 @@ metaProperty p v =
 
 metaName n v = H.meta ! A.name n ! A.content v
 
-showTags :: [M.Tag] -> String
+showTags :: [Tag] -> String
 showTags tags =
     if length tags == 0
       then ""
       else foldr1 (\w s -> w ++ ',':s) ts
   where
-    ts = map (\tag -> (M.tagName tag)) tags
+    ts = map (\tag -> (tagName tag)) tags
 
 keywordsAndDescription keywords description = do
   metaName "keywords" $ H.toValue keywords
@@ -46,7 +46,7 @@ openGraph title url description = do
 
 canonical :: String -> H.Html
 canonical url =
-  H.link ! A.rel "canonical" ! A.href ( H.toValue  url) 
+  H.link ! A.rel "canonical" ! A.href ( H.toValue  url)
 
 gaEvent :: String-> String ->H.Attribute
 gaEvent ev ct =
@@ -54,3 +54,9 @@ gaEvent ev ct =
     v = (PF.printf "ga('send', 'event', '%s', '%s');" ev ct) :: String
   in
     A.onclick $ H.toValue v
+
+utmParams :: String -> String -> [(String,String)]
+utmParams host name =
+  [("utm_source",host)
+  ,("utm_campaign",name)
+  ,("utm_medium","website")]

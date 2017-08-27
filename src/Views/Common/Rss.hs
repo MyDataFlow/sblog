@@ -11,11 +11,10 @@ import Text.RSS.Export
 import Text.RSS.Syntax
 import Text.XML.Light.Output
 
-renderFeed :: String -> String -> [(String,String,String,UTCTime)] -> String
-renderFeed host name items =
+renderFeed :: String -> String -> String ->[(String,String,String,UTCTime)] -> String
+renderFeed host name desc items =
     showTopElement $ xmlRSS feed
   where
-    desc = name ++ " 文章精选，精品博客"
     feed :: RSS
     feed = RSS "2.0" [] channel []
     channel :: RSSChannel

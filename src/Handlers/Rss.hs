@@ -27,7 +27,6 @@ import Utils.URI.Params
 
 import Handlers.Actions.Types
 import Handlers.Actions.Common
-import Handlers.Common
 
 import qualified Models.DB as DB
 import Views.Common.Rss

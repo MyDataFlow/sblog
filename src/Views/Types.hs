@@ -9,12 +9,15 @@ import Data.Default
 import Text.Mustache
 data Link = Link {
   linkTitle :: String
+  ,linkClass :: String
   ,linkURL :: String
 }
+
 data Breadcrumb = Breadcrumb {
   breadLinks :: [Link]
   ,breadTitle :: String
 }
+
 data Page = Page {
   pageTitle :: T.Text
   ,pageBread :: Maybe Breadcrumb
@@ -30,9 +33,11 @@ data ContentPage = ContentPage {
   ,contentBody :: T.Text
   ,contentRecommands :: T.Text
 }
+
 instance ToMustache Link where
   toMustache l = object
     [ "link" ~> linkURL l
+    , "class" ~> linkClass l
     , "title" ~> linkTitle l
     ]
 instance ToMustache Breadcrumb where

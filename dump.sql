@@ -33,27 +33,17 @@ SET default_with_oids = false;
 -- Name: article; Type: TABLE; Schema: public; Owner: hblog; Tablespace:
 --
 
-CREATE TABLE  IF NOT EXISTS  articles (
+CREATE TABLE  IF NOT EXISTS entries (
     id bigserial PRIMARY KEY NOT NULL,
-    title character varying NOT NULL,
-    summary character varying NOT NULL,
+    title text NOT NULL,
+    url text DEFAULT "",
+    summary text DEFAULT "",
     body text NOT NULL,
     markdown text NOT NULL,
     published boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL DEFAULT now(),
     updated_at timestamp without time zone NOT NULL DEFAULT now()
 );
-CREATE TABLE bookmarks (
-    id bigserial PRIMARY KEY NOT NULL,
-    title character varying NOT NULL,
-    summary text NOT NULL,
-    markdown text NOT NULL,
-    url text NOT NULL,
-    created_at timestamp without time zone NOT NULL DEFAULT now(),
-    updated_at timestamp without time zone NOT NULL DEFAULT now()
-);
-
-CREATE UNIQUE INDEX bookmarks_unique ON bookmarks (url);
 
 CREATE TABLE IF NOT EXISTS tags (
   id bigserial PRIMARY KEY NOT NULL,
@@ -64,7 +54,15 @@ CREATE UNIQUE INDEX tags_unique ON tags (name);
 CREATE TABLE IF NOT EXISTS taggings(
   id bigserial PRIMARY KEY NOT NULL,
   tag_id bigint NOT NULL,
-  related_type int DEFAULT 1,
-  related_id bigint NOT NULL
+  entry_id bigint NOT NULL
 );
-CREATE UNIQUE INDEX taggings_unique ON taggings (tag_id,related_type,related_id);
+CREATE UNIQUE INDEX taggings_unique ON taggings (tag_id,entry_id);
+
+CREATE TABLE IF NOT EXISTS series (
+  entry_id bigint NOT NULL,
+  name   VARCHAR(255) NOT NULL,
+  index    INTEGER NOT NULL,
+
+  PRIMARY KEY (entry_id, series),
+  FOREIGN KEY (entry_id) REFERENCES entries (id) ON DELETE CASCADE
+);
