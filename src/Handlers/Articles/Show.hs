@@ -57,23 +57,20 @@ showProcessor :: Processor ArticleShow LT.Text
 showProcessor req =  do
   ar <- DB.runDBTry $ DB.fetchArticle intBid
   bs <- breadcrumbs
-  host <- lift (asks siteHost)
-  name <- lift (asks siteName)
   rcs <- recommand (DB.articleID ar) (DB.articleTags ar)
-  content <- VA.renderContent host name rcs ar
-  r <- VA.renderArticle host name bs (tag req /= Nothing) content ar
+  r <- VA.renderArticle bs (tag req /= Nothing) rcs ar
   return $ (status200,r)
   where
     intBid = fromInteger (aid req)
     breadcrumbs =
       case tag req of
-        Nothing -> return [("文章","/articles")]
+        Nothing -> return [("博文","/articles")]
         Just t -> ref $ T.unpack t
     ref t = do
       r  <- Web.header "Referer"
       case r of
-        Nothing -> return [("文章","/articles"),(t,tagURI t)]
-        Just u -> return [("文章","/articles") ,(t,LT.unpack u)]
+        Nothing -> return [("博文","/articles"),(t,tagURI t)]
+        Just u -> return [("博文","/articles") ,(t,LT.unpack u)]
     tagURI t =
         showURI $ updateUrlParam "tag" t (toURI $ "/articles")
 

@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-md-6 col-md-offset-3 col-xs-12">
+    <h1>{{title}}</h1>
+    <p>
+      {{#tags}}
+        <span class="label label-pink arrowed-in">{{.}}</span>
+      {{/tags}}
+    </p>
+    <p>发布于：{{publish}}</p>
+  </div>
+</div>
+{{# summary}}
+<div class="row">
+  <div class="col-md-6 col-md-offset-3 col-xs-12">
+    <blockquote>
+      <h6>
+        {{summary}}
+      </h6>
+    </blockquote>
+  </div>
+</div>
+{{/ summary}}
+<div class="row">
+  <div class="col-md-6 col-md-offset-3 col-xs-12">
+    {{# url}}
+      <a class="btn btn-primary" target="_blank" href={{orign_url}}>
+        阅读原始文章
+        <i class="ace-icon fa fa-share"></i>
+      </a>
+    {{/ url}}
+    <div class="markdown-body">
+      {{{body}}}
+      <p></p>
+      {{{recommands}}}
+    </div>
+  </div>
+</div>

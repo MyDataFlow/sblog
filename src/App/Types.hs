@@ -9,7 +9,7 @@ module App.Types where
 import qualified Data.Text.Lazy as T
 import qualified Data.Text as ST
 import Data.Default
-
+import Data.Maybe
 
 import Control.Applicative (Applicative)
 import Control.Monad.IO.Class (MonadIO)
@@ -17,6 +17,8 @@ import Control.Monad.Reader (MonadReader(..), ReaderT)
 import Control.Monad.State (MonadState(..),StateT)
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.Except
+
+import Text.Mustache
 
 import Data.Pool(Pool)
 import Database.PostgreSQL.Simple(Connection)

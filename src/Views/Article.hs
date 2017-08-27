@@ -9,6 +9,8 @@ module Views.Article(
 )where
 
 import Control.Monad
+import Control.Monad.Trans.Class (MonadTrans, lift)
+import Control.Monad.Reader (MonadReader(..),asks)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as Map
@@ -37,6 +39,10 @@ import Utils.URI.Params
 import App.Types
 import Views.Types
 import qualified Models.DB.Schema as M
+
+renderURL host ar =
+  relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
+
 renderBreadcrumb :: [(String,String)] -> M.Article -> Breadcrumb
 renderBreadcrumb prevs ar = assemble
   where
@@ -46,48 +52,43 @@ renderBreadcrumb prevs ar = assemble
         links = map toLink prevs
       in
         Breadcrumb links (M.articleTitle ar)
-renderContent :: String -> String -> [(String,String)]->M.Article -> Response LT.Text
-renderContent host name rcs ar = do
-    VL.renderWithTemplate "articles/_content.html" assemble
+renderContent :: [(String,String)]-> M.Article -> Response LT.Text
+renderContent rcs ar = do
+    VL.renderWithTemplate "common/_content.html" assemble
   where
-    assemble :: Map.Map String T.Text
-    assemble = Map.fromList
-        [("fullURL",T.pack $ show fullURL)
-        ,("recommands",LT.toStrict $ renderHtml $ renderRecommand rcs )
-        ,("content",T.pack $ M.articleBody ar)
-        ,("site.name",T.pack name)
-        ]
-    fullURL =
-      relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
+    ts = map (\tag -> T.pack $ M.tagName tag ) $ M.articleTags ar
+    assemble = ContentPage{
+                            contentTitle = T.pack $ M.articleTitle ar
+                            ,contentTags = ts
+                            ,contentPublish = T.pack $ time
+                            ,contentSummary = Just $ T.pack $ M.articleSummary ar
+                            ,contentURL = Nothing
+                            ,contentBody = T.pack $ M.articleBody ar
+                            ,contentRecommands = LT.toStrict $ renderHtml $ renderRecommand rcs
+                          }
+    time = formatTime defaultTimeLocale "%Y/%m/%d" $
+      localTimeToUTC utc $ M.articleUpdatedAt ar
 
 
-renderArticle :: String -> String  -> [(String,String)]
-  ->Bool -> LT.Text ->M.Article  -> Response LT.Text
-renderArticle host name bread canon content ar = do
-    pageContent <- render
-    let p = page pageContent
+
+renderArticle ::  [(String,String)] -> Bool ->
+  [(String,String)] -> M.Article  -> Response LT.Text
+renderArticle  bread canon rcs ar = do
+    name <- lift (asks siteName)
+    host <- lift (asks siteHost)
+    pageContent <- renderContent rcs ar
+    let p = page  host name pageContent
     VL.renderPage p
   where
-    page c = Page (T.pack $ title)
+    page host name c = Page (T.pack $ title name)
       (Just $ renderBreadcrumb bread ar)
-      (LT.toStrict $ renderHtml seo)
+      (LT.toStrict $ renderHtml $ seo name host)
       (LT.toStrict c)
-    assemble :: Map.Map String T.Text
-    assemble = Map.fromList
-      [("title",T.pack $ (M.articleTitle ar))
-      ,("summary",T.pack $ M.articleSummary ar)
-      ,("publish",T.pack $ formatTime defaultTimeLocale "%Y/%m/%d" time)
-      ,("content",LT.toStrict content)
-      ]
-    time = localTimeToUTC utc $ M.articleUpdatedAt ar
-    seo = do
-      openGraph title (show fullURL) (M.articleSummary ar)
+    seo host name = do
+      openGraph (title name) (show $ renderURL host ar ) (M.articleSummary ar)
       keywordsAndDescription (showTags $ M.articleTags ar) (M.articleSummary ar)
-      when canon $ canonical (show fullURL)
-    title = (M.articleTitle ar) ++ "-" ++ name
-    fullURL =
-      relativeTo (toURI $ "/articles/" ++ (show $ M.articleID ar)) (toURI host)
-    render = VL.renderWithTemplate "articles/show.html" assemble
+      when canon $ canonical (show $ renderURL host ar)
+    title name = (M.articleTitle ar) ++ "-" ++ name
 
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Article] -> LT.Text

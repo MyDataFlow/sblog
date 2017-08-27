@@ -56,10 +56,8 @@ showProcessor :: Processor BookmarkShow LT.Text
 showProcessor req =  do
   br <- DB.runDBTry $ DB.fetchBookmark intBid
   bs <- breadcrumbs
-  host <- lift (asks siteHost)
-  name <- lift (asks siteName)
   rcs <- recommand (DB.bookmarkID br) (DB.bookmarkTags br)
-  let r = VB.renderBookmark host name bs (tag req /= Nothing) rcs br
+  r <- VB.renderBookmark bs (tag req /= Nothing) rcs br
   return $ (status200,r)
   where
     intBid = fromInteger (bid req)

@@ -7,11 +7,14 @@ module Views.Bookmark(
 )where
 
 import Control.Monad
+import Control.Monad.Trans.Class (MonadTrans, lift)
+import Control.Monad.Reader (MonadReader(..),asks)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
 import Data.String (fromString)
 import Data.Int
+import Data.Maybe
 import Data.Time (UTCTime,LocalTime,localTimeToUTC,utc,formatTime,defaultTimeLocale)
 
 import Network.URI
@@ -30,64 +33,60 @@ import qualified Views.Layout as VL
 import Utils.BlazeExtra.Pagination as Pagination
 import Utils.URI.String
 import Utils.URI.Params
-
+import App.Types
+import Views.Types
 import qualified Models.DB.Schema as M
+renderURL host ar =
+  relativeTo (toURI $ "/bookmarks/" ++ (show $ M.bookmarkID ar)) (toURI host)
 
-renderBookmark :: String -> String  -> [(String,String)] -> Bool
-  -> [(String,String)]  -> M.Bookmark -> LT.Text
-renderBookmark host name prevs canon rcs br =
-    VL.renderMain title [seo] [render]
+renderBreadcrumb :: [(String,String)] -> M.Bookmark -> Breadcrumb
+renderBreadcrumb prevs ar = assemble
   where
-    time = localTimeToUTC utc $ M.bookmarkUpdatedAt br
-    olink = A.href (H.toValue $ showURI
-      $ updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br))
-    seo = do
-      openGraph title (show fullURL) (M.bookmarkTitle br)
+    toLink (name,url) = Link name url
+    assemble =
+      let
+        links = map toLink prevs
+      in
+        Breadcrumb links (M.bookmarkTitle ar)
+renderContent :: [(String,String)]-> String -> M.Bookmark -> Response LT.Text
+renderContent rcs url ar = do
+    VL.renderWithTemplate "common/_content.html" assemble
+  where
+    ts = map (\tag -> T.pack $ M.tagName tag ) $ M.bookmarkTags ar
+    assemble = ContentPage{
+                            contentTitle = T.pack $ M.bookmarkTitle ar
+                            ,contentTags = ts
+                            ,contentPublish = T.pack $ time
+                            ,contentSummary = Nothing
+                            ,contentURL = Just $ T.pack $ url
+                            ,contentBody = T.pack $ M.bookmarkSummary ar
+                            ,contentRecommands = LT.toStrict $ renderHtml $ renderRecommand rcs
+                          }
+    time = formatTime defaultTimeLocale "%Y/%m/%d" $
+      localTimeToUTC utc $ M.bookmarkUpdatedAt ar
+
+renderBookmark :: [(String,String)] -> Bool
+  -> [(String,String)]  -> M.Bookmark -> Response LT.Text
+renderBookmark prevs canon rcs br = do
+    name <- lift (asks siteName)
+    host <- lift (asks siteHost)
+    pageContent <- renderContent rcs (olink host name) br
+    let p = page host name pageContent
+    VL.renderPage p
+  where
+    page host name c = Page (T.pack $ title name)
+      (Just $ renderBreadcrumb prevs br)
+      (LT.toStrict $ renderHtml $ seo name host)
+      (LT.toStrict c)
+    olink host name =  showURI $
+      updateUrlParams (utmParams host name) (toURI $ M.bookmarkUrl br)
+    seo host name = do
+      openGraph (title name) (show $ renderURL host br) (M.bookmarkTitle br)
       keywordsAndDescription (showTags $ M.bookmarkTags br) (M.bookmarkTitle br)
-      when canon $ canonical (show fullURL)
-    title = (M.bookmarkTitle br) ++ "-" ++ name
-    fullURL =
-      relativeTo (toURI $ "/bookmarks/" ++ (show $ M.bookmarkID br)) (toURI host)
-    render =
-      H.div $ do
-        H.div ! A.class_ "ui main text container" $ do
-          breadcrumb prevs (M.bookmarkTitle br)
-          H.h1 ! A.class_ "ui header" $ do
-            H.div ! A.class_ "ui small right floated primary basic button" $
-              H.a ! A.target "_blank" ! (gaEvent "Read Bookmark" title) !  olink $ "原文"
-            H.toHtml (M.bookmarkTitle br)
-          H.p $ H.toHtml ("发布于：" ++ (formatTime defaultTimeLocale "%Y/%m/%d" time))
-        H.div ! A.class_ "ui basic right attached fixed  launch button" $ do
-          H.div ! A.class_ "-mob-share-ui-button -mob-share-open" $ "分享"
-          H.script ! A.type_ "text/javascript" ! A.id "-mob-share"
-                ! A.src "https://f1.webshare.mob.com/code/mob-share.js?appkey=1d704951d1a17" $ ""
-        H.div ! A.class_ "ui article text container" $ do
-          H.div ! A.class_ "-mob-share-ui" ! A.style "display: none" $ do
-            H.ul ! A.class_ "-mob-share-list" $ do
-              H.li ! A.class_ "-mob-share-weibo" $ H.p "新浪微博"
-              H.li ! A.class_ "-mob-share-qzone" $ H.p "QQ空间"
-              H.li ! A.class_ "-mob-share-qq" $ H.p "QQ好友"
-              H.li ! A.class_ "-mob-share-facebook" $ H.p "Facebook"
-              H.li ! A.class_ "-mob-share-twitter" $ H.p "Twitter"
-              H.div ! A.class_ "-mob-share-close" $ "取消"
-          H.script ! A.async "true" ! A.type_ "text/javascript"
-            ! A.src "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" $ ""
-          H.ins ! A.class_ "adsbygoogle" ! A.style "display:block; text-align:center;"
-            ! H.customAttribute "data-ad-client" "ca-pub-7356196370921219"
-            ! H.customAttribute "data-ad-slot"  "8705224210"
-            ! H.customAttribute "data-ad-layout" "in-article"
-            ! H.customAttribute "data-ad-format" "fluid" $ ""
-          H.script ! A.type_ "text/javascript"  $ "(adsbygoogle = window.adsbygoogle || []).push({});"
-          H.div ! A.class_ "markdown-body" $ do
-            H.preEscapedToHtml  (M.bookmarkSummary br)
-            H.p $ ""
-            H.div $ do
-              renderRecommand rcs
-              H.h5 ! A.class_ "ui block header" $ do
-                H.p $
-                  H.a ! A.href  (H.toValue $ show fullURL) $
-                    H.toHtml $ "文章连接："  ++ (show fullURL)
-                H.toHtml $ "欢迎转载，著作权归" ++ name ++ "所有"
+      when canon $ canonical (show $ renderURL host br)
+    title name = (M.bookmarkTitle br) ++ "-" ++ name
+
+
 
 renderIndex :: String -> String -> (Maybe T.Text) -> Int64 ->
   Pagination -> [M.Tag] -> Bool -> [M.Bookmark] -> LT.Text

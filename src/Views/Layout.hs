@@ -34,10 +34,7 @@ renderWithTemplate tpl k = do
     Nothing -> Web.raise $ AppError $ LT.pack $ "Can't find template " ++ tpl
 renderPage :: (ToMustache k) => k -> Response LT.Text
 renderPage k = do
-  r <- liftIO $ hastache ["templates","templates/partials/"] "layout.html" k
-  case r of
-    Just t ->  return $ LT.fromStrict t
-    Nothing -> Web.raise $ AppError $ LT.pack $ "Can't find template "
+  renderWithTemplate "layout.html" k
 
 defaultMeta :: [H.Html]
 defaultMeta =

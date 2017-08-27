@@ -21,6 +21,15 @@ data Page = Page {
   ,pageSeo :: T.Text
   ,pageContent :: T.Text
 }
+data ContentPage = ContentPage {
+  contentTitle :: T.Text
+  ,contentTags :: [T.Text]
+  ,contentPublish :: T.Text
+  ,contentSummary :: Maybe T.Text
+  ,contentURL :: Maybe T.Text
+  ,contentBody :: T.Text
+  ,contentRecommands :: T.Text
+}
 instance ToMustache Link where
   toMustache l = object
     [ "link" ~> linkURL l
@@ -39,4 +48,15 @@ instance ToMustache Page where
       ,"breadcrumb" ~> pageBread p
       ,"seo" ~> pageSeo p
       ,"content" ~> pageContent p
+    ]
+instance ToMustache ContentPage where
+  toMustache cp = object
+    [
+      "title" ~> contentTitle cp
+      ,"tags" ~> contentTags cp
+      ,"publish" ~> contentPublish cp
+      ,"summary" ~> contentSummary cp
+      ,"url" ~> contentURL cp
+      ,"body" ~> contentBody cp
+      ,"recommands" ~> contentRecommands cp
     ]
