@@ -26,7 +26,7 @@ while i <= acount.to_i do
   ts = pg_backup.exec("SELECT t.id FROM tags as t, taggings as tg WHERE \
    t.id = tg.tag_id AND tg.related_type = 2 AND tg.related_id = #{aid}")
   e = pg_new.exec_prepared("insert_entry",[
-      a["title"],"",a["summary"],a["body"],a["markdown"],a["published"],a["created_at"],a["updated_at"]
+      a["title"],nil,a["summary"],a["body"],a["markdown"],a["published"],a["created_at"],a["updated_at"]
     ])[0]
   eid = e["id"]
   ts.each do |t|
@@ -42,7 +42,7 @@ while i <= bcount.to_i do
   ts = pg_backup.exec("SELECT t.id FROM tags as t, taggings as tg WHERE \
    t.id = tg.tag_id AND tg.related_type = 1 AND tg.related_id = #{aid}")
   e = pg_new.exec_prepared("insert_entry",[
-      a["title"],a["url"],"",a["summary"],a["markdown"],"t",a["created_at"],a["updated_at"]
+      a["title"],a["url"],nil,a["summary"],a["markdown"],"t",a["created_at"],a["updated_at"]
     ])[0]
   eid = e["id"]
   ts.each do |t|

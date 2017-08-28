@@ -37,7 +37,7 @@ CREATE TABLE  IF NOT EXISTS entries (
   id bigserial PRIMARY KEY NOT NULL,
   title text NOT NULL,
   url text DEFAULT NULL,
-  summary text NOT NULL,
+  summary text DEFAULT NULL,
   body text NOT NULL,
   markdown text NOT NULL,
   published boolean DEFAULT false,
