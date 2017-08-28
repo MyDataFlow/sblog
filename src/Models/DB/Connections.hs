@@ -14,6 +14,9 @@ import Control.Monad.IO.Class(MonadIO,liftIO)
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.Trans.Control (MonadBaseControl)
 import Control.Monad.Reader (MonadReader(..),asks)
+
+import qualified Data.Text.Lazy as LT
+
 import System.IO.Error(tryIOError)
 import Data.Pool(Pool, withResource, createPool)
 import Database.PostgreSQL.Simple
@@ -61,4 +64,8 @@ catcher e = f
     f c = return . Left $ DBError c
 
 --catchViolation' :: (MonadIO m) => (SqlError -> ConstraintViolation -> m a) -> m a -> m a
-catchViolation' f m = catch m (\e -> maybe (throw e) (f e) $ constraintViolation e)
+catchViolation' f m =
+    m `E.catches` [E.Handler (\e -> maybe (wrap e) (f e) $ constraintViolation e)
+                  ,E.Handler (\e -> wrap (e :: SomeException))]
+  where
+    wrap e = return $ Left $ Exception status500 $ LT.pack $ show e

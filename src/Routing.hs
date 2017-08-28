@@ -9,6 +9,7 @@ module Routing(
 import Control.Monad.Trans
 import Control.Monad.Reader
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
 import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
@@ -23,18 +24,28 @@ import App.Context
 import qualified Handlers.Sitemap as HS
 import qualified Handlers.Rss as HR
 import qualified Handlers.Entries.Index as HEIndex
-
+import qualified Handlers.Entries.Show as HEShow
+import Views.Types
 import Views.Layout
 
 onError :: ServerError -> Response ()
-onError err = do
+onError err =
   if (status err) == unauthorized401
     then Web.redirect "/admin/login"
-    else if (status err) /= status500
-      then Web.redirect "/"
-      else do
-        Web.status $ status err
-        Web.text $ message err
+    else if (status err) == status500
+      then renderError
+      else renderNotFound
+  where
+    renderError = do
+      Web.html =<<
+        (renderWithTemplate "500.html" () >>= \p ->
+          render $ Page "出错了" Nothing Nothing $ LT.toStrict p)
+    renderNotFound = do
+      Web.html =<<
+        (renderWithTemplate "404.html" () >>= \p ->
+         render $ Page "页面不见了" Nothing Nothing $ LT.toStrict p)
+
+
 
 routing = do
   Web.defaultHandler onError
@@ -42,6 +53,8 @@ routing = do
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
   Web.get "/" $ void $ HEIndex.indexR
   Web.get "/entries" $ void $ HEIndex.indexR
+  Web.get "/entries/:id/:slug" $ void $ HEShow.indexR
+  Web.get "/entries/:id" $ void $ HEShow.indexR
   Web.get "/sitemap.xml" $ void $ HS.sitemapR
   Web.get "/feed" $ void $ HR.feedR
   Web.get "/rss.xml" $ void $ HR.feedR

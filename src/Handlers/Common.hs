@@ -3,6 +3,7 @@ module Handlers.Common(
   lookupIntWithDefault
   ,lookupTextWithDefault
   ,PagingParams(..)
+  ,EntryParams(..)
 )where
 
 import qualified Data.Text as T
@@ -48,4 +49,13 @@ instance FormParams PagingParams where
   fromParams m = PagingParams <$>
     lookupIntWithDefault "_page" 1 m <*>
     lookupIntWithDefault "_count" 20 m <*>
+    lookupTextWithDefault "tag" "" m
+
+data EntryParams = EntryParams {
+  eID :: Integer
+  ,eTag :: T.Text
+}
+instance FormParams EntryParams where
+  fromParams m = EntryParams <$>
+    lookupIntWithDefault "id" 0 m <*>
     lookupTextWithDefault "tag" "" m

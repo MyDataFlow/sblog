@@ -6,7 +6,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances #-}
 module App.Types where
-import qualified Data.Text.Lazy as T
+import qualified Data.Text.Lazy as LT
 import qualified Data.Text as ST
 import Data.Default
 import Data.Maybe
@@ -65,30 +65,31 @@ data AppContext = AppContext {
 }
 data AppState = AppState {
   csrfToken :: ST.Text
+  ,layout :: FilePath
 }
 
 instance Default AppState where
-  def = AppState ""
+  def = AppState "" "layout.html"
 
 newtype App a = App {
   runTheApp :: ReaderT AppContext (StateT AppState IO) a
   } deriving (Applicative, Functor, Monad, MonadIO, MonadReader AppContext,MonadState AppState )
 
 data ServerError = RouteNotFound
-  | Exception Status T.Text
+  | Exception Status LT.Text
   | DBError ConstraintViolation
-  | AppError T.Text
+  | AppError LT.Text
 
 instance ScottyError ServerError where
   showError = message
-  stringError = Exception internalServerError500 . T.pack
+  stringError = Exception internalServerError500 . LT.pack
 
-message :: ServerError -> T.Text
+message :: ServerError -> LT.Text
 message RouteNotFound = "route not found"
 message (Exception s t)
-  | s == status500  = T.append "internal server error " t
+  | s == status500  = LT.append "internal server error " t
   | otherwise = t
-message (DBError e) = T.pack $ show e
+message (DBError e) = LT.pack $ show e
 message (AppError e) = e
 
 status :: ServerError -> Status

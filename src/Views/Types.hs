@@ -75,4 +75,5 @@ instance ToMustache Entry where
     , "summary" ~> entrySummary e
     , "url" ~> entryURL e
     , "body" ~> entryBody e
+    , "link" ~> toPath ["entries",show (entryID e), T.unpack $ entryTitle e]
     ]

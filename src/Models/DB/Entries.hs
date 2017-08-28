@@ -2,12 +2,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Models.DB.Entries where
 
+import Control.Monad
+import Control.Exception as E
 import Data.Maybe
 import Data.Int
 import Data.Time
+import qualified Data.List as L
 import qualified Data.Set as Set
 import qualified Data.Text as T
-
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.FromField
 import Database.PostgreSQL.Simple.ToField
@@ -67,7 +69,12 @@ fetchEntry :: Int64 -> Connection -> IO Entry
 fetchEntry eid c = do
   rs <- query c "SELECT * FROM entries \
     \ WHERE id = ?" (Only eid)
-  head $ map (digest c) rs
+  head $ map (digest c) rs 
+    {--
+  case listToMaybe $ map (digest c) rs of
+    Nothing -> E.throwIO $ IndexOutOfBounds "Entries"
+    Just a -> a
+    --}
 
 addEntry :: Entry -> [T.Text] -> Connection-> IO Int64
 addEntry e tags conn = do
