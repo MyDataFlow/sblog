@@ -4,7 +4,6 @@ module Models.DB.Connections(
   createConnections
   ,runDB
   ,runDBTry
-  ,catcher
 )where
 
 import Control.Exception as E
@@ -58,12 +57,13 @@ runDB q = do
   conns <- lift (asks dbConns)
   liftIO  $ withResource conns $ \c ->
     withTransaction c $ q c
---catcher :: MonadTrans IO m => SqlError -> ConstraintViolation -> m (Either ServerError a)
+catcher :: SqlError -> ConstraintViolation -> IO (Either ServerError a)
 catcher e = f
   where
     f c = return . Left $ DBError c
 
---catchViolation' :: (MonadIO m) => (SqlError -> ConstraintViolation -> m a) -> m a -> m a
+catchViolation' :: (SqlError -> ConstraintViolation -> IO (Either ServerError b))
+  ->IO (Either ServerError b) -> IO (Either ServerError b)
 catchViolation' f m =
     m `E.catches` [E.Handler (\e -> maybe (wrap e) (f e) $ constraintViolation e)
                   ,E.Handler (\e -> wrap (e :: SomeException))]
