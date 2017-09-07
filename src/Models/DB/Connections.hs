@@ -48,8 +48,8 @@ runDBTry q = do
     conns <- lift (asks dbConns)
     -- liftIO :: IO Either ->  ActionT ServerError  Either
     r <- liftIO $ withResource conns $ \c ->
-      withTransaction c $ do
-        catchViolation' catcher $ liftIO . liftM Right $ q c
+      catchViolation' catcher  $
+        withTransaction c $ liftM Right $ q c
     either Web.raise return r
 
 runDB :: ( MonadTrans m,MonadIO (m App)) => (Connection -> IO b) -> m App b
@@ -65,7 +65,7 @@ catcher e = f
 catchViolation' :: (SqlError -> ConstraintViolation -> IO (Either ServerError b))
   ->IO (Either ServerError b) -> IO (Either ServerError b)
 catchViolation' f m =
-    m `E.catches` [E.Handler (\e -> maybe (throwIO e ) (f e) $ constraintViolation e)
-                  ,E.Handler (\e -> seq (throwIO e) $ wrap (e :: SomeException))]
+    m `E.catches` [E.Handler (\e -> maybe (wrap e ) (f e) $ constraintViolation e)
+                  ,E.Handler (\e -> wrap (e :: SomeException))]
   where
-    wrap e = return $ Left $ Exception status500 $ LT.pack $ show e
+    wrap e = return . Left $ Exception status500 $ LT.pack $ show e
