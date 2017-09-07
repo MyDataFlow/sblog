@@ -35,18 +35,21 @@ onError err =
       then renderError
       else renderNotFound
   where
+    renderPage title page = do
+      setTplValue "title" $ T.pack title
+      setTplValue "content" $ LT.toStrict page
+      render
     renderError = do
-      Web.html =<<
-        (renderWithTemplate "500.html" () >>= \p -> do
-          setTplValue "title" $ T.pack "出错了"
-          setTplValue "content" $ LT.toStrict p
-          render)
+      Web.status (status err)
+      renderWithTemplate "500.html" ()
+        >>= renderPage "出错了" 
+        >>= Web.html
     renderNotFound = do
-      Web.html =<<
-        (renderWithTemplate "404.html" () >>= \p -> do
-          setTplValue "title" $ T.pack "页面不见了"
-          setTplValue "content" $ LT.toStrict p
-          render)
+      Web.status (status err)
+      renderWithTemplate "404.html" ()
+        >>= renderPage  "页面不见了"
+        >>= Web.html
+
 
 
 
