@@ -45,7 +45,6 @@ fetchEntries published page count  c = do
   let offset = (page - 1) * count
   rs <- query c "SELECT * FROM entries \
     \ WHERE published = ?  ORDER BY updated_at DESC OFFSET ? LIMIT ?" (published,offset,count)
-  head $ []
   mapM (digest c) rs
 
 fetchEntriesCount :: Bool -> Connection -> IO Int64
