@@ -20,7 +20,6 @@ import App.Types
 import qualified Utils.BlazeExtra.Pagination as P
 
 import Handlers.Actions.Types
-import Handlers.Actions.Common
 import Handlers.Common
 
 import Models.Schema
@@ -55,6 +54,6 @@ indexProcessor req =  do
         then withoutTag
         else withTag $ rTag req
 
-indexR :: Response LT.Text
+indexR :: Response ()
 indexR = do
   view $ withParams $ indexProcessor

@@ -26,7 +26,6 @@ import Utils.URI.String
 import Utils.URI.Params
 
 import Handlers.Actions.Types
-import Handlers.Actions.Common
 
 import Models.Schema
 import qualified Models.DB as DB
@@ -85,11 +84,11 @@ sitemapProcessor  =  do
               ]
 
 
-sitemapR :: Response LT.Text
+sitemapR :: Response ()
 sitemapR = do
   view $ sitemapProcessor
 
-robotsR :: Response LT.Text
+robotsR :: Response ()
 robotsR = do
   view $ do
     s <- lift $ asks site

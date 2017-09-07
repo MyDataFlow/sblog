@@ -25,7 +25,6 @@ import Utils.URI.String
 import Utils.URI.Params
 
 import Handlers.Actions.Types
-import Handlers.Actions.Common
 import Models.Schema
 import qualified Models.DB as DB
 import Views.Common.Rss
@@ -44,7 +43,7 @@ fromEntry host name e =
 feedProcessor :: Response (Status,LT.Text)
 feedProcessor  =  do
   s <-  lift $ asks site
-  let host = siteHost s 
+  let host = siteHost s
   let name = siteName s
   es <- DB.runDBTry $ DB.fetchEntries True 1 10
   let feeds = map (fromEntry host (T.pack name)) es
@@ -52,6 +51,6 @@ feedProcessor  =  do
   return (status200,LT.pack $ renderFeed host name "精选英文技术、创业文章，各种教程" feeds)
 
 
-feedR :: Response LT.Text
+feedR :: Response ()
 feedR = do
   view $ feedProcessor

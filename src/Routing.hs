@@ -42,7 +42,7 @@ onError err =
     renderError = do
       Web.status (status err)
       renderWithTemplate "500.html" ()
-        >>= renderPage "出错了" 
+        >>= renderPage "出错了"
         >>= Web.html
     renderNotFound = do
       Web.status (status err)
@@ -57,13 +57,13 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
-  Web.get "/" $ void $ HEIndex.indexR
-  Web.get "/entries" $ void $ HEIndex.indexR
-  Web.get "/entries/:id/:slug" $ void $ HEShow.indexR
-  Web.get "/entries/:id" $ void $ HEShow.indexR
-  Web.get "/sitemap.xml" $ void $ HS.sitemapR
-  Web.get "/feed" $ void $ HR.feedR
-  Web.get "/rss.xml" $ void $ HR.feedR
-  Web.get "/robots.txt" $ void $ HS.robotsR
+  Web.get "/" $ HEIndex.indexR
+  Web.get "/entries" $ HEIndex.indexR
+  Web.get "/entries/:id/:slug" $  HEShow.indexR
+  Web.get "/entries/:id" $  HEShow.indexR
+  Web.get "/sitemap.xml" $ HS.sitemapR
+  Web.get "/feed" $ HR.feedR
+  Web.get "/rss.xml" $ HR.feedR
+  Web.get "/robots.txt" $ HS.robotsR
 
   Web.notFound $ Web.raise RouteNotFound

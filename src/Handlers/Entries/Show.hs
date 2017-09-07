@@ -22,7 +22,6 @@ import Utils.URI.Params
 import qualified Utils.BlazeExtra.Pagination as P
 
 import Handlers.Actions.Types
-import Handlers.Actions.Common
 import Handlers.Common
 
 import Models.Schema
@@ -49,6 +48,6 @@ showProcessor req =  do
     tagURI t = show $ updateUrlParam "tag" t (toURI $ "/entries")
 
 
-indexR :: Response LT.Text
+indexR :: Response ()
 indexR = do
   view $ withParams $ showProcessor

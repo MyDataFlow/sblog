@@ -45,7 +45,7 @@ data PagingParams = PagingParams {
   ,rTag :: T.Text
 }
 
-instance FormParams PagingParams where
+instance FromParams PagingParams where
   fromParams m = PagingParams <$>
     lookupIntWithDefault "_page" 1 m <*>
     lookupIntWithDefault "_count" 20 m <*>
@@ -55,7 +55,7 @@ data EntryParams = EntryParams {
   eID :: Integer
   ,eTag :: T.Text
 }
-instance FormParams EntryParams where
+instance FromParams EntryParams where
   fromParams m = EntryParams <$>
     lookupIntWithDefault "id" 0 m <*>
     lookupTextWithDefault "tag" "" m
