@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable sblog
   main-is:             Main.hs
-  ghc-options:         -O3 -threaded -rtsopts "-with-rtsopts=-N8 -A32m"
+  ghc-options:         -O3 -j8 -threaded -rtsopts "-with-rtsopts=-N8 -A32m"
   -- other-modules:
   other-extensions:    OverloadedStrings, DeriveGeneric
   build-depends:       base >=4.7 && < 5
