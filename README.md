@@ -18,9 +18,9 @@
 如何编译
 ---
  1.git clone https://github.com/DavidAlphaFox/sblog.git   
- 2.cabal sandbox init   
- 3.cabal install    
- 4.cabal build
+ 2.stack setup  
+ 3.stack build
+
 
 如何使用
 ---
