@@ -65,7 +65,7 @@ catcher e = f
 catchViolation' :: (SqlError -> ConstraintViolation -> IO (Either ServerError b))
   ->IO (Either ServerError b) -> IO (Either ServerError b)
 catchViolation' f m =
-    m `E.catches` [E.Handler (\e -> maybe (wrap e) (f e) $ constraintViolation e)
-                  ,E.Handler (\e -> wrap (e :: SomeException))]
+    m `E.catches` [E.Handler (\e -> maybe (throwIO e ) (f e) $ constraintViolation e)
+                  ,E.Handler (\e -> seq (throwIO e) $ wrap (e :: SomeException))]
   where
     wrap e = return $ Left $ Exception status500 $ LT.pack $ show e

@@ -1,14 +1,14 @@
 server:
   port: 3000
-  jwt: "jwtKey"
-  csrf:  "1234567812345678"
 db:
   host: "127.0.0.1"
   port: 5432
   user: "postgres"
   password:  ""
   database: "ailink"
-blog:
+site:
   password: "admin"
   host: "https://www.ttalk.im"
   name: "TTalkIM"
+  jwt: "jwtKey"
+  csrf:  "1234567812345678"

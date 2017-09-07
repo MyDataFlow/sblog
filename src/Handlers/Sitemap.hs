@@ -21,7 +21,7 @@ import Network.HTTP.Types.Status
 import qualified Web.Scotty.Trans as Web
 
 import App.Types
-import App.Context
+
 import Utils.URI.String
 import Utils.URI.Params
 
@@ -68,7 +68,8 @@ fromTag host path t =
 
 sitemapProcessor :: Response (Status,LT.Text)
 sitemapProcessor  =  do
-    host <- lift (asks siteHost)
+    s <- lift $ asks site
+    let host = siteHost s
     es <- DB.runDBTry $ DB.fetchSitemap
     ts <- DB.runDBTry $ DB.fetchAllTags
     let baseItems = map generateSitemapUrl (bs host)
@@ -91,6 +92,7 @@ sitemapR = do
 robotsR :: Response LT.Text
 robotsR = do
   view $ do
-    host <- lift (asks siteHost)
+    s <- lift $ asks site
+    let host = siteHost s
     Web.setHeader "Content-Type" "text/plain"
     return (status200,LT.pack $ T.unpack $ robots host "sitemap.xml")

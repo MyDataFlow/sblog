@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module App.Config (
+module Config (
   readOptions
 ) where
 
@@ -16,6 +16,8 @@ import Options.Applicative
 import qualified Data.Yaml.Config as C
 
 import App.Types
+import qualified Models.DB as DB
+
 
 pathParser :: Parser FilePath
 pathParser =
@@ -29,7 +31,7 @@ readOptions = do
     cfg <- catch (C.load cfgPath) configNotfoundHint
     serverCfg <-  C.subconfig "server" cfg
     dbCfg <- C.subconfig "db" cfg
-    blogCfg <- C.subconfig "blog" cfg
+    siteCfg <- C.subconfig "site" cfg
     let db = DBConf {
           dbHost = C.lookupDefault "host" "127.0.0.1" dbCfg
           ,dbPort = C.lookupDefault "port" 5432 dbCfg
@@ -39,18 +41,17 @@ readOptions = do
         }
     let server = ServerConf {
           serverPort = C.lookupDefault "port" 3000 serverCfg
-          ,serverJWT = C.lookupDefault "jwt" "" serverCfg
-          ,serverCSRF = C.lookupDefault  "csrf" "" serverCfg
         }
-    let blog = BlogConf {
-          blogName = C.lookupDefault "name" "" blogCfg
-          ,blogHost = C.lookupDefault "host" "" blogCfg
-          ,blogPassword = C.lookupDefault "password" "sblog" blogCfg
+    let site = SiteConf {
+          siteName = C.lookupDefault "name" "" siteCfg
+          ,siteHost = C.lookupDefault "host" "" siteCfg
+          ,jwtSecret = C.lookupDefault "jwt" "" siteCfg
+          ,csrfSecret = C.lookupDefault  "csrf" "" siteCfg
         }
     return AppConf {
         dbConf = db
         ,serverConf = server
-        ,blogConf = blog
+        ,siteConf = site
     }
   where
     opts = info (helper <*> pathParser)

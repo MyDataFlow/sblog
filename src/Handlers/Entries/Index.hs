@@ -16,7 +16,6 @@ import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
 
 import App.Types
-import App.Context
 
 import qualified Utils.BlazeExtra.Pagination as P
 

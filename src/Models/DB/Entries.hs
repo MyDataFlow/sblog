@@ -45,6 +45,7 @@ fetchEntries published page count  c = do
   let offset = (page - 1) * count
   rs <- query c "SELECT * FROM entries \
     \ WHERE published = ?  ORDER BY updated_at DESC OFFSET ? LIMIT ?" (published,offset,count)
+  head $ []
   mapM (digest c) rs
 
 fetchEntriesCount :: Bool -> Connection -> IO Int64
@@ -69,7 +70,7 @@ fetchEntry :: Int64 -> Connection -> IO Entry
 fetchEntry eid c = do
   rs <- query c "SELECT * FROM entries \
     \ WHERE id = ?" (Only eid)
-  head $ map (digest c) rs 
+  head $ map (digest c) rs
     {--
   case listToMaybe $ map (digest c) rs of
     Nothing -> E.throwIO $ IndexOutOfBounds "Entries"

@@ -7,7 +7,6 @@ import qualified Data.Map as M
 import Network.HTTP.Types.Status
 
 import App.Types
-import App.Context
 
 class FormParams a where
   fromParams :: M.Map Text Text -> Maybe a

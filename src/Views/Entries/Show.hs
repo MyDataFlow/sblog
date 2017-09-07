@@ -33,10 +33,10 @@ renderBread bs title =
     toLink (name,url) = Link (T.pack name) "" (T.pack url)
 render :: [(String,String)] ->  Entry -> Response LT.Text
 render bs e = do
-    n <- lift $ (asks siteName)
+    s <- lift $ (asks site)
     contet <- renderContent e
     bread <- renderBread bs (entryTitle e)
-    VL.render $ ctx (T.pack n) bread contet
+    VL.render
   where
     ctx name bread contet = Page {
         pageTitle = T.intercalate "-" [entryTitle e, name]

@@ -24,6 +24,7 @@ import App.Types
 import Models.Schema
 import Views.Types
 import qualified Views.Layout as VL
+
 toTagURI tag = updateUrlParam "tag" (T.unpack tag) $ toURI "/entries"
 renderContent es pn tags tag tid = do
     VL.renderWithTemplate "common/_index.html" ctx
@@ -46,9 +47,9 @@ renderContent es pn tags tag tid = do
 
 render :: [Entry] -> P.Pagination -> [Tag] -> T.Text -> Int64 -> Response LT.Text
 render es pn tags tag tid = do
-    n <- lift $ (asks siteName)
+    s <- lift $ (asks site)
     contet <- renderContent es pn tags tag tid
-    VL.render $ ctx (T.pack n) contet
+    VL.render 
   where
     ctx name contet = Page {
         pageTitle = T.intercalate "-" ["首页", name]

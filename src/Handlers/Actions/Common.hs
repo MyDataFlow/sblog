@@ -25,7 +25,6 @@ import qualified Web.Scotty.Trans as Web
 import Network.HTTP.Types.Status
 
 import App.Types
-import App.Context
 
 import qualified Utils.Scotty.Auth  as Auth
 import qualified Utils.Scotty.CSRF as CSRF
@@ -72,8 +71,8 @@ withGeneratedCSRF with req = do
     with req
   where
     makeCSRFToken = do
-      secret <- lift (asks csrfKey)
-      csrf <- liftIO $ CSRF.generateCSRF secret
+      s <- lift (asks site)
+      csrf <- liftIO $ CSRF.generateCSRF $ csrfSecret s
       st <- lift $ get
       Cookie.setCookie $ Cookie.makeRootSimpleCookie  "_csrf_token" csrf
       lift $ put st {csrfToken = csrf}
@@ -98,10 +97,10 @@ withAuthorization :: Authorized T.Text request response -> Processor request res
 withAuthorization with req = do
     auth <- Web.header "Authorization"
     cookie <- Cookie.getCookie "Authorization"
-    secret <- lift (asks jwtKey)
+    s <- lift (asks site)
     case auth of
-      Nothing -> cookieAuth secret cookie
-      _ -> headerAuth secret auth
+      Nothing -> cookieAuth (jwtSecret s) cookie
+      _ -> headerAuth (jwtSecret s) auth
   where
     authAction info = do
       case info of

@@ -14,11 +14,10 @@ import Network.Wai (Middleware)
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
 import App.Types
-import App.Config
-import App.Context
+import Config
 
-import qualified Models.DB as DB
 import qualified Routing as R
+import qualified Models.DB as DB
 
 main :: IO ()
 main = do
@@ -27,6 +26,9 @@ main = do
   hSetBuffering stderr NoBuffering
   conf <- readOptions
   conns <- DB.createConnections conf
-  let ctx = createContext conns conf
-  Web.scottyT (serverPort $ serverConf  conf) (runApp ctx) R.routing
+  let ctx = AppContext {
+    dbConns = conns
+    ,site = siteConf conf
+  }
+  Web.scottyT (serverPort $ serverConf  conf) (runAppToIO ctx) R.routing
   return ()

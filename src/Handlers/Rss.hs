@@ -21,7 +21,6 @@ import qualified Web.Scotty.Trans as Web
 
 
 import App.Types
-import App.Context
 import Utils.URI.String
 import Utils.URI.Params
 
@@ -44,8 +43,9 @@ fromEntry host name e =
     (u,t,s,time)
 feedProcessor :: Response (Status,LT.Text)
 feedProcessor  =  do
-  host <- lift (asks siteHost)
-  name <- lift (asks siteName)
+  s <-  lift $ asks site
+  let host = siteHost s 
+  let name = siteName s
   es <- DB.runDBTry $ DB.fetchEntries True 1 10
   let feeds = map (fromEntry host (T.pack name)) es
   Web.setHeader "Content-Type" "text/xml"

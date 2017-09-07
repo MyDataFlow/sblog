@@ -5,20 +5,24 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ExistentialQuantification #-}
 module App.Types where
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text as ST
+import qualified Data.Map as M
 import Data.Default
 import Data.Maybe
 
 import Control.Applicative (Applicative)
 import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (MonadReader(..), ReaderT)
-import Control.Monad.State (MonadState(..),StateT)
+import Control.Monad.Reader (MonadReader(..), ReaderT,runReaderT)
+import Control.Monad.State (MonadState(..),StateT,evalStateT,modify)
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.Except
 
-import Text.Mustache
+import qualified Data.Aeson as Aeson
+import qualified Text.Mustache as Mustache
+import qualified Text.Mustache.Types as Mustache
 
 import Data.Pool(Pool)
 import Database.PostgreSQL.Simple(Connection)
@@ -37,42 +41,41 @@ data DBConf = DBConf {
 
 data ServerConf = ServerConf {
   serverPort :: Int
-  ,serverJWT :: String
-  ,serverCSRF ::String
 }deriving (Show,Eq)
 
-data BlogConf = BlogConf {
-  blogName :: String
-  ,blogHost :: String
-  ,blogPassword :: String
+data SiteConf = SiteConf {
+  siteName :: String
+  ,siteHost :: String
+  ,jwtSecret :: String
+  ,csrfSecret ::String
 } deriving (Show)
 
 data AppConf = AppConf {
   dbConf :: DBConf
   ,serverConf :: ServerConf
-  ,blogConf :: BlogConf
+  ,siteConf :: SiteConf
 } deriving (Show)
 
 type DBConnections = Pool Connection
 
+
 data AppContext = AppContext {
   dbConns :: DBConnections
-  ,jwtKey :: String
-  ,csrfKey :: String
-  ,siteName :: String
-  ,siteHost :: String
-  ,sitePassword :: String
+  ,site :: SiteConf
 }
+
 data AppState = AppState {
   csrfToken :: ST.Text
-  ,layout :: FilePath
+  ,tplLayout :: FilePath
+  ,tplName :: FilePath 
+  ,tplCtx :: M.Map ST.Text Mustache.Value
 }
 
 instance Default AppState where
-  def = AppState "" "layout.html"
+  def = AppState "" "layout.html" "" M.empty
 
 newtype App a = App {
-  runTheApp :: ReaderT AppContext (StateT AppState IO) a
+  runApp :: ReaderT AppContext (StateT AppState IO) a
   } deriving (Applicative, Functor, Monad, MonadIO, MonadReader AppContext,MonadState AppState )
 
 data ServerError = RouteNotFound
@@ -100,6 +103,26 @@ status (AppError _) = status500
 
 type Server  = ScottyT ServerError App
 type Response   = ActionT ServerError App
--- newtype ActionT e m a = ActionT { runAM :: ExceptT (ActionError e)
--- (ReaderT ActionEnv (StateT ScottyResponse m)) a }
---    deriving ( Functor, Applicative, MonadIO )
+
+runAppToIO :: AppContext ->App a -> IO a
+runAppToIO ctx app = evalStateT (runReaderT (runApp app) ctx) def
+
+
+setTplValue :: Mustache.ToMustache v => ST.Text -> v ->  Response ()
+setTplValue k v = do 
+  lift $ modify $ (\s -> 
+      let ctx = tplCtx s in s { tplCtx = M.insert k (Mustache.toMustache v) ctx }
+    )
+setTplJSONValue :: Aeson.ToJSON v => ST.Text -> v -> Response ()
+setTplJSONValue k v = do 
+  lift $ modify $ (\s ->  
+      let ctx = tplCtx s in  s { tplCtx = M.insert k (Mustache.mFromJSON v) ctx}
+    )
+setTpl :: FilePath -> Response ()
+setTpl tpl = do
+  lift $ modify $ (\s -> s { tplName = tpl }
+    )
+setTplLayout :: FilePath -> Response ()
+setTplLayout layout = do 
+  lift $ modify $ (\s -> s {tplLayout = layout} )
+

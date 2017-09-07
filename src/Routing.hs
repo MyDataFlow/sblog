@@ -19,7 +19,6 @@ import Network.Wai.Middleware.Static
 import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
 import App.Types
-import App.Context
 
 import qualified Handlers.Sitemap as HS
 import qualified Handlers.Rss as HR
@@ -38,12 +37,12 @@ onError err =
   where
     renderError = do
       Web.html =<<
-        (renderWithTemplate "500.html" () >>= \p ->
-          render $ Page "出错了" Nothing Nothing $ LT.toStrict p)
+        (renderWithTemplate "500.html" () >>= \p -> render)
+          --render $ Page "出错了" Nothing Nothing $ LT.toStrict p)
     renderNotFound = do
       Web.html =<<
-        (renderWithTemplate "404.html" () >>= \p ->
-         render $ Page "页面不见了" Nothing Nothing $ LT.toStrict p)
+        (renderWithTemplate "404.html" () >>= \p -> render)
+         --render $ Page "页面不见了" Nothing Nothing $ LT.toStrict p)
 
 
 
