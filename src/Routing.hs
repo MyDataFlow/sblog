@@ -37,12 +37,16 @@ onError err =
   where
     renderError = do
       Web.html =<<
-        (renderWithTemplate "500.html" () >>= \p -> render)
-          --render $ Page "出错了" Nothing Nothing $ LT.toStrict p)
+        (renderWithTemplate "500.html" () >>= \p -> do
+          setTplValue "title" $ T.pack "出错了"
+          setTplValue "content" $ LT.toStrict p
+          render)
     renderNotFound = do
       Web.html =<<
-        (renderWithTemplate "404.html" () >>= \p -> render)
-         --render $ Page "页面不见了" Nothing Nothing $ LT.toStrict p)
+        (renderWithTemplate "404.html" () >>= \p -> do
+          setTplValue "title" $ T.pack "页面不见了"
+          setTplValue "content" $ LT.toStrict p
+          render)
 
 
 
