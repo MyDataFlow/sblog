@@ -4,6 +4,7 @@ module Models.DB(
   createConnections
   ,runDB
   ,runDBTry
+  ,module Models.Tables.User
 )where
 
 import Control.Exception as E
@@ -25,6 +26,8 @@ import Network.HTTP.Types.Status
 import qualified Web.Scotty.Trans  as Web
 
 import App.Types
+
+import Models.Tables.User
 
 createConnections :: AppConf -> IO DBConnections
 createConnections cfg = do

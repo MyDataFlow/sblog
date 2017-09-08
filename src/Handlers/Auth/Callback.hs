@@ -8,12 +8,15 @@ import qualified Data.Text.Lazy as LT
 import qualified Data.ByteString.Char8 as C8
 import Data.Either
 import Data.Maybe
+import Data.Time
+import Data.Default
+import Data.Aeson
 
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (MonadReader(..),asks)
 
-import Data.Aeson
+
 import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
 import qualified Network.HTTP.Conduit as Conduit
@@ -24,14 +27,22 @@ import qualified Network.URI as URI
 
 import qualified GitHub
 import qualified GitHub.Endpoints.Users as GitHub
+import qualified GitHub.Data.Id as GitHub
+import qualified GitHub.Data.URL as GitHub 
 
 import App.Types
 
 import Utils.URI.String
 import Utils.URI.Params
+import qualified Utils.Scotty.Auth as Auth
+import qualified Utils.Scotty.Cookie as Cookie
 
 import Handlers.Actions.Common
 import Handlers.Common
+
+import Models.Schemas
+import qualified Models.DB as DB
+
 import Views.Common.Render
 
 githubKey :: String ->  GithubConf -> OAuth2
@@ -57,9 +68,44 @@ getUser (Right token) = do
   let auth = GitHub.OAuth $ C8.pack $ T.unpack $ atoken $ accessToken token 
   user <- liftIO $ GitHub.userInfoCurrent' auth
   case user of
-    Right u -> return $ show u
-    Left e -> return $ show e
-getUser (Left e) = do return $ show e
+    Right u -> return u
+    Left e -> Web.raise $ Exception status500  $ LT.pack $ show e
+getUser (Left e) = do Web.raise $ Exception status500 $ LT.pack $ show e
+
+
+login user = do
+    liftIO $ putStrLn $ show uid
+    users <- DB.runDBTry $ DB.retrieveUserByUID $ fromInteger uid
+    u <- if length users == 0 then newUser else do return $ head users
+    s <- lift $ asks site
+    cookie <- liftIO $ Auth.generateCookie $ 
+      def { Auth.jwtSecret = T.pack $ jwtSecret s
+          , Auth.jwtPayload = T.pack $ show $ userID u} 
+    Cookie.setCookie $ Cookie.makeRootSimpleCookie "Authorization"  cookie
+    return (status302,"/")
+  where
+    newUser = do 
+      now <- liftIO $ localTimeNow
+      let u = def {userUID = fromInteger uid
+                  ,userName = name
+                  ,userEmail = email
+                  ,userAvatar = avatar
+                  ,userCreatedAt = now
+                  ,userUpdatedAt = now
+                  }
+      liftIO $ putStrLn $ show u
+      newID <- DB.runDBTry $ DB.createUser u 
+      return $ u {userID = newID}
+    uid =  toInteger $ GitHub.untagId $ GitHub.userId user
+    name = 
+      case GitHub.userName user of
+        Nothing -> T.append (T.pack "github-") $ T.pack $ show uid
+        Just n -> n
+    email =
+      case GitHub.userEmail user of
+        Nothing -> ""
+        Just i -> i
+    avatar =  GitHub.getUrl $ GitHub.userAvatarUrl user 
 
 indexR :: Response ()
 indexR = do
@@ -69,5 +115,5 @@ indexR = do
   mgr <- liftIO $ Conduit.newManager Conduit.tlsManagerSettings
   let oauth = githubKey (siteHost s) g
   token <- liftIO $ getToken (LT.unpack code) oauth mgr
-  r <- getUser token 
-  view $ do return (status200,LT.pack r)
+  user <- getUser token 
+  view $ login user

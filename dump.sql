@@ -61,11 +61,12 @@ CREATE UNIQUE INDEX taggings_unique ON taggings (tag_id,entry_id);
 
 CREATE TABLE IF NOT EXISTS users (
   id bigserial PRIMARY KEY NOT NULL,
-  uid big int,
-  avatar text,
-  email text,
+  uid bigint,
   name text,
+  email text,
+  avatar text,
   created_at timestamp without time zone NOT NULL DEFAULT now(),
   updated_at timestamp without time zone NOT NULL DEFAULT now()
 );
-CREATE UNIQUE INDEX users_unique ON users (uid)  
+CREATE UNIQUE INDEX users_unique ON users (uid);
+CREATE UNIQUE INDEX users_name_unique ON users (name);

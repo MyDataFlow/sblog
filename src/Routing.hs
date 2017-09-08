@@ -37,6 +37,7 @@ onError err = do
     renderPage tpl title = do
       setTpl tpl
       setTplValue "title" $ T.pack title
+      setTplValue "details" $ message err
       render
 
 routing = do
