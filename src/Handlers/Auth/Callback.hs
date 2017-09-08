@@ -12,6 +12,7 @@ import Data.Time
 import Data.Default
 import Data.Aeson
 
+import Control.Monad
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (MonadReader(..),asks)
@@ -76,7 +77,7 @@ getUser (Left e) = do Web.raise $ Exception status500 $ LT.pack $ show e
 login user = do
     liftIO $ putStrLn $ show uid
     users <- DB.runDBTry $ DB.retrieveUserByUID $ fromInteger uid
-    u <- if length users == 0 then newUser else mayUpdate users
+    u <- if length users == 0 then newUser else mayUpdate $ head users
     s <- lift $ asks site
     cookie <- liftIO $ Auth.generateCookie $ 
       def { Auth.jwtSecret = T.pack $ jwtSecret s
@@ -84,20 +85,20 @@ login user = do
     Cookie.setCookie $ Cookie.makeRootSimpleCookie "Authorization"  cookie
     return (status302,"/")
   where
-    mayUpdate users = do
+    mayUpdate du = do
       now <- liftIO $ localTimeNow
-      let r = users 
-            >>= (\u -> do 
+      let [(r,nu)] = [(False,du)] 
+            >>= (\(o,u) -> do 
               if userName u /= name 
-                then return $ u {userName = name}
-                else return u
-            ) >>= (\u -> do
+                then return $ (True,u {userName = name})
+                else return (o,u)
+            ) >>= (\(o,u) -> do
               if userAvatar u /= avatar 
-                then return $ u {userAvatar = avatar}
-                else return u)
-      let u = head r
-      DB.runDBTry $ DB.updateUser $ u {userUpdatedAt = now}
-      return u
+                then return $(True, u {userAvatar = avatar})
+                else return (o,u))
+      when r $ void $ DB.runDBTry $ DB.updateUser $ nu {userUpdatedAt = now}
+      return nu
+
     newUser = do 
       now <- liftIO $ localTimeNow
       let u = def {userUID = fromInteger uid
