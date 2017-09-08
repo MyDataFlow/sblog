@@ -58,11 +58,13 @@ CREATE TABLE IF NOT EXISTS taggings(
 );
 CREATE UNIQUE INDEX taggings_unique ON taggings (tag_id,entry_id);
 
-CREATE TABLE IF NOT EXISTS series (
-  entry_id bigint NOT NULL,
-  name   VARCHAR(255) NOT NULL,
-  index    INTEGER NOT NULL,
-
-  PRIMARY KEY (entry_id, name),
-  FOREIGN KEY (entry_id) REFERENCES entries (id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS users (
+  id bigserial PRIMARY KEY NOT NULL,
+  uid big int,
+  avatar text,
+  email text,
+  name text,
+  created_at timestamp without time zone NOT NULL DEFAULT now(),
+  updated_at timestamp without time zone NOT NULL DEFAULT now()
 );
+CREATE UNIQUE INDEX users_unique ON users (email)  

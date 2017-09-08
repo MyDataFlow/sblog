@@ -29,6 +29,7 @@ main = do
   let ctx = AppContext {
     dbConns = conns
     ,site = siteConf conf
+    ,github = githubConf conf
   }
   Web.scottyT (serverPort $ serverConf  conf) (runAppToIO ctx) R.routing
   return ()

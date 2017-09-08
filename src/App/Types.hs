@@ -50,10 +50,16 @@ data SiteConf = SiteConf {
   ,csrfSecret ::String
 } deriving (Show)
 
+data GithubConf = GithubConf {
+  githubClientID :: String
+  ,githubClientSecret :: String 
+}  deriving (Show)
+
 data AppConf = AppConf {
   dbConf :: DBConf
   ,serverConf :: ServerConf
   ,siteConf :: SiteConf
+  ,githubConf :: GithubConf
 } deriving (Show)
 
 type DBConnections = Pool Connection
@@ -62,6 +68,7 @@ type DBConnections = Pool Connection
 data AppContext = AppContext {
   dbConns :: DBConnections
   ,site :: SiteConf
+  ,github :: GithubConf
 }
 
 data AppState = AppState {

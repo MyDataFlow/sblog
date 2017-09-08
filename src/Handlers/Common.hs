@@ -2,6 +2,7 @@
 module Handlers.Common(
   lookupIntWithDefault
   ,lookupTextWithDefault
+  ,eitherToMaybe
   ,PagingParams(..)
   ,EntryParams(..)
 )where
@@ -14,7 +15,7 @@ import Data.Text.Read
 import Data.Default
 
 import App.Types
-import Handlers.Actions.Types
+import Handlers.Actions.Common
 
 eitherToMaybe :: Either a b -> Maybe b
 eitherToMaybe (Left _) = Nothing

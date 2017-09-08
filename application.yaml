@@ -12,3 +12,6 @@ site:
   name: "TTalkIM"
   jwt: "jwtKey"
   csrf:  "1234567812345678"
+github:
+  client_id: ""
+  client_secret: ""

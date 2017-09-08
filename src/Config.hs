@@ -32,6 +32,7 @@ readOptions = do
     serverCfg <-  C.subconfig "server" cfg
     dbCfg <- C.subconfig "db" cfg
     siteCfg <- C.subconfig "site" cfg
+    githubCfg <- C.subconfig "github" cfg
     let db = DBConf {
           dbHost = C.lookupDefault "host" "127.0.0.1" dbCfg
           ,dbPort = C.lookupDefault "port" 5432 dbCfg
@@ -48,10 +49,15 @@ readOptions = do
           ,jwtSecret = C.lookupDefault "jwt" "" siteCfg
           ,csrfSecret = C.lookupDefault  "csrf" "" siteCfg
         }
+    let github = GithubConf {
+            githubClientID = C.lookupDefault "client_id" "" githubCfg
+            ,githubClientSecret = C.lookupDefault "client_secret" "" githubCfg
+        }
     return AppConf {
         dbConf = db
         ,serverConf = server
         ,siteConf = site
+        ,githubConf = github
     }
   where
     opts = info (helper <*> pathParser)

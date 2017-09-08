@@ -22,6 +22,9 @@ import App.Types
 
 import Views.Common.Render
 
+import qualified Handlers.Auth.Login as HLogin
+import qualified Handlers.Auth.Callback as HCallback
+
 onError :: ServerError -> Response ()
 onError err = do 
   Web.status (status err)
@@ -40,5 +43,6 @@ routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
-
+  Web.get "/auth/login" $ HLogin.indexR
+  Web.get "/auth/callback" $ HCallback.indexR
   Web.notFound $ Web.raise RouteNotFound

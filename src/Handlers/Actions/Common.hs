@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Actions.Types where
+module Handlers.Actions.Common where
 
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
