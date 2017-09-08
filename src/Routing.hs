@@ -20,50 +20,25 @@ import Network.Wai.Middleware.RequestLogger (logStdout, logStdoutDev)
 
 import App.Types
 
-import qualified Handlers.Sitemap as HS
-import qualified Handlers.Rss as HR
-import qualified Handlers.Entries.Index as HEIndex
-import qualified Handlers.Entries.Show as HEShow
-import Views.Types
-import Views.Layout
+import Views.Common.Render
 
 onError :: ServerError -> Response ()
-onError err =
+onError err = do 
+  Web.status (status err)
   if (status err) == unauthorized401
     then Web.redirect "/admin/login"
     else if (status err) == status500
-      then renderError
-      else renderNotFound
+      then renderPage  "500.html" "出错了" >>= Web.html
+      else renderPage  "404.html" "页面不见了" >>= Web.html
   where
-    renderPage title page = do
+    renderPage tpl title = do
+      setTpl tpl
       setTplValue "title" $ T.pack title
-      setTplValue "content" $ LT.toStrict page
       render
-    renderError = do
-      Web.status (status err)
-      renderWithTemplate "500.html" ()
-        >>= renderPage "出错了"
-        >>= Web.html
-    renderNotFound = do
-      Web.status (status err)
-      renderWithTemplate "404.html" ()
-        >>= renderPage  "页面不见了"
-        >>= Web.html
-
-
-
 
 routing = do
   Web.defaultHandler onError
   Web.middleware $ logStdoutDev
   Web.middleware $ staticPolicy (noDots >-> addBase "static")
-  Web.get "/" $ HEIndex.indexR
-  Web.get "/entries" $ HEIndex.indexR
-  Web.get "/entries/:id/:slug" $  HEShow.indexR
-  Web.get "/entries/:id" $  HEShow.indexR
-  Web.get "/sitemap.xml" $ HS.sitemapR
-  Web.get "/feed" $ HR.feedR
-  Web.get "/rss.xml" $ HR.feedR
-  Web.get "/robots.txt" $ HS.robotsR
 
   Web.notFound $ Web.raise RouteNotFound
