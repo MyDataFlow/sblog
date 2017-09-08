@@ -15,6 +15,7 @@ import Control.Monad.Reader (MonadReader(..),asks)
 import Network.HTTP.Types.Status
 import Network.OAuth.OAuth2
 import URI.ByteString
+import qualified Network.URI as URI
 
 import App.Types
 
@@ -24,10 +25,11 @@ import Utils.URI.Params
 import Handlers.Actions.Common
 import Handlers.Common
 
-githubKey ::  GithubConf -> OAuth2
-githubKey g =
+githubKey ::  String -> GithubConf -> OAuth2
+githubKey host g =
   let 
-    callback = eitherToMaybe $  parseURI strictURIParserOptions "http://127.0.0.1:8080/auth/callback"
+    callback = eitherToMaybe $ parseURI strictURIParserOptions $ 
+        C8.pack $ show $ URI.relativeTo (toURI "/auth/callback") (toURI host)
     authEndpoint = fromJust $ eitherToMaybe $ parseURI strictURIParserOptions "https://github.com/login/oauth/authorize"
     tokenEndpoint = fromJust $  eitherToMaybe $ parseURI strictURIParserOptions "https://github.com/login/oauth/access_token"
   in
@@ -40,7 +42,8 @@ githubKey g =
 
 indexR :: Response ()
 indexR = do
-  g <-  lift $ asks github
-  let oauth = githubKey g
+  g <- lift $ asks github
+  s <- lift $ asks site
+  let oauth = githubKey (siteHost s) g
   let url = LT.pack $ C8.unpack $ serializeURIRef' $ authorizationUrl oauth
   view $ do return (status302,url)

@@ -20,6 +20,7 @@ import qualified Network.HTTP.Conduit as Conduit
 import Network.OAuth.OAuth2
 import qualified Network.OAuth.OAuth2.AuthorizationRequest as AR
 import URI.ByteString
+import qualified Network.URI as URI
 
 import qualified GitHub
 import qualified GitHub.Endpoints.Users as GitHub
@@ -33,10 +34,11 @@ import Handlers.Actions.Common
 import Handlers.Common
 import Views.Common.Render
 
-githubKey ::  GithubConf -> OAuth2
-githubKey g =
+githubKey :: String ->  GithubConf -> OAuth2
+githubKey host g =
   let 
-    callback = eitherToMaybe $  parseURI strictURIParserOptions "http://127.0.0.1:8080/auth/callback"
+    callback = eitherToMaybe $  parseURI strictURIParserOptions $ 
+      C8.pack $ show $ URI.relativeTo (toURI "/auth/callback") (toURI host)
     authEndpoint = fromJust $ eitherToMaybe $ parseURI strictURIParserOptions "https://github.com/login/oauth/authorize"
     tokenEndpoint = fromJust $  eitherToMaybe $ parseURI strictURIParserOptions "https://github.com/login/oauth/access_token"
   in
@@ -61,10 +63,11 @@ getUser (Left e) = do return $ show e
 
 indexR :: Response ()
 indexR = do
-  mgr <- liftIO $ Conduit.newManager Conduit.tlsManagerSettings
-  g <-  lift $ asks github
   code <- Web.param "code"
-  let oauth = githubKey g
+  g <-  lift $ asks github
+  s <- lift $ asks site
+  mgr <- liftIO $ Conduit.newManager Conduit.tlsManagerSettings
+  let oauth = githubKey (siteHost s) g
   token <- liftIO $ getToken (LT.unpack code) oauth mgr
   r <- getUser token 
   view $ do return (status200,LT.pack r)

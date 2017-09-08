@@ -41,6 +41,7 @@ CREATE TABLE  IF NOT EXISTS entries (
   body text NOT NULL,
   markdown text NOT NULL,
   published boolean DEFAULT false,
+  user_id big int NOT NULL,
   created_at timestamp without time zone NOT NULL DEFAULT now(),
   updated_at timestamp without time zone NOT NULL DEFAULT now()
 );
@@ -67,4 +68,4 @@ CREATE TABLE IF NOT EXISTS users (
   created_at timestamp without time zone NOT NULL DEFAULT now(),
   updated_at timestamp without time zone NOT NULL DEFAULT now()
 );
-CREATE UNIQUE INDEX users_unique ON users (email)  
+CREATE UNIQUE INDEX users_unique ON users (uid)  
