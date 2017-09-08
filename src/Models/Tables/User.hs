@@ -30,6 +30,12 @@ retrieveUserByUID uid conn = do
     query conn q (Only uid)
   where
     q = "SELECT u.* FROM users AS u WHERE u.uid = ?"
+    
+retrieveUserByID :: Int64 -> Connection -> IO [User]
+retrieveUserByID userID conn = do 
+    query conn q (Only userID)
+  where
+    q = "SELECT u.* FROM users AS u WHERE u.id = ?"
 
 updateUser :: User -> Connection -> IO Bool
 updateUser user conn = do 

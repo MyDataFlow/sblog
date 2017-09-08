@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Handlers.Auth.Login(
   indexR
 )where
@@ -12,6 +13,7 @@ import Data.Maybe
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.Reader (MonadReader(..),asks)
 
+import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
 import Network.OAuth.OAuth2
 import URI.ByteString
@@ -24,6 +26,11 @@ import Utils.URI.Params
 
 import Handlers.Actions.Common
 import Handlers.Common
+
+
+import Models.Schemas
+import qualified Models.DB as DB
+
 
 githubKey ::  String -> GithubConf -> OAuth2
 githubKey host g =
@@ -39,11 +46,26 @@ githubKey host g =
             , oauthOAuthorizeEndpoint = authEndpoint 
             , oauthAccessTokenEndpoint =  tokenEndpoint 
             }
-
-indexR :: Response ()
-indexR = do
+indexProcessor req = do 
   g <- lift $ asks github
   s <- lift $ asks site
   let oauth = githubKey (siteHost s) g
   let url = LT.pack $ C8.unpack $ serializeURIRef' $ authorizationUrl oauth
-  view $ do return (status302,url)
+  return (status302,url)
+
+authUser req = do 
+  Web.rescue  (withAuthorization toRoot req) catcher
+  where    
+    catcher (Exception status401 _ ) = indexProcessor req
+    catcher e = Web.raise e
+    toRoot u r = do
+      let userID = read $ T.unpack u
+      users <- DB.runDBTry $ DB.retrieveUserByID userID
+      if length users == 0 
+        then indexProcessor req
+        else return (status302,req)
+
+indexR :: Response ()
+indexR = do
+  req <-  Web.param "_r" `Web.rescue` (\e -> return "/")
+  view $ authUser req 
