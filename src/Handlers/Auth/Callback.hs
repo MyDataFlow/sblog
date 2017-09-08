@@ -76,7 +76,7 @@ getUser (Left e) = do Web.raise $ Exception status500 $ LT.pack $ show e
 login user = do
     liftIO $ putStrLn $ show uid
     users <- DB.runDBTry $ DB.retrieveUserByUID $ fromInteger uid
-    u <- if length users == 0 then newUser else do return $ head users
+    u <- if length users == 0 then newUser else mayUpdate users
     s <- lift $ asks site
     cookie <- liftIO $ Auth.generateCookie $ 
       def { Auth.jwtSecret = T.pack $ jwtSecret s
@@ -84,6 +84,20 @@ login user = do
     Cookie.setCookie $ Cookie.makeRootSimpleCookie "Authorization"  cookie
     return (status302,"/")
   where
+    mayUpdate users = do
+      now <- liftIO $ localTimeNow
+      let r = users 
+            >>= (\u -> do 
+              if userName u /= name 
+                then return $ u {userName = name}
+                else return u
+            ) >>= (\u -> do
+              if userAvatar u /= avatar 
+                then return $ u {userAvatar = avatar}
+                else return u)
+      let u = head r
+      DB.runDBTry $ DB.updateUser $ u {userUpdatedAt = now}
+      return u
     newUser = do 
       now <- liftIO $ localTimeNow
       let u = def {userUID = fromInteger uid

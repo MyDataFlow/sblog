@@ -36,8 +36,8 @@ updateUser user conn = do
     rs <- execute conn q user 
     return $ rs == 1
   where
-    q = "UPDATE users SET name = ?, SET email = ?, SET avatar = ?, \
-      \ SET updated_at = ? WHERE id = ?" 
+    q = "UPDATE users SET name = ?, email = ?, avatar = ?, \
+      \ updated_at = ? WHERE id = ?" 
 countUser :: Connection -> IO Int64
 countUser conn = do
   rs <- query_ conn "SELECT count(id) FROM users"
