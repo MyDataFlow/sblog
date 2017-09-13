@@ -30,11 +30,13 @@ import Handlers.Common
 
 import Models.Schemas
 import qualified Models.DB as DB
-
+import Views.Common.Render
 
 indexProcessor u req = do
   user <- preloadUser u
-  return (status200,LT.pack "Hello")
+  setTpl "page/home.html"
+  p <- render
+  return (status200,p)
 
 indexR :: Response ()
 indexR = do
