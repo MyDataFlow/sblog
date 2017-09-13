@@ -30,7 +30,7 @@ editQuery f = ('?':) . formEncodeUrl . f . formDecode . dropWhile (=='?')
 formEncodeUrl :: [(String, String)] -> String
 formEncodeUrl = intercalate "&" . map keyval . map (esc *** esc)
   where keyval (key,val) = key ++ "=" ++ val
-        esc = escapeURIString isAllowedInURI
+        esc = escapeURIString isUnescapedInURIComponent
 
 updateUrlParams :: [(String,String)] -> URI -> URI
 updateUrlParams = flip $ foldr $ uncurry updateUrlParam

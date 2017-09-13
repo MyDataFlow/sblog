@@ -10,11 +10,17 @@
       </button>
       <a class="navbar-brand">
         <small>
-          TTalkIM
+          Tech Talk
         </small>
       </a>
     </div>
-
+    {{#user.user_name}}
+    <div class="navbar-buttons navbar-header pull-right" role="navigation">
+      <ul class="nav ace-nav">
+        {{> layout/navbar/_user.html}}
+      </ul>
+    </div>
+    {{/user.user_name}}
     <nav role="navigation" class="navbar-menu  collapse navbar-collapse"
       id="navbar-menu" aria-expanded="true">
       <ul class="nav navbar-nav">

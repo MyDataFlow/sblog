@@ -5,9 +5,12 @@ import Data.Int
 import Data.Default
 import Data.Time
 import qualified Data.Text as T
+import Text.Mustache
+
 import Database.PostgreSQL.Simple
 import Database.PostgreSQL.Simple.ToRow
 import Database.PostgreSQL.Simple.FromRow
+
 import Models.Schemas.Common
 
 data User = User {
@@ -33,10 +36,10 @@ instance Default User where
 
 instance FromRow User where
   fromRow = User  <$> field <*> field <*> field <*> field
-                      <*> field <*> field <*> field 
-                  
+                      <*> field <*> field <*> field
+
 instance ToRow User where
-  toRow r = 
+  toRow r =
       if (userID r) == 0
         then toRow (userUID r
                     ,userName r
@@ -49,3 +52,8 @@ instance ToRow User where
                     ,userAvatar r
                     ,userUpdatedAt r
                     ,userID r)
+instance ToMustache User where
+  toMustache r = object
+    [ "user_name" ~> userName r
+    , "user_avatar" ~> userAvatar r
+    ]
