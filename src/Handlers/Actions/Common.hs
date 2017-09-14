@@ -130,13 +130,13 @@ withAuthorization with req = do
       info <-  liftIO $ Auth.headerSecure secret auth
       authAction info
 
-preloadUser :: T.Text -> Response (Maybe User)
-preloadUser u = do
+withUser :: Authorized (Maybe User) request response ->  Authorized T.Text request response
+withUser with u req = do
     let userID = read $ T.unpack u
     users <- DB.runDBTry $ DB.retrieveUserByID userID
     setUser users
   where
-    setUser [] = return Nothing
+    setUser [] = with Nothing req
     setUser [user] = do
       setTplValue "user" user
-      return $ Just user
+      with (Just user) req

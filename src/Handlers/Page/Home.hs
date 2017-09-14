@@ -31,12 +31,11 @@ import Models.Schemas
 import qualified Models.DB as DB
 import Views.Common.Render
 
-indexProcessor u req = do
-  user <- preloadUser u
+indexProcessor user req = do
   setTpl "page/home.html"
   p <- render
   return (status200,p)
 
 indexR :: Response ()
 indexR = do
-  view $ withAuthorization indexProcessor  ()
+  view $ withAuthorization (withUser indexProcessor)  ()
