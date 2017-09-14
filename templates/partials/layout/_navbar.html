@@ -1,4 +1,4 @@
-<div id="navbar" class="navbar navbar-default">
+<div id="navbar" class="navbar navbar-default ace-save-state">
   <div id="navbar-container"  class="navbar-container">
     <div class="navbar-header pull-left">
       <button type="button" class="pull-right navbar-toggle collapsed"
@@ -14,36 +14,35 @@
         </small>
       </a>
     </div>
-    {{#user.user_name}}
+    {{# user.user_name}}
     <div class="navbar-buttons navbar-header pull-right" role="navigation">
       <ul class="nav ace-nav">
         {{> layout/navbar/_user.html}}
       </ul>
     </div>
-    {{/user.user_name}}
+    {{/ user.user_name}}
     <nav role="navigation" class="navbar-menu  collapse navbar-collapse"
-      id="navbar-menu" aria-expanded="true">
-      <ul class="nav navbar-nav">
-        <li>
-          <a href="/entries">
-            <i class="ace-icon fa fa-book"></i>
-            博文
-          </a>
-        </li>
-        <li>
-          <a href="/feed">
-            <i class="ace-icon fa fa-rss"></i>
-            RSS订阅
-          </a>
-        </li>
-        <li>
-          <a href="http://weibo.com/u/1900044837">
-            <i class="ace-icon fa fa-weibo"></i>
-            微博订阅
-          </a>
-        </li>
-      </ul>
-    </nav>
-
+     id="navbar-menu" aria-expanded="true">
+     <ul class="nav navbar-nav">
+       <li>
+         <a href="/entries">
+           <i class="ace-icon fa fa-book"></i>
+           博文
+         </a>
+       </li>
+       <li>
+         <a href="/feed">
+           <i class="ace-icon fa fa-rss"></i>
+           RSS订阅
+         </a>
+       </li>
+       <li>
+         <a href="http://weibo.com/u/1900044837">
+           <i class="ace-icon fa fa-weibo"></i>
+           微博订阅
+         </a>
+       </li>
+     </ul>
+   </nav>
   </div>
 </div>

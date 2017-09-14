@@ -1,7 +1,24 @@
 <li class="light-blue dropdown-modal">
   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-    <i class="ace-icon fa fa-user-circle"></i>
-    {{user.user_name}}
+    <img class="nav-user-photo" src="{{user.user_avatar}}"></img>
+    <span class="user-info">
+      {{user.user_name}}
+    </span>
+
     <i class="ace-icon fa fa-caret-down"></i>
   </a>
+  <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+    <li>
+      <a href="/page/user/settings?id={{user.user_id}}">
+        <i class="ace-icon fa fa-cog" ></i>
+        设置
+      </a>
+    </li>
+    <li>
+      <a href="/page/logout?id={{user.user_id}}">
+        <i class="ace-icon fa fa-power-off" ></i>
+          退出
+      </a>
+    </li>
+  </ul>
 </li>
