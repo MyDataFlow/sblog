@@ -76,10 +76,11 @@ data AppState = AppState {
   ,tplLayout :: FilePath
   ,tplName :: FilePath 
   ,tplCtx :: M.Map ST.Text Mustache.Value
+  ,urlPath :: String
 }
 
 instance Default AppState where
-  def = AppState "" "layout.html" "" M.empty
+  def = AppState "" "layout.html" "" M.empty ""
 
 newtype App a = App {
   runApp :: ReaderT AppContext (StateT AppState IO) a

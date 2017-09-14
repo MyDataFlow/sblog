@@ -4,6 +4,7 @@ module Handlers.Actions.Common where
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Map as M
+import qualified Data.ByteString.Char8 as C8
 import Data.Maybe
 
 import Control.Monad.Trans(lift)
@@ -14,6 +15,7 @@ import Control.Monad.State (get,put,modify)
 import Data.Aeson ((.=), object, FromJSON, ToJSON)
 
 import Network.HTTP.Types.Status
+import Network.Wai (rawPathInfo,rawQueryString)
 import qualified Web.Scotty.Trans as Web
 
 import App.Types
@@ -21,6 +23,9 @@ import App.Types
 import qualified Utils.Scotty.Auth  as Auth
 import qualified Utils.Scotty.CSRF as CSRF
 import qualified Utils.Scotty.Cookie as Cookie
+
+import Models.Schemas
+import qualified Models.DB as DB
 
 class FromParams a where
   fromParams :: M.Map T.Text T.Text -> Maybe a
@@ -34,15 +39,24 @@ type Processor request response = request -> Response (Status, response)
 type Render response = Response (Status,response) ->  Response response
 type Authorized auth request response = auth -> Processor request response
 
+pathAndQuery :: Response ()
+pathAndQuery = do
+  r <- Web.request
+  let path = rawPathInfo r
+  let query = rawQueryString r
+  let url = C8.concat [path,query]
+  lift $ modify $ \s -> s{urlPath = C8.unpack url}
 
 api :: (ToJSON response) => Response (Status, response) -> Response ()
 api with = do
+  pathAndQuery
   (stat, resp) <- with
   Web.status stat
   Web.json resp
 
 view :: Response (Status,LT.Text) -> Response ()
 view with = do
+  pathAndQuery
   (stat, resp) <- with
   Web.status stat
   if stat == status302 || stat == status301
@@ -115,3 +129,14 @@ withAuthorization with req = do
     headerAuth secret auth = do
       info <-  liftIO $ Auth.headerSecure secret auth
       authAction info
+
+preloadUser :: T.Text -> Response (Maybe User)
+preloadUser u = do
+    let userID = read $ T.unpack u
+    users <- DB.runDBTry $ DB.retrieveUserByID userID
+    setUser users
+  where
+    setUser [] = return Nothing
+    setUser [user] = do
+      setTplValue "user" user
+      return $ Just user

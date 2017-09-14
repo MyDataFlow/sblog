@@ -3,10 +3,11 @@
 module Utils.BlazeExtra.Pagination(
   Pagination(..)
   ,render
+  ,renderToText
 ) where
 
 import Control.Monad
-import Data.Text.Lazy(Text)
+import qualified Data.Text.Lazy as LT
 import Data.String (fromString)
 import Data.Default
 import Network.URI
@@ -15,6 +16,7 @@ import Text.Blaze.Html5((!))
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 import qualified Utils.BlazeExtra.Attributes as EA
+import qualified Text.Blaze.Html.Renderer.Text as Render
 
 -- | A pagination object, holds information about the name, total, per
 --   page, current page, etc.
@@ -41,7 +43,7 @@ instance Default Pagination where
         , pnWidth       = 4
         , pnPrev        = "前一页"
         , pnNext        = "后一页"
-        , pnMenuClass   = "pagination"
+        , pnMenuClass   = "pagination middle"
         , pnActiveClass = "active"
         , pnDeActiveClass = ""
         , pnDisabledClass = "disabled"
@@ -56,6 +58,8 @@ pnPageCount Pagination{..} = max 1 $
   where total = fromIntegral pnTotal
         perpage = fromIntegral pnPerPage
 
+renderToText :: URI -> Pagination -> LT.Text
+renderToText uri pn = Render.renderHtml $ render uri pn 
 
 render :: URI ->  Pagination -> H.Html
 render uri pn@Pagination{..}   =
@@ -90,7 +94,7 @@ render uri pn@Pagination{..}   =
               ! H.dataAttribute "count" (H.toValue pnPerPage)
               ! EA.hrefSet uri paramName (show i)
               $ H.toHtml $ show i
-    omittedPart = H.li ! A.class_ (H.toValue pnDisabledClass)  $ "..."
+    omittedPart = H.li ! A.class_ (H.toValue pnDisabledClass) $ H.span "..."
     prevPart = H.li ! A.class_ (H.toValue pnDeActiveClass) $
       H.a ! H.dataAttribute "page"  (H.toValue (pnCurrentPage -1))
         ! H.dataAttribute "count" (H.toValue pnPerPage)
