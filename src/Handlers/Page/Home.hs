@@ -10,8 +10,10 @@ import qualified Data.ByteString.Char8 as C8
 import Data.Either
 import Data.Maybe
 
+import Control.Monad
 import Control.Monad.Trans.Class (MonadTrans, lift)
 import Control.Monad.Reader (MonadReader(..),asks)
+import Control.Monad.State (get,gets,put,modify)
 
 import qualified Web.Scotty.Trans  as Web
 import Network.HTTP.Types.Status
@@ -31,11 +33,13 @@ import Models.Schemas
 import qualified Models.DB as DB
 import Views.Common.Render
 
+
 indexProcessor user req = do
+  when (isNothing user) generateAuthURL
   setTpl "page/home.html"
   p <- render
   return (status200,p)
 
 indexR :: Response ()
 indexR = do
-  view $ withAuthorization (withUser indexProcessor)  ()
+  view $ withUser indexProcessor  ()

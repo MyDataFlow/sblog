@@ -60,9 +60,8 @@ authUser req = do
     catcher (Exception status401 _ ) = indexProcessor req
     catcher e = Web.raise e
     toRoot u r = do
-      let userID = read $ T.unpack u
-      users <- DB.runDBTry $ DB.retrieveUserByID userID
-      if length users == 0
+      user <- preloadUser u
+      if isNothing user 
         then indexProcessor req
         else return (status302,req)
 

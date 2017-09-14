@@ -7,6 +7,7 @@ module Handlers.Actions.Common(
   ,withCSRFVerified
   ,withAuthorization
   ,withUser
+  ,preloadUser
 ) where
 
 import qualified Data.Text as T
@@ -142,13 +143,27 @@ withAuthorization with req =
         Nothing -> Web.raise $ Exception status401 "Authorization required"
         Just payload -> with payload req
 
-withUser :: Authorized (Maybe User) request response ->  Authorized T.Text request response
-withUser with u req = do
+withUser :: Authorized (Maybe User) request response -> Processor request response
+withUser with req = do
+    (runMaybeT $ MaybeT authWithHeader <|> MaybeT authWithCookie) >>= authAction
+  where
+    authAction info = do
+      case info of
+        Nothing -> with Nothing req
+        Just u -> preloadUser u >>= (\user -> with user req)
+
+preloadUser :: T.Text -> Response (Maybe User)
+preloadUser u = do
     let userID = read $ T.unpack u
     users <- DB.runDBTry $ DB.retrieveUserByID userID
     setUser users
   where
-    setUser [] = with Nothing req
+    setUser [] = return Nothing
     setUser [user] = do
       setTplValue "user" user
-      with (Just user) req
+      return $ Just user
+generateAuthURL :: Response ()
+generateAuthURL = do
+  me <- lift $ gets urlPath
+  let url = show $ updateUrlParam "_r" me (toURI "/auth/login")
+  setTplValue (T.pack "auth_url") url

@@ -107,7 +107,6 @@ login user req = do
                   ,userCreatedAt = now
                   ,userUpdatedAt = now
                   }
-      liftIO $ putStrLn $ show u
       newID <- DB.runDBTry $ DB.createUser u
       return $ u {userID = newID}
     uid =  toInteger $ GitHub.untagId $ GitHub.userId user

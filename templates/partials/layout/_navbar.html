@@ -21,22 +21,14 @@
       </ul>
     </div>
     {{/ user.user_name}}
-    <nav role="navigation" class="navbar-menu  collapse navbar-collapse"
-     id="navbar-menu" aria-expanded="true">
-     <ul class="nav navbar-nav">
-       <li>
-         <a href="/entries">
-           <i class="ace-icon fa fa-book"></i>
-           博文
-         </a>
-       </li>
-       <li>
-         <a href="/feed">
-           <i class="ace-icon fa fa-rss"></i>
-           RSS订阅
-         </a>
-       </li>
-     </ul>
-   </nav>
+    {{^ user }}
+      <div class="navbar-buttons navbar-header pull-right" role="navigation">
+        <a class="btn btn-inverse" href={{auth_url}}>
+          <i class="fa fa-github"></i>
+          使用Github登录
+        </a>
+      </div>
+    {{/ user }}
+    {{> layout/navbar/_nav.html}}
   </div>
 </div>
