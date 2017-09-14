@@ -8,6 +8,7 @@ module Handlers.Actions.Common(
   ,withAuthorization
   ,withUser
   ,preloadUser
+  ,generateAuthURL
 ) where
 
 import qualified Data.Text as T
@@ -21,7 +22,7 @@ import Control.Monad.Trans.Maybe
 import Control.Monad.Trans(lift)
 import Control.Monad.IO.Class(MonadIO,liftIO)
 import Control.Monad.Reader(asks)
-import Control.Monad.State (get,put,modify)
+import Control.Monad.State (get,put,gets,modify)
 
 import Data.Aeson ((.=), object, FromJSON, ToJSON)
 
@@ -34,6 +35,8 @@ import App.Types
 import qualified Utils.Scotty.Auth  as Auth
 import qualified Utils.Scotty.CSRF as CSRF
 import qualified Utils.Scotty.Cookie as Cookie
+import Utils.URI.String
+import Utils.URI.Params
 
 import Models.Schemas
 import qualified Models.DB as DB
