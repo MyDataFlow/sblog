@@ -1,5 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Handlers.Actions.Common where
+module Handlers.Actions.Common(
+  api
+  ,view
+  ,withParams
+  ,withGeneratedCSRF
+  ,withCSRFVerified
+  ,withAuthorization
+  ,withUser
+) where
 
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
@@ -7,6 +15,8 @@ import qualified Data.Map as M
 import qualified Data.ByteString.Char8 as C8
 import Data.Maybe
 
+import Control.Applicative
+import Control.Monad.Trans.Maybe
 import Control.Monad.Trans(lift)
 import Control.Monad.IO.Class(MonadIO,liftIO)
 import Control.Monad.Reader(asks)
@@ -107,28 +117,30 @@ withCSRFVerified with req = do
         then with req
         else Web.raise $ Exception status500 "Expected request in CSRF"
 
+authWithHeader :: Response (Maybe T.Text)
+authWithHeader = do
+  liftIO $ putStrLn "authWithHeader"
+  auth <- Web.header "Authorization"
+  s <- lift (asks site)
+  liftIO $ Auth.headerSecure (jwtSecret s) auth
 
---  Authorized auth request response = auth -> Processor request response
--- Processor request response = request -> Response (Status, response)
+authWithCookie ::  Response (Maybe T.Text)
+authWithCookie = do
+  cookie <- Cookie.getCookie "Authorization"
+  s <- lift (asks site)
+  liftIO $ Auth.cookieSecure (jwtSecret s) cookie
+
 withAuthorization :: Authorized T.Text request response -> Processor request response
-withAuthorization with req = do
-    auth <- Web.header "Authorization"
-    cookie <- Cookie.getCookie "Authorization"
-    s <- lift (asks site)
-    case auth of
-      Nothing -> cookieAuth (jwtSecret s) cookie
-      _ -> headerAuth (jwtSecret s) auth
+withAuthorization with req =
+    (runMaybeT
+      $ MaybeT authWithHeader
+      <|> MaybeT authWithCookie
+    ) >>= authAction
   where
     authAction info = do
       case info of
         Nothing -> Web.raise $ Exception status401 "Authorization required"
         Just payload -> with payload req
-    cookieAuth secret cookie = do
-      info <- liftIO $ Auth.cookieSecure secret cookie
-      authAction info
-    headerAuth secret auth = do
-      info <-  liftIO $ Auth.headerSecure secret auth
-      authAction info
 
 withUser :: Authorized (Maybe User) request response ->  Authorized T.Text request response
 withUser with u req = do

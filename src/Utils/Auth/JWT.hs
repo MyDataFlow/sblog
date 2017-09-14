@@ -46,8 +46,7 @@ issued conf = do
 verify :: JWTConf -> T.Text -> IO (Maybe T.Text)
 verify conf claims  = do
   ts <- timestamp
-  let
-    jwt =  JWT.decodeAndVerifySignature (JWT.secret $ jwtSecret conf) claims
+  let jwt =  JWT.decodeAndVerifySignature (JWT.secret $ jwtSecret conf) claims
   case jwt of
     Nothing -> return Nothing
     _ ->
