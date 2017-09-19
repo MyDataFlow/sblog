@@ -8,6 +8,7 @@ import System.IO
 import System.Exit
 
 import Data.Monoid
+import Data.Maybe
 import Control.Applicative
 import Control.Exception
 import Control.Monad
@@ -19,16 +20,19 @@ import App.Types
 import qualified Models.DB as DB
 
 
-pathParser :: Parser FilePath
-pathParser =
-    strArgument $
-        metavar "FILENAME" <>
-        help "Path to configuration file"
+pathParser :: Parser (Maybe FilePath)
+pathParser = 
+    optional $ 
+        strOption $
+            long "config" <>
+            short 'c' <>
+            metavar "FILENAME" <>
+            help "Path to configuration file"
 
 readOptions :: IO AppConf
 readOptions = do
     cfgPath <- execParser opts
-    cfg <- catch (C.load cfgPath) configNotfoundHint
+    cfg <- catch (C.load (fromJust cfgPath)) configNotfoundHint
     serverCfg <-  C.subconfig "server" cfg
     dbCfg <- C.subconfig "db" cfg
     siteCfg <- C.subconfig "site" cfg
@@ -62,7 +66,7 @@ readOptions = do
   where
     opts = info (helper <*> pathParser)
         ( fullDesc <> progDesc "Server of Haskell")
-    configNotfoundHint :: IOError -> IO a
+    configNotfoundHint :: SomeException -> IO a
     configNotfoundHint e = do
       hPutStrLn stderr $ "Cannot open config file:\n\t" <> show e
       exitFailure
